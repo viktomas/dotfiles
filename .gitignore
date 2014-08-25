@@ -143,3 +143,6 @@
 /.gstreamer-0.10
 /yEd
 /.vim/.netrwhist
+/.pip
+/.gtk-recordmydesktop
+/.vim/undo

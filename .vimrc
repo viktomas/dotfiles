@@ -33,6 +33,9 @@ let mapleader=","
 " leader s mapped to toggle spell chec
 nmap <silent> <leader>s :set spell!<CR>
 
+" I don't want to se that motherfu*king Ex mode ever again
+nnoremap Q <nop>
+
 "Ident parameters
 set autoindent
 set expandtab
@@ -48,6 +51,12 @@ set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 "more natural split opening
 set splitbelow
 set splitright
+
+" Persistend undo
+set undofile
+set undodir=~/.vim/undo
+set undolevels=1000
+set undoreload=10000
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CUSTOM AUTOCMDS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -63,8 +72,11 @@ augroup vimrcEx
 
   autocmd BufRead *.markdown set ai formatoptions=tcroqn2 comments=n:&gt;
 
-" Don't syntax highlight markdown because it's often wrong
-  autocmd! FileType mkd setlocal syn=off
+""""""""""""""""""""""""""""""""""""""""""""""
+" MARKDOWN
+" """""""""""""""""""""""""""""""""""""""""""
+let g:vim_markdown_folding_disabled=1
+let g:vim_markdown_no_default_key_mappings=1
 augroup END
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RENAME CURRENT FILE
@@ -78,7 +90,7 @@ function! RenameFile()
         redraw!
     endif
 endfunction
-map <leader>n :call RenameFile()<cr>
+map <leader>m :call RenameFile()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
