@@ -76,3 +76,6 @@ function serve {
   port="${1:-3000}"
   ruby -run -e httpd . -p $port
 }
+
+# add my private keys to ssh agent
+ssh-add 1 >&/dev/null
