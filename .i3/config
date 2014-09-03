@@ -29,6 +29,9 @@ floating_modifier $mod
 #Desktop wallpaper
 exec feh --bg-scale ~/Pictures/kravi_pozadi.JPG
 
+# start dropbox after i3 start
+exec dropbox start
+
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
 
