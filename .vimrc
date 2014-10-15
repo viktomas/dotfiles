@@ -19,8 +19,8 @@ set ignorecase smartcase
 
 set cursorline
 
-"hi MatchParen cterm=inverse,underline
-"hi MatchParen cterm=underline
+" NERD Tree toggle
+nnoremap <C-n> :NERDTreeToggle<CR>
 
 " use emacs-style tab completion when selecting files, etc
 set wildmode=longest,list
