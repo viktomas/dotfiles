@@ -5,6 +5,7 @@ inoremap jj <ESC>
 "molokai color scheme
 set t_Co=256
 colorscheme molokai
+syntax enable
 
 set nocompatible      " We're running Vim, not Vi!
 filetype on           " Enable filetype detection
@@ -35,6 +36,9 @@ nmap <silent> <leader>s :set spell!<CR>
 
 " I don't want to se that motherfu*king Ex mode ever again
 nnoremap Q <nop>
+
+" make backspace work like most other apps
+set backspace=indent,eol,start
 
 "Ident parameters
 set autoindent
