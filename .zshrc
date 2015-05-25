@@ -27,6 +27,30 @@ bindkey -M viins 'jj' vi-cmd-mode #binds my favourite vim binding
 #zle -N zle-line-init
 #zle -N zle-keymap-select
 
+alias vim=nvim
+
+alias httpserver="python -m SimpleHTTPServer"
+
   
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
+
+export DOCKER_TLS_VERIFY=1
+export DOCKER_HOST=tcp://192.168.59.103:2376
+export DOCKER_CERT_PATH=/Users/tomas.vik/.boot2docker/certs/boot2docker-vm
+
+credo() {
+    if /usr/local/bin/credo sourceable $@; then
+        output=$(/usr/local/bin/credo $@)
+        if (($? == 0)); then
+            source <(echo $output)
+        else
+            echo "$output"
+        fi
+    else
+        /usr/local/bin/credo $@
+    fi
+}
+
