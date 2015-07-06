@@ -114,6 +114,10 @@ nnoremap <leader><leader> <c-^>
 " clear search buffer when hitting enter
 :nnoremap <CR> :nohlsearch<cr>
 
+"  move text and rehighlight -- vim tip_id=224 
+vnoremap > ><CR>gv 
+vnoremap < <<CR>gv 
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MULTIPURPOSE TAB KEY
 " Indent if we're at the beginning of a line. Else, do completion.
