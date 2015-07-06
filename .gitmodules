@@ -16,9 +16,6 @@
 [submodule "vim-ruby"]
   path = .vim/bundle/vim-ruby
   url = git://github.com/vim-ruby/vim-ruby.git
-[submodule "vim-slim"]
-  path = .vim/bundle/vim-slim
-  url = git://github.com/slim-template/vim-slim.git
 [submodule "vim-less"]
   path = .vim/bundle/vim-less
   url = git@github.com:groenewege/vim-less.git
