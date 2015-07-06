@@ -36,9 +36,12 @@ nmap <silent> <leader>s :set spell!<CR>
 
 " I don't want to se that motherfu*king Ex mode ever again
 nnoremap Q <nop>
-
+""""""" Retarded OSX """"""""
 " make backspace work like most other apps
 set backspace=indent,eol,start
+" mouse in vim
+set mouse=a
+""""""" EO Retarded OSX """""""
 
 "Ident parameters
 set autoindent
