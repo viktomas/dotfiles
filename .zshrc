@@ -55,3 +55,4 @@ credo() {
     fi
 }
 
+eval "$(nodenv init -)"

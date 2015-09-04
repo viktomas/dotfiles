@@ -11,3 +11,4 @@ ln -s $LOCATION/.vimrc ~/.nvimrc
 ln -s $LOCATION/.vimrc ~/.vimrc
 ln -s $LOCATION/.zshrc ~/.zshrc
 ln -s $LOCATION/bin ~/bin
+ln -s $LOCATION/tmux-cheat-sheet.txt ~/tmux.cheat

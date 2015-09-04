@@ -4,6 +4,7 @@ inoremap jj <ESC>
 
 "molokai color scheme
 set t_Co=256
+let $COLORTERM='xterm-256color'
 colorscheme molokai
 syntax enable
 
@@ -111,8 +112,8 @@ nnoremap <c-l> <c-w>l
 " Insert a hash rocket with <c-l>
 imap <c-l> <space>=><space>
 nnoremap <leader><leader> <c-^>
-" clear search buffer when hitting enter
-:nnoremap <CR> :nohlsearch<cr>
+" clear search buffer when hitting enter (except for when in quickfix buffer)
+:nnoremap <expr> <CR> (&buftype is# "quickfix" ? "<CR>" : ":\:nohlsearch<cr>\n")
 
 "  move text and rehighlight -- vim tip_id=224 
 vnoremap > ><CR>gv 
@@ -145,3 +146,14 @@ function! PromoteToLet()
 endfunction
 :command! PromoteToLet :call PromoteToLet()
 :map <leader>p :PromoteToLet<cr>
+
+""""""""""""""""""
+" Grep config
+""""""""""""""""""""
+
+if executable('git')
+  " Note we extract the column as well as the file and line number
+  set grepprg=~/bin/git_grep.sh
+  set grepformat=%f:%l:%c:%m
+endif
+nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
