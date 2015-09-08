@@ -23,6 +23,8 @@ set cursorline
 
 " NERD Tree toggle
 nnoremap <C-n> :NERDTreeToggle<CR>
+nnoremap <C-b> :NERDTreeFind<CR>
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 
 " use emacs-style tab completion when selecting files, etc
 set wildmode=longest,list
