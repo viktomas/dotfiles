@@ -20,6 +20,7 @@ set hlsearch
 set ignorecase smartcase
 
 set cursorline
+set number
 
 " NERD Tree toggle
 nnoremap <C-n> :NERDTreeToggle<CR>
@@ -152,7 +153,8 @@ endfunction
 """"""""""""""""""
 " Grep config
 """"""""""""""""""""
-
+" open quick fix after grep
+autocmd QuickFixCmdPost *grep* cwindow
 if executable('git')
   " Note we extract the column as well as the file and line number
   set grepprg=~/bin/git_grep.sh
