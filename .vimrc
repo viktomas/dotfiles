@@ -161,3 +161,14 @@ if executable('git')
   set grepformat=%f:%l:%c:%m
 endif
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+
+
+"air line uses powerline fonts
+let g:airline_powerline_fonts = 1
+
+
+let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0

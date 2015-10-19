@@ -12,3 +12,4 @@ ln -s $LOCATION/.vimrc ~/.vimrc
 ln -s $LOCATION/.zshrc ~/.zshrc
 ln -s $LOCATION/bin ~/bin
 ln -s $LOCATION/tmux-cheat-sheet.txt ~/tmux.cheat
+ln -s $LOCATION/.nvpy.cfg ~/.nvpy.cfg
