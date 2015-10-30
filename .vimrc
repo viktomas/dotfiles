@@ -5,7 +5,7 @@ inoremap jj <ESC>
 "molokai color scheme
 set t_Co=256
 let $COLORTERM='xterm-256color'
-colorscheme molokai
+colorscheme anderson
 syntax enable
 
 set nocompatible      " We're running Vim, not Vi!
