@@ -34,3 +34,6 @@
 [submodule ".vim/bundle/anderson.vim"]
 	path = .vim/bundle/anderson.vim
 	url = git@github.com:gilgigilgil/anderson.vim.git
+[submodule ".vim/bundle/vim-hybrid"]
+	path = .vim/bundle/vim-hybrid
+	url = git@github.com:scwood/vim-hybrid.git

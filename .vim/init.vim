@@ -3,9 +3,10 @@ execute pathogen#infect()
 inoremap jj <ESC>
 
 "molokai color scheme
-set t_Co=256
+"set t_Co=256
+set background=dark
 let $COLORTERM='xterm-256color'
-colorscheme anderson
+colorscheme hybrid
 syntax enable
 
 set nocompatible      " We're running Vim, not Vi!
@@ -122,6 +123,7 @@ nnoremap <leader><leader> <c-^>
 vnoremap > ><CR>gv 
 vnoremap < <<CR>gv 
 
+nmap gf <C-P><C-\>w
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MULTIPURPOSE TAB KEY
 " Indent if we're at the beginning of a line. Else, do completion.
