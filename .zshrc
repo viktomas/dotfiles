@@ -55,3 +55,6 @@ credo() {
 
 export NVM_DIR="/home/vicek/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+#don't bother me with the rm confirmation
+setopt rmstarsilent
