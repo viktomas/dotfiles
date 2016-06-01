@@ -18,6 +18,8 @@ source /usr/share/autojump/autojump.sh
 # VIM zshell
 bindkey -v #switch to vim mode
 bindkey -M viins 'jj' vi-cmd-mode #binds my favourite vim binding
+bindkey -v '\e.' insert-last-word
+
 #commented function for showing vim mode (in osx zshell took forever)
 #in prezto prompt works perfectly
 #function zle-line-init zle-keymap-select {
@@ -29,7 +31,6 @@ bindkey -M viins 'jj' vi-cmd-mode #binds my favourite vim binding
 #zle -N zle-keymap-select
 
 alias vim=nvim
-
 alias httpserver="python -m SimpleHTTPServer"
 
   
