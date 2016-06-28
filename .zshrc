@@ -53,6 +53,15 @@ credo() {
     fi
 }
 
+function nvm_use_if_needed () {
+    [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
+    echo "Wanted ${WANTED}"
+    echo "current ${CURRENT}"
+    if [ "$WANTED" != "$CURRENT" ]; then
+        nvm use
+    fi
+}
+chpwd_functions=(${chpwd_functions[@]} "nvm_use_if_needed")
 
 export NVM_DIR="/home/vicek/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
