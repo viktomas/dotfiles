@@ -1,6 +1,7 @@
 execute pathogen#infect()
 
-inoremap jj <ESC>
+" let's try it without my first vim command
+"inoremap jj <ESC>
 
 "molokai color scheme
 "set t_Co=256
@@ -23,10 +24,26 @@ set ignorecase smartcase
 set cursorline
 set number
 
+" double exclamation mark means I'll write it as a root
+cnoremap w!! w !sudo tee >/dev/null %
+
+
 " NERD Tree toggle
 nnoremap <C-n> :NERDTreeToggle<CR>
 nnoremap <C-b> :NERDTreeFind<CR>
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
+
+" Close all open buffers on entering a window if the only
+" buffer that's left is the NERDTree buffer
+function! s:CloseIfOnlyNerdTreeLeft()
+  if exists("t:NERDTreeBufName")
+    if bufwinnr(t:NERDTreeBufName) != -1
+      if winnr("$") == 1
+        q
+      endif
+    endif
+  endif
+endfunction
 
 " use emacs-style tab completion when selecting files, etc
 set wildmode=longest,list
@@ -162,7 +179,7 @@ if executable('git')
   set grepprg=~/bin/git_grep.sh
   set grepformat=%f:%l:%c:%m
 endif
-nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR><CR>
 
 
 "air line uses powerline fonts
