@@ -14,6 +14,7 @@ fi
 
 # sourcing .profile file
 source ~/.profile
+source ~/.credorc
 source /usr/share/autojump/autojump.sh
 # VIM zshell
 bindkey -v #switch to vim mode
@@ -40,18 +41,11 @@ export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 #export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home
 
-credo() {
-    if /usr/local/bin/credo sourceable $@; then
-        output=$(/usr/local/bin/credo $@)
-        if (($? == 0)); then
-            source <(echo $output)
-        else
-            echo "$output"
-        fi
-    else
-        /usr/local/bin/credo $@
-    fi
-}
+export DOCKER_TLS_VERIFY=1
+export DOCKER_HOST=tcp://192.168.59.103:2376
+export DOCKER_CERT_PATH=/Users/tomas.vik/.boot2docker/certs/boot2docker-vm
+
+eval "$(nodenv init -)"
 
 function nvm_use_if_needed () {
     [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
