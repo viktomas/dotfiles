@@ -47,8 +47,8 @@ eval "$(nodenv init -)"
 
 function nvm_use_if_needed () {
     [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
-    echo "Wanted ${WANTED}"
-    echo "current ${CURRENT}"
+    WANTED=$(sed 's/v//' < ./.nvmrc)
+    CURRENT=$(hash node 2>/dev/null && node -v | sed 's/v//')
     if [ "$WANTED" != "$CURRENT" ]; then
         nvm use
     fi
