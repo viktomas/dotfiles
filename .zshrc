@@ -14,7 +14,12 @@ fi
 
 # sourcing .profile file
 source ~/.profile
-source ~/.credorc
+
+# source credo
+if [[ -s ~/.credorc ]]; then
+  source ~/.credorc
+fi
+
 source /usr/share/autojump/autojump.sh
 # VIM zshell
 bindkey -v #switch to vim mode
@@ -45,8 +50,6 @@ export DOCKER_TLS_VERIFY=1
 export DOCKER_HOST=tcp://192.168.59.103:2376
 export DOCKER_CERT_PATH=/Users/tomas.vik/.boot2docker/certs/boot2docker-vm
 
-eval "$(nodenv init -)"
-
 function nvm_use_if_needed () {
     [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
     echo "Wanted ${WANTED}"
@@ -62,3 +65,4 @@ export NVM_DIR="/home/vicek/.nvm"
 
 #don't bother me with the rm confirmation
 setopt rmstarsilent
+setopt clobber
