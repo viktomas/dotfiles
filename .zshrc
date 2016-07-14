@@ -46,21 +46,19 @@ export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 #export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home
 
-export DOCKER_TLS_VERIFY=1
-export DOCKER_HOST=tcp://192.168.59.103:2376
-export DOCKER_CERT_PATH=/Users/tomas.vik/.boot2docker/certs/boot2docker-vm
+[[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
 function nvm_use_if_needed () {
     [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
-    echo "Wanted ${WANTED}"
-    echo "current ${CURRENT}"
+    WANTED=$(sed 's/v//' < ./.nvmrc)
+    CURRENT=$(hash node 2>/dev/null && node -v | sed 's/v//')
     if [ "$WANTED" != "$CURRENT" ]; then
         nvm use
     fi
 }
 chpwd_functions=(${chpwd_functions[@]} "nvm_use_if_needed")
 
-export NVM_DIR="/home/vicek/.nvm"
+export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
 #don't bother me with the rm confirmation
