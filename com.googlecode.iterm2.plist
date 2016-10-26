@@ -548,9 +548,9 @@
 	<key>NSWindow Frame Preferences</key>
 	<string>309 319 606 456 0 0 1280 777 </string>
 	<key>NSWindow Frame SUUpdateAlert</key>
-	<string>330 305 620 392 0 0 1280 777 </string>
+	<string>330 322 620 392 0 0 1280 800 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>317 128 810 507 0 0 1280 777 </string>
+	<string>0 267 810 507 0 0 1280 777 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>107 86 810 507 0 0 1280 777 </string>
 	<key>NeverWarnAboutShortLivedSessions_8215CE13-AFC6-4DC0-979B-5739A2ADBFF2</key>
@@ -1509,6 +1509,8 @@
 	</dict>
 	<key>PrefsCustomFolder</key>
 	<string>/Users/tomas.vik/workspace/private/dotfiles</string>
+	<key>Print In Black And White</key>
+	<true/>
 	<key>PromptOnQuit</key>
 	<true/>
 	<key>QuitWhenAllWindowsClosed</key>
@@ -1526,7 +1528,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2016-06-30T06:44:08Z</date>
+	<date>2016-10-13T22:26:48Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
@@ -1574,6 +1576,6 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.0.4</string>
+	<string>3.0.10</string>
 </dict>
 </plist>

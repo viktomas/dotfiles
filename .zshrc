@@ -39,11 +39,9 @@ alias httpserver="python -m SimpleHTTPServer"
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 #export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home
+#export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home
 
 [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
-
-eval "$(nodenv init -)"
 
 function nvm_use_if_needed () {
     [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
