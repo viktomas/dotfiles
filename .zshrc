@@ -14,8 +14,12 @@ fi
 
 # sourcing .profile file
 source ~/.profile
-source ~/.credorc
-source /usr/share/autojump/autojump.sh
+
+# source credo
+if [[ -s ~/.credorc ]]; then
+  source ~/.credorc
+fi
+
 # VIM zshell
 bindkey -v #switch to vim mode
 bindkey -M viins 'jj' vi-cmd-mode #binds my favourite vim binding
@@ -41,7 +45,9 @@ export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 #export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
 #export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home
 
-[[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+#setup autojump for linux or osx
+[[ -s /usr/share/autojump/autojump.sh ]] && source /usr/share/autojump/autojump.sh
+which brew >> /dev/null && [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
 function nvm_use_if_needed () {
     [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
@@ -58,3 +64,4 @@ export NVM_DIR="$HOME/.nvm"
 
 #don't bother me with the rm confirmation
 setopt rmstarsilent
+setopt clobber
