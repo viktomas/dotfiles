@@ -181,6 +181,8 @@ if executable('git')
 endif
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR><CR>
 
+" disable weird markdown formatting
+let g:vim_markdown_new_list_item_indent = 0
 
 "air line uses powerline fonts
 let g:airline_powerline_fonts = 1
@@ -191,3 +193,13 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+
+function! ToggleErrors()
+    let old_last_winnr = winnr('$')
+    lclose
+    if old_last_winnr == winnr('$')
+        " Nothing was closed, open syntastic error location panel
+        Errors
+    endif
+endfunction
+nnoremap <silent> <C-s> :<C-u>call ToggleErrors()<CR>
