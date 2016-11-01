@@ -27,26 +27,6 @@ set number
 " double exclamation mark means I'll write it as a root
 cnoremap w!! w !sudo tee >/dev/null %
 
-" Don't open ctrlp in nerdtree
-let g:ctrlp_dont_split = 'NERD_tree_2'
-
-" NERD Tree toggle
-nnoremap <C-n> :NERDTreeToggle<CR>
-nnoremap <C-b> :NERDTreeFind<CR>
-autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
-
-" Close all open buffers on entering a window if the only
-" buffer that's left is the NERDTree buffer
-function! s:CloseIfOnlyNerdTreeLeft()
-  if exists("t:NERDTreeBufName")
-    if bufwinnr(t:NERDTreeBufName) != -1
-      if winnr("$") == 1
-        q
-      endif
-    endif
-  endif
-endfunction
-
 " use emacs-style tab completion when selecting files, etc
 set wildmode=longest,list
 " make tab completion for files/buffers act like bash
@@ -189,19 +169,15 @@ let g:vim_markdown_new_list_item_indent = 0
 "air line uses powerline fonts
 let g:airline_powerline_fonts = 1
 
-
-let g:syntastic_javascript_checkers = ['eslint']
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+" automatically run neomake
+autocmd! BufWritePost,BufEnter * Neomake
+let g:neomake_javascript_enabled_makers = ['eslint']
 
 function! ToggleErrors()
     let old_last_winnr = winnr('$')
     lclose
     if old_last_winnr == winnr('$')
-        " Nothing was closed, open syntastic error location panel
-        Errors
+    lopen
     endif
 endfunction
 nnoremap <silent> <C-s> :<C-u>call ToggleErrors()<CR>

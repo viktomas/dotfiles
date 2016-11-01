@@ -1,9 +1,6 @@
 [submodule "ctrlp.vim"]
   path = .vim/bundle/ctrlp.vim
   url = https://github.com/ctrlpvim/ctrlp.vim.git
-[submodule "nerdtree"]
-  path = .vim/bundle/nerdtree
-  url = https://github.com/scrooloose/nerdtree.git
 [submodule "vim-coffee-script"]
   path = .vim/bundle/vim-coffee-script
   url = git@github.com:kchmck/vim-coffee-script.git
@@ -28,9 +25,6 @@
 [submodule "vim-airline"]
 	path = .vim/bundle/vim-airline
 	url = https://github.com/bling/vim-airline
-[submodule "syntastic"]
-	path = .vim/bundle/syntastic
-	url = git@github.com:scrooloose/syntastic.git
 [submodule "anderson.vim"]
 	path = .vim/bundle/anderson.vim
 	url = git@github.com:gilgigilgil/anderson.vim.git
@@ -55,3 +49,9 @@
 [submodule ".vim/bundle/vim-colors-solarized"]
 	path = .vim/bundle/vim-colors-solarized
 	url = https://github.com/altercation/vim-colors-solarized.git
+[submodule ".vim/bundle/neomake"]
+	path = .vim/bundle/neomake
+	url = https://github.com/neomake/neomake.git
+[submodule ".vim/bundle/vim-vinegar"]
+	path = .vim/bundle/vim-vinegar
+	url = git://github.com/tpope/vim-vinegar.git
