@@ -27,6 +27,8 @@ set number
 " double exclamation mark means I'll write it as a root
 cnoremap w!! w !sudo tee >/dev/null %
 
+" Don't open ctrlp in nerdtree
+let g:ctrlp_dont_split = 'NERD_tree_2'
 
 " NERD Tree toggle
 nnoremap <C-n> :NERDTreeToggle<CR>
