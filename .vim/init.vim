@@ -181,3 +181,8 @@ function! ToggleErrors()
     endif
 endfunction
 nnoremap <silent> <C-s> :<C-u>call ToggleErrors()<CR>
+
+nnoremap <silent> [b :bprevious<CR>
+nnoremap <silent> ]b :bnext<CR>
+nnoremap <silent> [B :bfirst<CR>
+nnoremap <silent> ]B :blast<CR>
