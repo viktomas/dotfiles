@@ -1,4 +1,27 @@
-execute pathogen#infect()
+call plug#begin('~/.vim/plugged')
+
+Plug 'kchmck/vim-coffee-script'
+Plug 'tpope/vim-fugitive'
+Plug 'groenewege/vim-less'
+Plug 'derekwyatt/vim-scala'
+Plug 'gilgigilgil/anderson.vim'
+Plug 'w0ng/vim-hybrid'
+Plug 'tpope/vim-vinegar'
+Plug 'vim-ruby/vim-ruby'
+Plug 'plasticboy/vim-markdown'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'airblade/vim-gitgutter'
+Plug 'bling/vim-airline'
+Plug 'tpope/vim-unimpaired'
+Plug 'leafgarland/typescript-vim'
+Plug 'pangloss/vim-javascript'
+Plug 'SirVer/ultisnips'
+Plug 'Valloric/YouCompleteMe'
+Plug 'altercation/vim-colors-solarized'
+Plug 'neomake/neomake'
+Plug 'fatih/vim-go'
+
+call plug#end()
 
 " let's try it without my first vim command
 "inoremap jj <ESC>
