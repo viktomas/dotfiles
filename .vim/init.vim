@@ -11,6 +11,7 @@ Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'mxw/vim-jsx', { 'for': 'javascript' }
 Plug 'fatih/vim-go', { 'for': 'go' }
 
 " file orientation plugins
@@ -169,19 +170,6 @@ endfunction
 inoremap <tab> <c-r>=InsertTabWrapper()<cr>
 inoremap <s-tab> <c-n>
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" PROMOTE VARIABLE TO RSPEC LET
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! PromoteToLet()
-  :normal! dd
-" :exec '?^\s*it\>'
-  :normal! P
-  :.s/\(\w\+\) = \(.*\)$/let(:\1) { \2 }/
-  :normal ==
-endfunction
-:command! PromoteToLet :call PromoteToLet()
-:map <leader>p :PromoteToLet<cr>
-
 """"""""""""""""""
 " Grep config
 """"""""""""""""""""
@@ -203,6 +191,9 @@ let g:airline_powerline_fonts = 1
 " automatically run neomake
 autocmd! BufWritePost,BufEnter * Neomake
 let g:neomake_javascript_enabled_makers = ['eslint']
+
+" JSX plugin will run on js files
+let g:jsx_ext_required = 0
 
 function! ToggleErrors()
     let old_last_winnr = winnr('$')
