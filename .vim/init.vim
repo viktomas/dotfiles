@@ -27,7 +27,7 @@ Plug 'bling/vim-airline'
 
 " color schemes
 Plug 'w0ng/vim-hybrid'
-" Plug 'altercation/vim-colors-solarized'
+Plug 'altercation/vim-colors-solarized'
 " Plug 'gilgigilgil/anderson.vim'
 
 call plug#end()
@@ -64,7 +64,7 @@ set wildmode=longest,list
 " make tab completion for files/buffers act like bash
 set wildmenu
 " ignore files in file searches
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/bower_components/*
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/bower_components/*,*/target/*,*/atlas_thin/*
 let mapleader=","
 
 " leader s mapped to toggle spell chec
