@@ -15,11 +15,6 @@ fi
 # sourcing .profile file
 source ~/.profile
 
-# source credo
-if [[ -s ~/.credorc ]]; then
-  source ~/.credorc
-fi
-
 # VIM zshell
 bindkey -v #switch to vim mode
 bindkey -M viins 'jj' vi-cmd-mode #binds my favourite vim binding
@@ -39,9 +34,7 @@ alias vim=nvim
 alias httpserver="python -m SimpleHTTPServer"
 
   
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 #export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
 #export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home
 
@@ -65,3 +58,32 @@ export NVM_DIR="$HOME/.nvm"
 #don't bother me with the rm confirmation
 setopt rmstarsilent
 setopt clobber
+
+function powerline_precmd() {
+    PS1="$(~/workspace/go/bin/powerline-go -error $?\
+      -shell zsh\
+      -modules cwd,docker,exit,git,jobs,root,ssh,keymap\
+      -priority cwd,docker,exit,git,jobs,root,ssh,keymap)"
+}
+
+function install_powerline_precmd() {
+  for s in "${precmd_functions[@]}"; do
+    if [ "$s" = "powerline_precmd" ]; then
+      return
+    fi
+  done
+  precmd_functions+=(powerline_precmd)
+}
+
+if [ "$TERM" != "linux" ]; then
+    install_powerline_precmd
+fi
+
+function zle-line-init zle-keymap-select {
+    export KEYMAP_POWERLINE=$KEYMAP
+    powerline_precmd
+    zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
