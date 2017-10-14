@@ -42,18 +42,15 @@ alias httpserver="python -m SimpleHTTPServer"
 [[ -s /usr/share/autojump/autojump.sh ]] && source /usr/share/autojump/autojump.sh
 which brew >> /dev/null && [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
-function nvm_use_if_needed () {
+function nvm_use_if_needed_on_cd () {
     [[ -r ./.nvmrc  && -s ./.nvmrc ]] || return
     WANTED=$(sed 's/v//' < ./.nvmrc)
-    CURRENT=$(hash node 2>/dev/null && node -v | sed 's/v//')
-    if [ "$WANTED" != "$CURRENT" ]; then
-        nvm use
-    fi
+    nvm_use_if_needed $WANTED # this comes from nvm
 }
-chpwd_functions=(${chpwd_functions[@]} "nvm_use_if_needed")
+chpwd_functions=(${chpwd_functions[@]} "nvm_use_if_needed_on_cd")
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+  . "/usr/local/opt/nvm/nvm.sh"
 
 #don't bother me with the rm confirmation
 setopt rmstarsilent
@@ -87,3 +84,7 @@ function zle-line-init zle-keymap-select {
 
 zle -N zle-line-init
 zle -N zle-keymap-select
+
+alias ag='ag --path-to-ignore ~/.ignore'
+export FZF_DEFAULT_COMMAND='ag --path-to-ignore ~/.ignore -g ""'
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -16,13 +16,14 @@ Plug 'fatih/vim-go', { 'for': 'go' }
 
 " file orientation plugins
 Plug 'tpope/vim-vinegar'
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf'
 
 " general code helping plugins
 Plug 'tpope/vim-unimpaired'
 Plug 'SirVer/ultisnips'
 Plug 'Valloric/YouCompleteMe'
 Plug 'neomake/neomake'
+Plug 'benjie/neomake-local-eslint.vim'
 Plug 'bling/vim-airline'
 
 " color schemes
@@ -137,6 +138,7 @@ map <leader>m :call RenameFile()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <silent> <C-p> :FZF -m<cr>
 map <leader>y "*y
 map <leader>p "*p
 " Move around splits with <c-hjkl>

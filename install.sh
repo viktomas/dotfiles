@@ -1,6 +1,7 @@
 #!/bin/sh
 LOCATION=`pwd`
 ln -s $LOCATION/.bashrc ~/.bashrc
+ln -s $LOCATION/.ignore ~/.ignore
 ln -s $LOCATION/.gitconfig ~/.gitconfig
 ln -s $LOCATION/.githelpers ~/.githelpers
 ln -s $LOCATION/.i3 ~/.i3
