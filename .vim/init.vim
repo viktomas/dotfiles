@@ -66,7 +66,7 @@ set wildmode=longest,list
 set wildmenu
 " ignore files in file searches
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/bower_components/*,*/target/*,*/atlas_thin/*
-let mapleader=","
+let mapleader=" "
 
 " leader s mapped to toggle spell chec
 nmap <silent> <leader>s :set spell!<CR>
@@ -95,6 +95,9 @@ set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 "more natural split opening
 set splitbelow
 set splitright
+
+" netrw follows active dir as current dir
+" let g:netrw_keepdir=0
 
 " Persistend undo
 set undofile
@@ -136,9 +139,27 @@ function! RenameFile()
 endfunction
 map <leader>m :call RenameFile()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" FZF customisation
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+command! FZFMru call fzf#run({
+\  'source':  reverse(s:all_files()),
+\  'sink':    'e',
+\  'options': '-m -x +s',
+\  'down':    '40%'})
+
+function! s:all_files()
+  return extend(
+  \ filter(copy(v:oldfiles),
+  \        "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"),
+  \ map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
+endfunction
+
+nnoremap <silent> <C-p> :FZF -m<cr>
+nnoremap <silent> <C-e> :FZFMru<cr>
+nnoremap gf :call fzf#run({'sink': 'e', 'options': '-q '.shellescape(expand('<cword>')), 'down': '~40%'})<cr>
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <silent> <C-p> :FZF -m<cr>
 map <leader>y "*y
 map <leader>p "*p
 " Move around splits with <c-hjkl>
@@ -155,8 +176,6 @@ nnoremap <leader><leader> <c-^>
 "  move text and rehighlight -- vim tip_id=224 
 vnoremap > ><CR>gv 
 vnoremap < <<CR>gv 
-
-nmap gf <C-P><C-\>w
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MULTIPURPOSE TAB KEY
 " Indent if we're at the beginning of a line. Else, do completion.

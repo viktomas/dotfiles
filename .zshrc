@@ -13,6 +13,7 @@ fi
 # Customize to your needs...
 
 # sourcing .profile file
+source ~/workspace/scripts/lazy_profile.zsh
 source ~/.profile
 
 # VIM zshell
@@ -35,8 +36,11 @@ alias httpserver="python -m SimpleHTTPServer"
 
   
 
-#export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
-#export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home
+alias j9="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home/"
+alias j8="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_144.jdk/Contents/Home/"
+alias j7="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_80.jdk/Contents/Home"
+
+alias custaws-describe-autoscaling=aws autoscaling describe-auto-scaling-groups | jq '.AutoScalingGroups[] | "\(.AutoScalingGroupName) - \(.MinSize) - \(.DesiredCapacity)"'
 
 #setup autojump for linux or osx
 [[ -s /usr/share/autojump/autojump.sh ]] && source /usr/share/autojump/autojump.sh
@@ -88,3 +92,11 @@ zle -N zle-keymap-select
 alias ag='ag --path-to-ignore ~/.ignore'
 export FZF_DEFAULT_COMMAND='ag --path-to-ignore ~/.ignore -g ""'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/tomas.vik/workspace/private/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/tomas.vik/workspace/private/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/tomas.vik/workspace/private/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/tomas.vik/workspace/private/google-cloud-sdk/completion.zsh.inc'; fi
