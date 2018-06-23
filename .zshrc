@@ -32,7 +32,8 @@ bindkey -v '\e.' insert-last-word
 #zle -N zle-keymap-select
 
 alias vim=nvim
-alias httpserver="python -m SimpleHTTPServer"
+#alias httpserver="python -m SimpleHTTPServer"
+alias httpserver="python -m http.server"
 
   
 

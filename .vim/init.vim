@@ -191,6 +191,7 @@ endfunction
 inoremap <tab> <c-r>=InsertTabWrapper()<cr>
 inoremap <s-tab> <c-n>
 
+nnoremap <c-t> :call Eisenhower()<cr>
 """"""""""""""""""
 " Grep config
 """"""""""""""""""""
@@ -229,3 +230,15 @@ nnoremap <silent> [b :bprevious<CR>
 nnoremap <silent> ]b :bnext<CR>
 nnoremap <silent> [B :bfirst<CR>
 nnoremap <silent> ]B :blast<CR>
+
+function! Eisenhower()
+  execute "edit ~/.eisenhower/1.md"
+  execute "vs"
+  execute "edit ~/.eisenhower/2.md"
+  execute "split"
+  execute "edit ~/.eisenhower/4.md"
+  execute "wincmd h"
+  execute "split"
+  execute "edit ~/.eisenhower/3.md"
+  execute "wincmd k"
+endfunction
