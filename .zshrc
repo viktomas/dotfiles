@@ -13,7 +13,10 @@ fi
 # Customize to your needs...
 
 # sourcing .profile file
-source ~/workspace/scripts/lazy_profile.zsh
+if [[ -s ~/workspace/scripts/lazy_profile.zsh ]]; then
+  source ~/workspace/scripts/lazy_profile.zsh
+fi
+ 
 source ~/.profile
 
 # VIM zshell
@@ -34,7 +37,6 @@ bindkey -v '\e.' insert-last-word
 alias vim=nvim
 #alias httpserver="python -m SimpleHTTPServer"
 alias httpserver="python -m http.server"
-
   
 
 alias j9="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home/"
@@ -55,7 +57,11 @@ function nvm_use_if_needed_on_cd () {
 chpwd_functions=(${chpwd_functions[@]} "nvm_use_if_needed_on_cd")
 
 export NVM_DIR="$HOME/.nvm"
+if [[ -s /usr/local/opt/nvm/nvm.sh ]]; then
   . "/usr/local/opt/nvm/nvm.sh"
+fi
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 #don't bother me with the rm confirmation
 setopt rmstarsilent
@@ -90,6 +96,9 @@ function zle-line-init zle-keymap-select {
 zle -N zle-line-init
 zle -N zle-keymap-select
 
+alias vpn='~/workspace/dotfiles/bin/vpn'
+alias vpnls='~/workspace/dotfiles/bin/vpnls'
+
 alias ag='ag --path-to-ignore ~/.ignore'
 export FZF_DEFAULT_COMMAND='ag --path-to-ignore ~/.ignore -g ""'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -101,3 +110,4 @@ if [ -f '/Users/tomas.vik/workspace/private/google-cloud-sdk/path.zsh.inc' ]; th
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/tomas.vik/workspace/private/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/tomas.vik/workspace/private/google-cloud-sdk/completion.zsh.inc'; fi
+
