@@ -156,3 +156,5 @@ kidmanpark/puppet/manifests/site.pp
 >>>>>>> 78f631d3755207a3baffb9bc0d9d5c9162a4e5b5
 .vim/plugged
 .gitcofing
+vim/undo/
+vim/plugged/

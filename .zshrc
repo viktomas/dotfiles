@@ -1,16 +1,8 @@
-#
-# Executes commands at the start of an interactive session.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
 
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
-
-# Customize to your needs...
 
 # sourcing .profile file
 if [[ -s ~/workspace/scripts/lazy_profile.zsh ]]; then
@@ -67,34 +59,34 @@ fi
 setopt rmstarsilent
 setopt clobber
 
-function powerline_precmd() {
-    PS1="$(~/workspace/go/bin/powerline-go -error $?\
-      -shell zsh\
-      -modules cwd,docker,exit,git,jobs,root,ssh,keymap\
-      -priority cwd,docker,exit,git,jobs,root,ssh,keymap)"
-}
+# function powerline_precmd() {
+#     PS1="$(~/workspace/go/bin/powerline-go -error $?\
+#       -shell zsh\
+#       -modules cwd,docker,exit,git,jobs,root,ssh,keymap\
+#       -priority cwd,docker,exit,git,jobs,root,ssh,keymap)"
+# }
 
-function install_powerline_precmd() {
-  for s in "${precmd_functions[@]}"; do
-    if [ "$s" = "powerline_precmd" ]; then
-      return
-    fi
-  done
-  precmd_functions+=(powerline_precmd)
-}
+# function install_powerline_precmd() {
+#   for s in "${precmd_functions[@]}"; do
+#     if [ "$s" = "powerline_precmd" ]; then
+#       return
+#     fi
+#   done
+#   precmd_functions+=(powerline_precmd)
+# }
 
-if [ "$TERM" != "linux" ]; then
-    install_powerline_precmd
-fi
+# if [ "$TERM" != "linux" ]; then
+#     install_powerline_precmd
+# fi
 
-function zle-line-init zle-keymap-select {
-    export KEYMAP_POWERLINE=$KEYMAP
-    powerline_precmd
-    zle reset-prompt
-}
+# function zle-line-init zle-keymap-select {
+#     export KEYMAP_POWERLINE=$KEYMAP
+#     powerline_precmd
+#     zle reset-prompt
+# }
 
-zle -N zle-line-init
-zle -N zle-keymap-select
+# zle -N zle-line-init
+# zle -N zle-keymap-select
 
 alias vpn='~/workspace/dotfiles/bin/vpn'
 alias vpnls='~/workspace/dotfiles/bin/vpnls'
@@ -105,9 +97,9 @@ export FZF_DEFAULT_COMMAND='ag --path-to-ignore ~/.ignore -g ""'
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/tomas.vik/workspace/private/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/tomas.vik/workspace/private/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/home/tomas/Downloads/google-cloud-sdk/path.zsh.inc' ]; then source '/home/tomas/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/Users/tomas.vik/workspace/private/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/tomas.vik/workspace/private/google-cloud-sdk/completion.zsh.inc'; fi
-
+if [ -f '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then source '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc'; fi

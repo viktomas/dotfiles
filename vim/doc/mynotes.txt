@@ -1,0 +1,9 @@
+" vim: filetype=help modifiable noreadonly
+
+Vim Cheat Sheet~
+*vvcheatsheet* *cheatsheet*
+{`.} last edited line
+{g;} and {g,} - jump through changelist
+{gc} and {gcc} - comment
+
+{"0} - last yank register
