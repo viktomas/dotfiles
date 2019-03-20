@@ -92,7 +92,7 @@ alias vpn='~/workspace/dotfiles/bin/vpn'
 alias vpnls='~/workspace/dotfiles/bin/vpnls'
 
 alias ag='ag --path-to-ignore ~/.ignore'
-export FZF_DEFAULT_COMMAND='ag --path-to-ignore ~/.ignore -g ""'
+export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.ag-ignore -g ""'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"

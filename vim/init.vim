@@ -23,15 +23,16 @@ Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " file orientation plugins
 Plug 'tpope/vim-vinegar'
 Plug 'junegunn/fzf'
-Plug 'wincent/ferret'
-Plug 'sjbach/lusty'
+" Plug 'wincent/ferret'
+" Plug 'sjbach/lusty'
+Plug 'milkypostman/vim-togglelist'
 
 " general code helping plugins
 Plug 'tpope/vim-commentary'
 Plug 'w0rp/ale'
-" Plug 'prettier/vim-prettier', {
-"   \ 'do': 'yarn install',
-"   \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'yarn install',
+  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
 
 Plug 'autozimu/LanguageClient-neovim', {
 \ 'branch': 'next',
@@ -41,6 +42,7 @@ Plug 'autozimu/LanguageClient-neovim', {
 
 call plug#end()
 
+let mapleader=" "
 set termguicolors
 :colorscheme gruvbox
 set background=dark    " Setting dark mode
@@ -62,7 +64,7 @@ let b:ale_fixers = {
       \'go': ['golint'],
       \'typescript': ['tslint'],
       \}
-let g:ale_fix_on_save = 1
+" let g:ale_fix_on_save = 1
 let g:ale_completion_enabled = 0
 
 " Language client
@@ -85,6 +87,19 @@ autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.gra
 " TODO: more generic
 autocmd Filetype javascript nnoremap <leader>rt :!npm run mocha -- %<cr>
 
+set grepprg=ag\ --nogroup\ --nocolor
+
+augroup openQuickFixAutomatically
+  autocmd!
+  autocmd QuickFixCmdPost [^l]* cwindow
+  autocmd QuickFixCmdPost l*    lwindow
+augroup END
+
+nnoremap [q :cprev<cr>
+nnoremap ]q :cnext<cr>
+
+let g:toggle_list_no_mappings=1
+nnoremap <leader>q :call ToggleQuickfixList()<CR>
 
 " incremental search and search highlighting
 " make searches case-sensitive only if they contain upper-case characters
@@ -97,7 +112,6 @@ set number
 set wildmode=longest:full
 " ignore files in file searches
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/bower_components/*,*/target/*,*/vendor/*
-let mapleader=" "
 
 " leader s mapped to toggle spell chec
 nmap <silent> <leader>s :set spell!<CR>
@@ -149,21 +163,21 @@ set mouse=a
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " FZF customisation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" command! FZFMru call fzf#run({
-" \  'source':  reverse(s:all_files()),
-" \  'sink':    'e',
-" \  'options': '-m -x +s',
-" \  'down':    '40%'})
+command! FZFMru call fzf#run({
+\  'source':  reverse(s:all_files()),
+\  'sink':    'e',
+\  'options': '-m -x +s',
+\  'down':    '40%'})
 
-" function! s:all_files()
-"   return extend(
-"   \ filter(copy(v:oldfiles),
-"   \        "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"),
-"   \ map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
-" endfunction
+function! s:all_files()
+  return extend(
+  \ filter(copy(v:oldfiles),
+  \        "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"),
+  \ map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
+endfunction
 
 nnoremap <silent> <C-p> :FZF -m<cr>
-" nnoremap <silent> <C-e> :FZFMru<cr>
+nnoremap <silent> <C-e> :FZFMru<cr>
 " nnoremap gf :call fzf#run({'sink': 'e', 'options': '-q '.shellescape(expand('<cword>')), 'down': '~40%'})<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
@@ -215,8 +229,9 @@ vnoremap < <<CR>gv
 " disable weird markdown formatting
 " let g:vim_markdown_new_list_item_indent = 0
 
-"air line uses powerline fonts
-" let g:airline_powerline_fonts = 1
+"air line settings
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
 
 " automatically run neomake
 " autocmd! BufWritePost,BufEnter * Neomake
@@ -234,19 +249,8 @@ vnoremap < <<CR>gv
 " endfunction
 " nnoremap <silent> <C-s> :<C-u>call ToggleErrors()<CR>
 
-" nnoremap <silent> [b :bprevious<CR>
-" nnoremap <silent> ]b :bnext<CR>
-" nnoremap <silent> [B :bfirst<CR>
-" nnoremap <silent> ]B :blast<CR>
+nnoremap <silent> [b :bprevious<CR>
+nnoremap <silent> ]b :bnext<CR>
+nnoremap <silent> [B :bfirst<CR>
+nnoremap <silent> ]B :blast<CR>
 
-" function! Eisenhower()
-"   execute "edit ~/.eisenhower/1.md"
-"   execute "vs"
-"   execute "edit ~/.eisenhower/2.md"
-"   execute "split"
-"   execute "edit ~/.eisenhower/4.md"
-"   execute "wincmd h"
-"   execute "split"
-"   execute "edit ~/.eisenhower/3.md"
-"   execute "wincmd k"
-" endfunction

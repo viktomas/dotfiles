@@ -6,4 +6,11 @@ Vim Cheat Sheet~
 {g;} and {g,} - jump through changelist
 {gc} and {gcc} - comment
 
+# registers
+{<ctrl-R><register>} paste register in insert mode or command line
 {"0} - last yank register
+
+*vvquicklist*
+{[q} :cprev
+{]q} :cnext
+{<leader>q} toggle quick list
