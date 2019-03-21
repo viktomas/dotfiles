@@ -9,6 +9,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 
 " language related plugins
+Plug 'sheerun/vim-polyglot'
 " Plug 'groenewege/vim-less', { 'for': 'less' }
 " Plug 'derekwyatt/vim-scala', { 'for': 'scala' }
 " Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
@@ -17,14 +18,12 @@ Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 " Plug 'mxw/vim-jsx', { 'for': 'javascript' }
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
-" Plug 'mdempsky/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 
 " file orientation plugins
 Plug 'tpope/vim-vinegar'
 Plug 'junegunn/fzf'
-" Plug 'wincent/ferret'
-" Plug 'sjbach/lusty'
+Plug 'junegunn/fzf.vim'
 Plug 'milkypostman/vim-togglelist'
 
 " general code helping plugins
@@ -50,6 +49,7 @@ set hidden
 " HELP
 :helptags ~/.config/nvim/doc
 autocmd BufWritePost ~/.vim/doc/* :helptags ~/.config/nvim/doc
+" autocmd BufRead,BufNewFile *.hbs setlocal filetype=hbs
 
 " PLUGINS #####################################################
 
@@ -143,24 +143,6 @@ set undoreload=10000
 
 " Enable mouse
 set mouse=a
-""""""""""""""""""""""""""""""""""""""""""""""
-" MARKDOWN
-" """""""""""""""""""""""""""""""""""""""""""
-" let g:vim_markdown_folding_disabled=1
-" let g:vim_markdown_no_default_key_mappings=1
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" RENAME CURRENT FILE
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" function! RenameFile()
-"     let old_name = expand('%')
-"     let new_name = input('New file name: ', expand('%'), 'file')
-"     if new_name != '' && new_name != old_name
-"         exec ':saveas ' . new_name
-"         exec ':silent !rm ' . old_name
-"         redraw!
-"     endif
-" endfunction
-" map <leader>m :call RenameFile()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " FZF customisation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -169,6 +151,14 @@ command! FZFMru call fzf#run({
 \  'sink':    'e',
 \  'options': '-m -x +s',
 \  'down':    '40%'})
+
+command! -bang -nargs=* FZFGrep
+  \ call fzf#vim#grep(
+  \   'ag --nogroup --nocolor --column '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
+  \ )
 
 function! s:all_files()
   return extend(
@@ -179,6 +169,7 @@ endfunction
 
 nnoremap <silent> <C-p> :FZF -m<cr>
 nnoremap <silent> <C-e> :FZFMru<cr>
+nnoremap <silent> <C-f> :FZFGrep! 
 " nnoremap gf :call fzf#run({'sink': 'e', 'options': '-q '.shellescape(expand('<cword>')), 'down': '~40%'})<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
@@ -195,60 +186,10 @@ nnoremap <c-l> <c-w>l
 "  move text and rehighlight -- vim tip_id=224 
 vnoremap > ><CR>gv 
 vnoremap < <<CR>gv 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" GO Key maps
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" au FileType go nmap <Leader>e <Plug>(go-rename)
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" MULTIPURPOSE TAB KEY
-" Indent if we're at the beginning of a line. Else, do completion.
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" function! InsertTabWrapper()
-"     let col = col('.') - 1
-"     if !col || getline('.')[col - 1] !~ '\k'
-"         return "\<tab>"
-"     else
-"         return "\<c-p>"
-"     endif
-" endfunction
-" inoremap <tab> <c-r>=InsertTabWrapper()<cr>
-" inoremap <s-tab> <c-n>
-
-" nnoremap <c-t> :call Eisenhower()<cr>
-""""""""""""""""""
-" Grep config
-""""""""""""""""""""
-" open quick fix after grep
-" autocmd QuickFixCmdPost *grep* cwindow
-" if executable('git')
-"   " Note we extract the column as well as the file and line number
-"   set grepprg=~/bin/git_grep.sh
-"   set grepformat=%f:%l:%c:%m
-" endif
-" nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR><CR>
-
-" disable weird markdown formatting
-" let g:vim_markdown_new_list_item_indent = 0
 
 "air line settings
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
-
-" automatically run neomake
-" autocmd! BufWritePost,BufEnter * Neomake
-" let g:neomake_javascript_enabled_makers = ['eslint']
-
-" JSX plugin will run on js files
-" let g:jsx_ext_required = 0
-
-" function! ToggleErrors()
-"     let old_last_winnr = winnr('$')
-"     lclose
-"     if old_last_winnr == winnr('$')
-"     lopen
-"     endif
-" endfunction
-" nnoremap <silent> <C-s> :<C-u>call ToggleErrors()<CR>
 
 nnoremap <silent> [b :bprevious<CR>
 nnoremap <silent> ]b :bnext<CR>
