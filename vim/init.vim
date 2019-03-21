@@ -77,6 +77,7 @@ let g:LanguageClient_serverCommands = {
     \ 'typescript': ['~/workspace/javascript-typescript-langserver/lib/language-server-stdio.js'],
     \ }
 
+let g:prettier#quickfix_enabled = 0
 noremap gr :call LanguageClient#textDocument_rename()<CR>
 
 " Prettier

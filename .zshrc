@@ -88,7 +88,7 @@ setopt clobber
 # zle -N zle-line-init
 # zle -N zle-keymap-select
 
-alias vpn='~/workspace/dotfiles/bin/vpn'
+alias vpn='nordvpn connect'
 alias vpnls='~/workspace/dotfiles/bin/vpnls'
 
 alias ag='ag --path-to-ignore ~/.ignore'

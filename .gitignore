@@ -158,3 +158,4 @@ kidmanpark/puppet/manifests/site.pp
 .gitcofing
 vim/undo/
 vim/plugged/
+vim/.netrwhist
