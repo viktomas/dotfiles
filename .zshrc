@@ -59,34 +59,7 @@ fi
 setopt rmstarsilent
 setopt clobber
 
-# function powerline_precmd() {
-#     PS1="$(~/workspace/go/bin/powerline-go -error $?\
-#       -shell zsh\
-#       -modules cwd,docker,exit,git,jobs,root,ssh,keymap\
-#       -priority cwd,docker,exit,git,jobs,root,ssh,keymap)"
-# }
-
-# function install_powerline_precmd() {
-#   for s in "${precmd_functions[@]}"; do
-#     if [ "$s" = "powerline_precmd" ]; then
-#       return
-#     fi
-#   done
-#   precmd_functions+=(powerline_precmd)
-# }
-
-# if [ "$TERM" != "linux" ]; then
-#     install_powerline_precmd
-# fi
-
-# function zle-line-init zle-keymap-select {
-#     export KEYMAP_POWERLINE=$KEYMAP
-#     powerline_precmd
-#     zle reset-prompt
-# }
-
-# zle -N zle-line-init
-# zle -N zle-keymap-select
+eval "$(direnv hook zsh)"
 
 alias vpn='nordvpn connect'
 alias vpnls='~/workspace/dotfiles/bin/vpnls'
