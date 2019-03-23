@@ -25,6 +25,7 @@ Plug 'tpope/vim-vinegar'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'milkypostman/vim-togglelist'
+Plug 'viktomas/vim-github-url', { 'branch': 'gitlab' }
 
 " general code helping plugins
 Plug 'tpope/vim-commentary'
@@ -118,7 +119,7 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/bower_components/*,*
 nmap <silent> <leader>s :set spell!<CR>
 
 " I don't want to se Ex mode ever again
-nnoremap Q <nop>
+nnoremap Q :bd<cr>
 
 "Ident parameters
 " https://stackoverflow.com/questions/1878974/redefine-tab-as-4-spaces
@@ -157,7 +158,7 @@ command! -bang -nargs=* FZFGrep
   \   'ag --nogroup --nocolor --column '.shellescape(<q-args>), 1,
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \   <bang>0)
+  \   <bang>0,
   \ )
 
 function! s:all_files()

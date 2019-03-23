@@ -2,7 +2,10 @@
 
 Vim Cheat Sheet~
 *vvcheatsheet* *cheatsheet*
+{m<key>} leave mark
+{`<key>} go to mark
 {`.} last edited line
+:marks - show all marks
 {g;} and {g,} - jump through changelist
 {gc} and {gcc} - comment
 
@@ -10,7 +13,19 @@ Vim Cheat Sheet~
 {<ctrl-R><register>} paste register in insert mode or command line
 {"0} - last yank register
 
+<leader>s spell check
+
+[b - prev buffer
+]b - next buffer
+Q  - close buffer
+
 *vvquicklist*
 {[q} :cprev
 {]q} :cnext
 {<leader>q} toggle quick list
+
+<CTRL-F> grep with fzf
+<CTRL-E> mru files
+
+*vvlanguage*
+{gr} rename
