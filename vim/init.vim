@@ -25,7 +25,7 @@ Plug 'tpope/vim-vinegar'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'milkypostman/vim-togglelist'
-Plug 'viktomas/vim-github-url', { 'branch': 'gitlab' }
+Plug 'pgr0ss/vim-github-url'
 
 " general code helping plugins
 Plug 'tpope/vim-commentary'
@@ -46,12 +46,22 @@ let mapleader=" "
 set termguicolors
 :colorscheme gruvbox
 set background=dark    " Setting dark mode
+" cliboard is the default register
+set clipboard=unnamedplus
+" x doesn't write to default cliboard
+noremap x "_x
+" vim waits 500ms after I'm finished editing before it tells plugins to do
+" their thing (mainly gitgutter)
+set updatetime=500
 set hidden
 " HELP
 :helptags ~/.config/nvim/doc
 autocmd BufWritePost ~/.vim/doc/* :helptags ~/.config/nvim/doc
 " autocmd BufRead,BufNewFile *.hbs setlocal filetype=hbs
-
+" Polyglot don't set jsx as default for all javascript
+" potential problem when working with REACT again
+let g:jsx_ext_required = 1
+" let g:polyglot_disabled = ['go']
 " PLUGINS #####################################################
 
 " Deoplete
@@ -62,21 +72,24 @@ inoremap <expr><CR> pumvisible() ? "\<c-y>" : "\<CR>"
 
 let b:ale_fixers = {
       \'javascript': ['prettier', 'eslint'],
-      \'go': ['golint'],
       \'typescript': ['tslint'],
       \}
 " let g:ale_fix_on_save = 1
+" \'go': ['golint'],
 let g:ale_completion_enabled = 0
 
 " Language client
 let g:LanguageClient_rootMarkers = {
-        \ 'go': ['.git', 'go.mod'],
+        \ 'javascript': ['package.json'],
         \ }
+        " \ 'go': ['.git', 'go.mod'],
 
 let g:LanguageClient_serverCommands = {
     \ 'javascript': ['~/workspace/javascript-typescript-langserver/lib/language-server-stdio.js'],
+    \ 'javascript.jsx': ['~/workspace/javascript-typescript-langserver/lib/language-server-stdio.js'],
     \ 'typescript': ['~/workspace/javascript-typescript-langserver/lib/language-server-stdio.js'],
     \ }
+" \ 'go': ['go-langserver'],
 
 let g:prettier#quickfix_enabled = 0
 noremap gr :call LanguageClient#textDocument_rename()<CR>
