@@ -1,5 +1,5 @@
-#!/bin/sh
-LOCATION=$(dirname "$0")
+#!/bin/bash
+LOCATION="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 ln -s $LOCATION/.ignore ~/.ignore
 ln -s $LOCATION/.gitconfig ~/.gitconfig
 ln -s $LOCATION/.githelpers ~/.githelpers

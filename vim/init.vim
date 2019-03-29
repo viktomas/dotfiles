@@ -7,18 +7,14 @@ Plug 'vim-airline/vim-airline'
 " git related plugins
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
+Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
+" CocInstall coc-tsserver coc-gocode
 
 " language related plugins
 Plug 'sheerun/vim-polyglot'
-" Plug 'groenewege/vim-less', { 'for': 'less' }
-" Plug 'derekwyatt/vim-scala', { 'for': 'scala' }
-" Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
-" Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
-Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-" Plug 'mxw/vim-jsx', { 'for': 'javascript' }
-Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+" Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+" Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 
 " file orientation plugins
 Plug 'tpope/vim-vinegar'
@@ -32,15 +28,13 @@ Plug 'tpope/vim-commentary'
 Plug 'w0rp/ale'
 Plug 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
-  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
+  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'yaml', 'html'] }
 
-Plug 'autozimu/LanguageClient-neovim', {
-\ 'branch': 'next',
-\ 'do': 'bash install.sh',
-\ }
 
 
 call plug#end()
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gr <Plug>(coc-rename)
 
 let mapleader=" "
 set termguicolors
@@ -78,25 +72,11 @@ let b:ale_fixers = {
 " \'go': ['golint'],
 let g:ale_completion_enabled = 0
 
-" Language client
-let g:LanguageClient_rootMarkers = {
-        \ 'javascript': ['package.json'],
-        \ }
-        " \ 'go': ['.git', 'go.mod'],
-
-let g:LanguageClient_serverCommands = {
-    \ 'javascript': ['~/workspace/javascript-typescript-langserver/lib/language-server-stdio.js'],
-    \ 'javascript.jsx': ['~/workspace/javascript-typescript-langserver/lib/language-server-stdio.js'],
-    \ 'typescript': ['~/workspace/javascript-typescript-langserver/lib/language-server-stdio.js'],
-    \ }
-" \ 'go': ['go-langserver'],
-
 let g:prettier#quickfix_enabled = 0
-noremap gr :call LanguageClient#textDocument_rename()<CR>
 
 " Prettier
 let g:prettier#autoformat = 0
-autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html PrettierAsync
+autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue,*.yaml,*.html PrettierAsync
 
 " JavaScript
 " TODO: more generic
@@ -116,6 +96,7 @@ nnoremap ]q :cnext<cr>
 let g:toggle_list_no_mappings=1
 nnoremap <leader>q :call ToggleQuickfixList()<CR>
 
+nnoremap <leader><leader> :<c-p><cr>
 " incremental search and search highlighting
 " make searches case-sensitive only if they contain upper-case characters
 set ignorecase smartcase
@@ -130,6 +111,7 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/bower_components/*,*
 
 " leader s mapped to toggle spell chec
 nmap <silent> <leader>s :set spell!<CR>
+set spell
 
 " I don't want to se Ex mode ever again
 nnoremap Q :bd<cr>
@@ -193,7 +175,6 @@ nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
-" nnoremap <leader><leader> <c-^> TODO: this alternate file might be useful
 " clear search buffer when hitting enter (except for when in quickfix buffer)
 :nnoremap <expr> <CR> (&buftype is# "quickfix" ? "<CR>" : ":\:nohlsearch<cr>\n")
 
