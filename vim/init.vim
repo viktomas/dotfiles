@@ -14,7 +14,7 @@ Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 Plug 'sheerun/vim-polyglot'
 " Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 " Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-" Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
+Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 
 " file orientation plugins
 Plug 'tpope/vim-vinegar'
@@ -58,18 +58,16 @@ let g:jsx_ext_required = 1
 " let g:polyglot_disabled = ['go']
 " PLUGINS #####################################################
 
-" Deoplete
-let g:deoplete#enable_at_startup = 1
-" deoplete tab-complete
+" tab-complete
 inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 inoremap <expr><CR> pumvisible() ? "\<c-y>" : "\<CR>"
 
 let b:ale_fixers = {
       \'javascript': ['prettier', 'eslint'],
       \'typescript': ['tslint'],
+      \'go': ['golint'],
       \}
 " let g:ale_fix_on_save = 1
-" \'go': ['golint'],
 let g:ale_completion_enabled = 0
 
 let g:prettier#quickfix_enabled = 0
@@ -150,7 +148,7 @@ command! FZFMru call fzf#run({
 
 command! -bang -nargs=* FZFGrep
   \ call fzf#vim#grep(
-  \   'ag --nogroup --nocolor --column '.shellescape(<q-args>), 1,
+  \   'ag --path-to-ignore ~/.ignore --nogroup --nocolor --column '.shellescape(<q-args>), 1,
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0,
@@ -165,7 +163,7 @@ endfunction
 
 nnoremap <silent> <C-p> :FZF -m<cr>
 nnoremap <silent> <C-e> :FZFMru<cr>
-nnoremap <silent> <C-f> :FZFGrep! 
+nnoremap <C-f> :FZFGrep! 
 " nnoremap gf :call fzf#run({'sink': 'e', 'options': '-q '.shellescape(expand('<cword>')), 'down': '~40%'})<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
