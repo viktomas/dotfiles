@@ -14,5 +14,6 @@ ln -s $LOCATION/.nvpy.cfg ~/.nvpy.cfg
 ln -s $LOCATION/.global-gitignore ~/.gitignore
 ln -s $LOCATION/.taskbook.json ~/.taskbook.json
 ln -s $LOCATION/.goduignore ~/.goduignore
+ln -s $LOCATION/.notable.json ~/.notable.json
 
 git config --global core.excludesfile '~/.gitignore' 

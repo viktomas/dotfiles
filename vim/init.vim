@@ -140,11 +140,6 @@ set mouse=a
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " FZF customisation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-command! FZFMru call fzf#run({
-\  'source':  reverse(s:all_files()),
-\  'sink':    'e',
-\  'options': '-m -x +s',
-\  'down':    '40%'})
 
 command! -bang -nargs=* FZFGrep
   \ call fzf#vim#grep(
@@ -154,15 +149,9 @@ command! -bang -nargs=* FZFGrep
   \   <bang>0,
   \ )
 
-function! s:all_files()
-  return extend(
-  \ filter(copy(v:oldfiles),
-  \        "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"),
-  \ map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
-endfunction
-
 nnoremap <silent> <C-p> :FZF -m<cr>
-nnoremap <silent> <C-e> :FZFMru<cr>
+nnoremap <silent> gb :Buffers<cr>
+nnoremap <silent> // :History/<cr>
 nnoremap <C-f> :FZFGrep! 
 " nnoremap gf :call fzf#run({'sink': 'e', 'options': '-q '.shellescape(expand('<cword>')), 'down': '~40%'})<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

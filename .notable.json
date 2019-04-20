@@ -1,0 +1,16 @@
+{
+	"monaco": {
+		"editorOptions": {
+			"minimap": {
+				"enabled": false
+			},
+			"wordWrap": "bounded"
+		}
+	},
+	"sorting": {
+		"by": "title",
+		"type": "ascending"
+	},
+	"tutorial": true,
+	"cwd": "/home/tomas/Dropbox/.noteable"
+}

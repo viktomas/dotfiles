@@ -4,6 +4,9 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
+export PATH="$PATH:$HOME/.rbenv/bin" # Add rbenv to PATH for scripting
+eval "$(rbenv init -)"
+
 # sourcing .profile file
 if [[ -s ~/workspace/scripts/lazy_profile.zsh ]]; then
   source ~/workspace/scripts/lazy_profile.zsh
