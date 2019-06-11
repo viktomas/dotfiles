@@ -9,11 +9,14 @@ export GO111MODULE=on
 
 export HISTSIZE=1000000
 export HISTFILE=~/.histfile
-export SAVEHIST=10000
+export SAVEHIST=1000000
 
 export EDITOR=nvim
 
 alias dc=docker-compose
 
-xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Profile Enabled' 0, 1
-xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 1
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*

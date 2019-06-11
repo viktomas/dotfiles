@@ -7,16 +7,18 @@ fi
 export PATH="$PATH:$HOME/.rbenv/bin" # Add rbenv to PATH for scripting
 eval "$(rbenv init -)"
 
+# dependency of git-flow-avh
+export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+
 # sourcing .profile file
 if [[ -s ~/workspace/scripts/lazy_profile.zsh ]]; then
   source ~/workspace/scripts/lazy_profile.zsh
 fi
- 
+
 source ~/.profile
 
 # VIM zshell
 bindkey -v #switch to vim mode
-bindkey -M viins 'jj' vi-cmd-mode #binds my favourite vim binding
 bindkey -v '\e.' insert-last-word
 
 #commented function for showing vim mode (in osx zshell took forever)
@@ -52,11 +54,9 @@ function nvm_use_if_needed_on_cd () {
 chpwd_functions=(${chpwd_functions[@]} "nvm_use_if_needed_on_cd")
 
 export NVM_DIR="$HOME/.nvm"
-if [[ -s /usr/local/opt/nvm/nvm.sh ]]; then
-  . "/usr/local/opt/nvm/nvm.sh"
-fi
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export NVM_INSTALLATION="/usr/local/opt/nvm"
+[ -s "$NVM_INSTALLATION/nvm.sh" ] && \. "$NVM_INSTALLATION/nvm.sh"
+[ -s "$NVM_INSTALLATION/bash_completion" ] && \. "$NVM_INSTALLATION/bash_completion"  # This loads nvm bash_completion
 
 #don't bother me with the rm confirmation
 setopt rmstarsilent
@@ -74,8 +74,30 @@ export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.ag-ignore -g ""'
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/tomas/Downloads/google-cloud-sdk/path.zsh.inc' ]; then source '/home/tomas/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+if [[ "$(uname)" == "Darwin" ]]; then
+  export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+  # The next line updates PATH for the Google Cloud SDK.
+  [ -f '/Users/tomas/workspace/tools/google-cloud-sdk/path.zsh.inc' ] && . '/Users/tomas/workspace/tools/google-cloud-sdk/path.zsh.inc'
+  # The next line enables shell command completion for gcloud.
+  [ -f '/Users/tomas/workspace/tools/google-cloud-sdk/completion.zsh.inc' ] && . '/Users/tomas/workspace/tools/google-cloud-sdk/completion.zsh.inc'
+fi
+ 
+if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+  # Do something under GNU/Linux platform
+  xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Profile Enabled' 0, 1
+  xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 1
+  # The next line updates PATH for the Google Cloud SDK.
+  [ -f '/home/tomas/Downloads/google-cloud-sdk/path.zsh.inc' ] && '/home/tomas/Downloads/google-cloud-sdk/path.zsh.inc'
+  # The next line enables shell command completion for gcloud.
+  [ -f '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc' ] && source '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc'
+fi
 
-# The next line enables shell command completion for gcloud.
-if [ -f '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then source '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+
+# omg mac, what are you doing to me
+alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+
