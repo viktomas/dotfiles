@@ -7,7 +7,7 @@ Plug 'vim-airline/vim-airline'
 " git related plugins
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
-Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
+" Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 " CocInstall coc-tsserver coc-gocode
 
 " language related plugins
