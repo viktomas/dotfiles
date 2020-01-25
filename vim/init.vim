@@ -24,6 +24,7 @@ Plug 'milkypostman/vim-togglelist'
 Plug 'pgr0ss/vim-github-url'
 
 " general code helping plugins
+Plug 'ajh17/VimCompletesMe'
 Plug 'tpope/vim-commentary'
 Plug 'w0rp/ale'
 Plug 'prettier/vim-prettier', {
@@ -59,14 +60,17 @@ let g:jsx_ext_required = 1
 " PLUGINS #####################################################
 
 " tab-complete
-inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-inoremap <expr><CR> pumvisible() ? "\<c-y>" : "\<CR>"
+" inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+" inoremap <expr><CR> pumvisible() ? "\<c-y>" : "\<CR>"
+:set completeopt=longest,menuone
+
+let g:go_rename_command = 'gopls'
 
 let b:ale_fixers = {
       \'javascript': ['prettier', 'eslint'],
       \'typescript': ['tslint'],
-      \'go': ['golint'],
       \}
+"\'go': ['golint'],
 " let g:ale_fix_on_save = 1
 let g:ale_completion_enabled = 0
 
