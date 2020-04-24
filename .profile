@@ -14,9 +14,17 @@ export SAVEHIST=1000000
 export EDITOR=nvim
 
 alias dc=docker-compose
+alias gd="godu -print0 | xargs -0 rm -rf"
+alias gm="godu -print0 | xargs -0 -I _ mv _ "
+alias ts="timer start"
+alias tp="timer pause"
+alias tas="timer -a start"
+alias tr="~/workspace/private/timer/reportAndNotify.sh"
 
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
+[[ -s "$HOME/.gitter-shortcuts" ]] && source "$HOME/.gitter-shortcuts"
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*

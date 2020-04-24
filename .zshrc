@@ -33,7 +33,8 @@ bindkey -v '\e.' insert-last-word
 
 alias vim=nvim
 #alias httpserver="python -m SimpleHTTPServer"
-alias httpserver="python -m http.server"
+alias httpserver="python3 -m http.server"
+eval "$(pyenv init -)"
   
 
 alias j9="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home/"
@@ -80,9 +81,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
   [ -f '/Users/tomas/workspace/tools/google-cloud-sdk/path.zsh.inc' ] && . '/Users/tomas/workspace/tools/google-cloud-sdk/path.zsh.inc'
   # The next line enables shell command completion for gcloud.
   [ -f '/Users/tomas/workspace/tools/google-cloud-sdk/completion.zsh.inc' ] && . '/Users/tomas/workspace/tools/google-cloud-sdk/completion.zsh.inc'
-fi
- 
-if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+else 
   # Do something under GNU/Linux platform
   xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Profile Enabled' 0, 1
   xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 1
