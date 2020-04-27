@@ -1,0 +1,41 @@
+{
+  "window.zoomLevel": 1,
+  // Enable per-language
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "easyRedis.address": "redis://localhost",
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "cSpell.userWords": [
+    "gitter",
+    "webapp"
+  ],
+  "cSpell.language": "en-GB",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    { "language": "vue", "autoFix": true }
+  ],
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "prettier.disableLanguages": [],
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "git.autofetch": true,
+  "go.formatTool": "goimports",
+  "files.associations": {
+    "*.mongo": "javascript"
+  },
+  "git.confirmSync": false,
+  "go.useLanguageServer": true,
+  "markdown.extension.orderedList.autoRenumber": false,
+  "markdown.extension.orderedList.marker": "one",
+}
