@@ -1,4 +1,3 @@
-
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -7,41 +6,14 @@ fi
 export PATH="$PATH:$HOME/.rbenv/bin" # Add rbenv to PATH for scripting
 eval "$(rbenv init -)"
 
-# dependency of git-flow-avh
-export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
-
-# sourcing .profile file
-if [[ -s ~/workspace/scripts/lazy_profile.zsh ]]; then
-  source ~/workspace/scripts/lazy_profile.zsh
-fi
-
 source ~/.profile
 
 # VIM zshell
 bindkey -v #switch to vim mode
-bindkey -v '\e.' insert-last-word
-
-#commented function for showing vim mode (in osx zshell took forever)
-#in prezto prompt works perfectly
-#function zle-line-init zle-keymap-select {
-#  RPS1="${${KEYMAP/vicmd/-- NORMAL --}/(main|viins)/-- INSERT --}"
-#  RPS2=$RPS1
-#  zle reset-prompt
-#}
-#zle -N zle-line-init
-#zle -N zle-keymap-select
 
 alias vim=nvim
-#alias httpserver="python -m SimpleHTTPServer"
 alias httpserver="python3 -m http.server"
 eval "$(pyenv init -)"
-  
-
-alias j9="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home/"
-alias j8="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_144.jdk/Contents/Home/"
-alias j7="export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_80.jdk/Contents/Home"
-
-alias custaws-describe-autoscaling=aws autoscaling describe-auto-scaling-groups | jq '.AutoScalingGroups[] | "\(.AutoScalingGroupName) - \(.MinSize) - \(.DesiredCapacity)"'
 
 #setup autojump for linux or osx
 [[ -s /usr/share/autojump/autojump.sh ]] && source /usr/share/autojump/autojump.sh
@@ -91,12 +63,6 @@ else
   [ -f '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc' ] && source '/home/tomas/Downloads/google-cloud-sdk/completion.zsh.inc'
 fi
 
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-
 # omg mac, what are you doing to me
 alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
 

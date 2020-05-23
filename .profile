@@ -1,11 +1,16 @@
-
 export PATH="$PATH:$HOME/workspace/bin" # Add workspace bin to the path
 
 export GOPATH="$HOME/workspace/go"
 
-export PATH="$PATH:$GOPATH/bin"
+export PATH="$PATH:$HOME/.rvm/bin"
 
-export GO111MODULE=on
+# dependency of git-flow-avh
+export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+export PATH="$PATH:$GOPATH/bin"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home"
 
 export HISTSIZE=1000000
 export HISTFILE=~/.histfile
@@ -20,6 +25,11 @@ alias ts="timer start"
 alias tp="timer pause"
 alias tas="timer -a start"
 alias tr="~/workspace/private/timer/reportAndNotify.sh"
+alias cat="bat"
+alias diff="diff-so-fancy"
+alias ls="exa"
+alias find="fd"
+alias la="ls -laF"
 
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
