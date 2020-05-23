@@ -38,4 +38,14 @@
   "go.useLanguageServer": true,
   "markdown.extension.orderedList.autoRenumber": false,
   "markdown.extension.orderedList.marker": "one",
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "terminal.integrated.shell.osx": "/usr/local/bin/zsh",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
 }
