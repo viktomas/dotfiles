@@ -14,5 +14,7 @@ ln -s $LOCATION/.goduignore ~/.goduignore
 ln -s $LOCATION/.notable.json ~/.notable.json
 ln -s "$LOCATION/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
 ln -s ~/Dropbox/.gitconfig ~/.gitconfig
+cd ~/.dotfiles
+stow kitty
 
 git config --global core.excludesfile '~/.gitignore' 
