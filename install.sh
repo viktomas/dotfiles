@@ -8,8 +8,6 @@ ln -s $LOCATION/.zshrc ~/.zshrc
 ln -s $LOCATION/.ag-ignore ~/.ag-ignore
 ln -s $LOCATION/.credorc ~/.credorc
 ln -s $LOCATION/bin/ ~/
-ln -s $LOCATION/tmux-cheat-sheet.txt ~/tmux.cheat
-ln -s $LOCATION/.nvpy.cfg ~/.nvpy.cfg
 ln -s $LOCATION/.global-gitignore ~/.gitignore
 ln -s $LOCATION/.taskbook.json ~/.taskbook.json
 ln -s $LOCATION/.goduignore ~/.goduignore
