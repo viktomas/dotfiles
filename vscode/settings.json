@@ -8,18 +8,20 @@
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "easyRedis.address": "redis://localhost",
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "javascript.updateImportsOnFileMove.enabled": "always",
   "cSpell.userWords": [
     "gitter",
-    "webapp"
+    "prerequisities",
+    "webapp",
+    "zettelkasten"
   ],
   "cSpell.language": "en-GB",
   "eslint.validate": [
     "javascript",
+    "typescript",
     "javascriptreact",
     { "language": "vue", "autoFix": true }
   ],
@@ -43,9 +45,38 @@
   },
   "terminal.integrated.shell.osx": "/usr/local/bin/zsh",
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
   },
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  // "gitlab.enableExperimentalFeatures": true,
+  // "http.proxy": "http://localhost:8080",
+  "files.enableTrash": false,
+  "debug.javascript.usePreview": false,
+  // "gitlab.instanceUrl": "https://dev.gitlab.org",
+  // "gitlab.customQueries": [
+  //   {
+  //     "name": "Closed MRs assigned to me",
+  //     "type": "merge_requests",
+  //     "scope": "assigned_to_me",
+  //     "noItemText": "There is no issue assigned to you.",
+  //     "state": "closed",
+  //     "author": "viktomas"
+  //   },
+  //   {
+  //     "name": "Merged MRs assigned to me",
+  //     "type": "merge_requests",
+  //     "scope": "assigned_to_me",
+  //     "noItemText": "There is no issue assigned to you.",
+  //     "state": "merged",
+  //     "assignee": "viktomas"
+  //   }
+  // ],
+  "editor.fontFamily": "FiraCode-Retina",
+  "editor.fontLigatures": true,
+  "workbench.statusBar.visible": true,
+  "editor.minimap.enabled": false,
+  "extensions.ignoreRecommendations": true,
 }
