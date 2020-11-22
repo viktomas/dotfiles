@@ -1,0 +1,18 @@
+# omg mac, what are you doing to me
+alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'
+
+export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+# Autojump
+which brew >> /dev/null && [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home"
+
+export NVM_INSTALLATION="/usr/local/opt/nvm"
+[ -s "$NVM_INSTALLATION/nvm.sh" ] && \. "$NVM_INSTALLATION/nvm.sh"
+[ -s "$NVM_INSTALLATION/bash_completion" ] && \. "$NVM_INSTALLATION/bash_completion"  # This loads nvm bash_completion
+
+# Fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

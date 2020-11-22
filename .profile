@@ -1,16 +1,10 @@
-export PATH="$PATH:$HOME/workspace/bin" # Add workspace bin to the path
-
 export GOPATH="$HOME/workspace/go"
 
 export PATH="$PATH:$HOME/.rvm/bin"
 
-# dependency of git-flow-avh
-export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
-
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 export PATH="$PATH:$GOPATH/bin"
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home"
 
 export HISTSIZE=1000000
 export HISTFILE=~/.histfile
@@ -18,6 +12,8 @@ export SAVEHIST=1000000
 
 export EDITOR=nvim
 
+alias vim=nvim
+alias httpserver="python3 -m http.server"
 alias dc=docker-compose
 alias gd="godu -print0 | xargs -0 rm -rf"
 alias gm="godu -print0 | xargs -0 -I _ mv _ "
@@ -30,6 +26,11 @@ alias diff="diff-so-fancy"
 alias ls="exa"
 alias find="fd"
 alias la="ls -laF"
+alias icat="kitty +kitten icat"
+alias cal="cal --monday"
+alias vpn='nordvpn'
+alias vpnc='nordvpn connect'
+alias ag='ag --path-to-ignore ~/.ignore'
 
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.

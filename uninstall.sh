@@ -16,4 +16,6 @@ rm -rf ~/.config/nvim
 rm -rf ~/.vim
 rm -rf ~/.vimrc
 rm -rf ~/.zshrc
+rm -rf ~/.zshrc-Linux
+rm -rf ~/.zshrc-Darwin
 rm -rf ~/bin

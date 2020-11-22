@@ -1,5 +1,5 @@
 {
-  "window.zoomLevel": 1,
+  "window.zoomLevel": 2,
   // Enable per-language
   "[javascript]": {
     "editor.formatOnSave": true,
@@ -74,7 +74,7 @@
   //     "assignee": "viktomas"
   //   }
   // ],
-  "editor.fontFamily": "FiraCode-Retina",
+  "editor.fontFamily": "Fira Code",
   "editor.fontLigatures": true,
   "workbench.statusBar.visible": true,
   "editor.minimap.enabled": false,
