@@ -79,4 +79,7 @@
   "workbench.statusBar.visible": true,
   "editor.minimap.enabled": false,
   "extensions.ignoreRecommendations": true,
+  "terminal.integrated.shell.linux": "/bin/zsh",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.singleQuote": true,
 }
