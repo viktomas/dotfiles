@@ -21,4 +21,5 @@ cd ~/.dotfiles
 stow kitty
 stow ranger
 
+[ "$(uname 2> /dev/null)" == "Darwin" ] && stow karabiner
 git config --global core.excludesfile '~/.gitignore' 

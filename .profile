@@ -20,7 +20,7 @@ alias gm="godu -print0 | xargs -0 -I _ mv _ "
 alias ts="timer start"
 alias tp="timer pause"
 alias tas="timer start -a"
-alias tr="~/workspace/private/timer/reportAndNotify.sh"
+alias tr="timer report"
 alias cat="bat"
 alias diff="diff-so-fancy"
 alias ls="exa"
@@ -39,3 +39,6 @@ export PATH="$PATH:$HOME/.rvm/bin"
 [[ -s "$HOME/.gitter-shortcuts" ]] && source "$HOME/.gitter-shortcuts"
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm

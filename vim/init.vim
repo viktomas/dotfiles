@@ -153,6 +153,8 @@ command! -bang -nargs=* FZFGrep
   \   <bang>0,
   \ )
 
+command! Date put =strftime('%F')
+
 nnoremap <silent> <C-p> :FZF -m<cr>
 nnoremap <silent> gb :Buffers<cr>
 nnoremap <silent> // :History/<cr>
