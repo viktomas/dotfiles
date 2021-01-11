@@ -13,8 +13,6 @@ which rbenv > /dev/null && eval "$(rbenv init -)"
 which rbenv > /dev/null && eval "$(pyenv init -)"
 eval "$(direnv hook zsh)"
 
-export NVM_DIR="$HOME/.nvm"
-
 # no rm confirmation
 setopt rmstarsilent
 setopt clobber
@@ -24,3 +22,10 @@ export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.ignore -g ""'
 
 source "${ZDOTDIR:-${HOME}}/.zshrc-`uname`"
 
+# ASDF
+source $HOME/.asdf/asdf.sh
+# append completions to fpath
+fpath=(${ASDF_DIR}/completions $fpath)
+# initialise completions with ZSH's compinit
+autoload -Uz compinit
+compinit

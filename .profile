@@ -11,6 +11,8 @@ export HISTFILE=~/.histfile
 export SAVEHIST=1000000
 
 export EDITOR=nvim
+export VISUAL=$EDITOR
+export BROWSER=firefox-developer-edition
 
 alias vim=nvim
 alias httpserver="python3 -m http.server"

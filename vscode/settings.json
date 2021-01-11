@@ -1,5 +1,5 @@
 {
-  "window.zoomLevel": 2,
+  "window.zoomLevel": 1,
   // Enable per-language
   "[javascript]": {
     "editor.formatOnSave": true,
@@ -82,4 +82,10 @@
   "terminal.integrated.shell.linux": "/bin/zsh",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "prettier.singleQuote": true,
+  "explorer.confirmDragAndDrop": false,
+  "git.enableSmartCommit": true,
+  "update.mode": "manual",
+  "extensions.autoUpdate": false,
+  "python.autoUpdateLanguageServer": false,
+  "extensions.autoCheckUpdates": false,
 }
