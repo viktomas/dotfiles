@@ -20,6 +20,7 @@ ln -s ~/Dropbox/.gitconfig ~/.gitconfig
 cd ~/.dotfiles
 stow kitty
 stow ranger
+stow fish
 
 [ "$(uname 2> /dev/null)" == "Darwin" ] && stow karabiner
 git config --global core.excludesfile '~/.gitignore' 
