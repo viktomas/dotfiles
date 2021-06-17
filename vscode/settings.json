@@ -1,5 +1,6 @@
 {
-  "window.zoomLevel": 1,
+  "keyboard.dispatch": "keyCode", // trying to enable capslock as esc
+  "window.zoomLevel": 2,
   // Enable per-language
   "[javascript]": {
     "editor.formatOnSave": true,
@@ -29,7 +30,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
-  "prettier.disableLanguages": [],
   "typescript.updateImportsOnFileMove.enabled": "always",
   "git.autofetch": true,
   "go.formatTool": "goimports",
@@ -88,4 +88,31 @@
   "extensions.autoUpdate": false,
   "python.autoUpdateLanguageServer": false,
   "extensions.autoCheckUpdates": false,
+  "calva.prettyPrintingOptions": {
+    "maxDepth": 100,
+    "enabled": true,
+    "printEngine": "pprint",
+    "width": 120,
+    "maxLength": 50,
+  },
+  "prettier.documentSelectors": [
+    "*.js",
+    "*.ts",
+    "*.json",
+    "*.css",
+    "*.scss"
+  ],
+  "[clojure]": {
+  "editor.defaultFormatter": "betterthantomorrow.calva",
+    "editor.wordSeparators": "\t ()\"':,;~@#$%^&{}[]`",
+    "editor.autoClosingBrackets": "always",
+    "editor.autoClosingQuotes": "always",
+    "editor.formatOnType": true,
+    "editor.autoIndent": "full",
+    "editor.formatOnPaste": true,
+    "files.trimTrailingWhitespace": false,
+    "editor.matchBrackets": "never",
+    "editor.renderIndentGuides": false,
+    "editor.parameterHints.enabled": false
+  },
 }
