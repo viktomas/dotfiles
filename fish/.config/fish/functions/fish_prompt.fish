@@ -80,5 +80,6 @@ function fish_prompt --description 'Write out the prompt'
     echo -n $pipestatus_string
     set_color normal
 
-    echo -n "$suffix "
+    fish_default_mode_prompt
+    # echo -n "$suffix "
 end
