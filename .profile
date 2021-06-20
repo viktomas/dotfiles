@@ -15,7 +15,6 @@ export VISUAL=$EDITOR
 export BROWSER=firefox-developer-edition
 
 alias vim=nvim
-alias code=code-insiders
 alias httpserver="python3 -m http.server"
 alias dc=docker-compose
 alias gd="godu -print0 | xargs -0 rm -rf"
