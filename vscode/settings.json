@@ -102,6 +102,14 @@
     "*.css",
     "*.scss"
   ],
+  "vim.easymotion": true,
+  "vim.leader": "<space>",
+   "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": ["g", "z"],
+      "commands": ["workbench.action.toggleZenMode"]
+    }
+  ],
   "[clojure]": {
   "editor.defaultFormatter": "betterthantomorrow.calva",
     "editor.wordSeparators": "\t ()\"':,;~@#$%^&{}[]`",
