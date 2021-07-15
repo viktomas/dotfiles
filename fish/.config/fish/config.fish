@@ -12,3 +12,6 @@ if test (uname) = "Darwin"
      alias code=code-insiders
 else 
 end
+# Source autojump
+[ -e /usr/share/autojump/autojump.fish ]; and source /usr/share/autojump/autojump.fish
+[ -e /usr/local/share/autojump/autojump.fish ]; and source /usr/local/share/autojump/autojump.fish

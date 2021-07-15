@@ -14,7 +14,6 @@ export EDITOR=nvim
 export VISUAL=$EDITOR
 export BROWSER=firefox-developer-edition
 
-alias j=autojump
 alias vim=nvim
 alias httpserver="python3 -m http.server"
 alias dc=docker-compose
