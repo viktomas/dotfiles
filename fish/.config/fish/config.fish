@@ -8,10 +8,9 @@ function fish_user_key_bindings
         bind -M $mode \cf forward-char
     end
 end
-if test (uname) = "Darwin"
-     alias code=code-insiders
-else 
-end
+
+alias code=code-insiders
+
 # Source autojump
 [ -e /usr/share/autojump/autojump.fish ]; and source /usr/share/autojump/autojump.fish
 [ -e /usr/local/share/autojump/autojump.fish ]; and source /usr/local/share/autojump/autojump.fish
