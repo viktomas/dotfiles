@@ -1,0 +1,52 @@
+[user]
+  name = Tomas Vik
+  email = tvik@gitlab.com
+[core]
+  editor = nvim
+  autocrlf = input
+  excludesfile = ~/.gitignore
+[color]
+  ui = auto
+[merge]
+  tool = meld
+[alias]
+  st = status
+  ci = commit --verbose
+  co = checkout
+  di = diff
+  dc = diff --cached
+  amend = commit --amend
+  aa = add --all
+  ff = merge --ff-only
+  pullff = pull --ff-only
+  noff = merge --no-ff
+  fa = fetch --all
+  pom = push origin master
+  b = branch
+  ds = diff --stat=160,120
+  dh1 = diff HEAD~1
+
+  # Fancy logging.
+  h = head
+  l = log --decorate --oneline --graph
+  la = !git l --all
+
+
+[push]
+  default = current
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  required = true
+  process = git-lfs filter-process
+[pull]
+  ff = only
+[pager]
+  diff = delta
+  log = delta
+  reflog = delta
+  show = delta
+
+[interactive]
+  diffFilter = delta --color-only --features=interactive
+
