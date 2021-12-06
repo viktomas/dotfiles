@@ -14,17 +14,19 @@ Plug 'airblade/vim-gitgutter'
 Plug 'sheerun/vim-polyglot'
 " Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 " Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
+" Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 
 " file orientation plugins
 Plug 'tpope/vim-vinegar'
+Plug 'justinmk/vim-sneak'
+Plug 'tpope/vim-surround'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'milkypostman/vim-togglelist'
-Plug 'pgr0ss/vim-github-url'
+" Plug 'pgr0ss/vim-github-url'
 
 " general code helping plugins
-Plug 'ajh17/VimCompletesMe'
+" Plug 'ajh17/VimCompletesMe'
 Plug 'tpope/vim-commentary'
 Plug 'w0rp/ale'
 Plug 'prettier/vim-prettier', {
