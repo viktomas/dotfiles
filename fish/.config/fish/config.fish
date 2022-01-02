@@ -14,3 +14,5 @@ alias code=code-insiders
 # Source autojump
 [ -e /usr/share/autojump/autojump.fish ]; and source /usr/share/autojump/autojump.fish
 [ -e /usr/local/share/autojump/autojump.fish ]; and source /usr/local/share/autojump/autojump.fish
+[ -e /opt/homebrew/share/autojump/autojump.fish ]; and source /opt/homebrew/share/autojump/autojump.fish
+[ -e (brew --prefix asdf)/asdf.fish ]; and source (brew --prefix asdf)/asdf.fish
