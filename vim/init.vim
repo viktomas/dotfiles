@@ -61,9 +61,6 @@ let g:jsx_ext_required = 1
 " let g:polyglot_disabled = ['go']
 " PLUGINS #####################################################
 
-" tab-complete
-" inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-" inoremap <expr><CR> pumvisible() ? "\<c-y>" : "\<CR>"
 :set completeopt=longest,menuone
 
 let g:go_rename_command = 'gopls'
@@ -147,21 +144,11 @@ set mouse=a
 " FZF customisation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-command! -bang -nargs=* FZFGrep
-  \ call fzf#vim#grep(
-  \   'ag --path-to-ignore ~/.ignore --nogroup --nocolor --column '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview('up:60%')
-  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \   <bang>0,
-  \ )
-
-command! Date put =strftime('%F')
-
 nnoremap <silent> <C-p> :FZF -m<cr>
 nnoremap <silent> gb :Buffers<cr>
 nnoremap <silent> // :History/<cr>
-nnoremap <C-f> :FZFGrep! 
-" nnoremap gf :call fzf#run({'sink': 'e', 'options': '-q '.shellescape(expand('<cword>')), 'down': '~40%'})<cr>
+vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
+nnoremap <C-f> :Ag<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
