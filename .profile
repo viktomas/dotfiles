@@ -1,7 +1,5 @@
 export GOPATH="$HOME/workspace/go"
 
-export PATH="$PATH:$HOME/.rvm/bin"
-
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
 export PATH="$PATH:$GOPATH/bin"
@@ -13,6 +11,7 @@ export SAVEHIST=1000000
 export EDITOR=nvim
 export VISUAL=$EDITOR
 export BROWSER=firefox-developer-edition
+export HOMEBREW_PREFIX=/opt/homebrew
 
 alias vim=nvim
 alias gd="godu -print0 | xargs -0 rm -rf"
