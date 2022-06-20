@@ -1,3 +1,0 @@
-#!/bin/bash
-#curl https://zwyr157wwiu6eior.com/server | jq '.[] | "\(.domain) - \(.load)%"' | sed 's/"//g' | sort -n -k 3,3 | fzf
-curl -g 'https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters={"servers_groups":[15]}' | jq .[].hostname

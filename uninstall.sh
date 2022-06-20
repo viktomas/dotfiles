@@ -8,6 +8,9 @@ rm -rf ~/.taskbook.json
 rm -rf ~/.goduignore
 rm -rf ~/.notable.json
 rm -rf "$HOME/Library/Application Support/Code/User/settings.json"
+
+rm -rf "$HOME/Library/Application Support/Code/User/settings.json"
+rm -rf "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
 rm -rf ~/.bashrc
 rm -rf ~/.gitconfig
 rm -rf ~/.githelpers

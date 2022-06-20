@@ -1,6 +1,6 @@
 {
   "keyboard.dispatch": "keyCode", // trying to enable capslock as esc
-  "window.zoomLevel": 2,
+  "window.zoomLevel": 1,
   // Enable per-language
   "[javascript]": {
     "editor.formatOnSave": true,
@@ -20,12 +20,6 @@
     "zettelkasten"
   ],
   "cSpell.language": "en-GB",
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "javascriptreact",
-    { "language": "vue", "autoFix": true }
-  ],
   "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
@@ -43,7 +37,6 @@
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
-  "terminal.integrated.shell.osx": "/usr/local/bin/zsh",
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
@@ -51,30 +44,9 @@
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  // "gitlab.enableExperimentalFeatures": true,
-  // "http.proxy": "http://localhost:8080",
   "files.enableTrash": false,
   "debug.javascript.usePreview": false,
-  // "gitlab.instanceUrl": "https://dev.gitlab.org",
-  // "gitlab.customQueries": [
-  //   {
-  //     "name": "Closed MRs assigned to me",
-  //     "type": "merge_requests",
-  //     "scope": "assigned_to_me",
-  //     "noItemText": "There is no issue assigned to you.",
-  //     "state": "closed",
-  //     "author": "viktomas"
-  //   },
-  //   {
-  //     "name": "Merged MRs assigned to me",
-  //     "type": "merge_requests",
-  //     "scope": "assigned_to_me",
-  //     "noItemText": "There is no issue assigned to you.",
-  //     "state": "merged",
-  //     "assignee": "viktomas"
-  //   }
-  // ],
-  "editor.fontFamily": "Fira Code",
+  "editor.fontFamily": "JetBrains Mono",
   "editor.fontLigatures": true,
   "workbench.statusBar.visible": true,
   "editor.minimap.enabled": false,
@@ -120,6 +92,7 @@
     "files.trimTrailingWhitespace": false,
     "editor.matchBrackets": "never",
     "editor.renderIndentGuides": false,
-    "editor.parameterHints.enabled": false
+    "editor.parameterHints.enabled": false,
+    "editor.guides.indentation": false
   },
 }
