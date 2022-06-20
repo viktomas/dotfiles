@@ -1,6 +1,7 @@
 #!/bin/bash
 LOCATION="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 ln -s $LOCATION/.ignore ~/.ignore
+ln -s $LOCATION/.crontab ~/.crontab
 ln -s $LOCATION/.githelpers ~/.githelpers
 ln -s $LOCATION/.profile ~/.profile
 ln -s $LOCATION/vim ~/.config/nvim
