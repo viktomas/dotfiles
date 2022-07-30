@@ -1,5 +1,9 @@
 # Dotfiles
 
+## Bin
+
+It's a good idea to start all the scripts with comma, so I can easily autocomplete only my personal commands https://rhodesmill.org/brandon/2009/commands-with-comma/ .
+
 ## Crontab
 
 Edit crontab by running `./bin/edit-crontab.sh`.

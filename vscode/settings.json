@@ -1,6 +1,5 @@
 {
-  "keyboard.dispatch": "keyCode", // trying to enable capslock as esc
-  "window.zoomLevel": 1,
+  "keyboard.dispatch": "keyCode",
   // Enable per-language
   "[javascript]": {
     "editor.formatOnSave": true,
@@ -95,4 +94,12 @@
     "editor.parameterHints.enabled": false,
     "editor.guides.indentation": false
   },
+  "go.toolsManagement.autoUpdate": true,
+  "workbench.sideBar.location": "right",
+  "window.zoomLevel": 1,
+  "remote.SSH.defaultExtensions": [
+    "gitpod.gitpod-remote-ssh"
+  ],
+  "remote.SSH.configFile": "/var/folders/zf/7hg90bwn3871zcg3911dmc_00000gn/T/gitpod_ssh_config-20888-mwZYzdLs7i7o",
+  "diffEditor.ignoreTrimWhitespace": false,
 }
