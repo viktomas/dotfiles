@@ -12,6 +12,7 @@ export EDITOR=nvim
 export VISUAL=$EDITOR
 export BROWSER=firefox-developer-edition
 export HOMEBREW_PREFIX=/opt/homebrew
+export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.ignore -g ""'
 
 alias vim=nvim
 alias gd="godu -print0 | xargs -0 rm -rf"

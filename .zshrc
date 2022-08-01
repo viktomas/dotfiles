@@ -17,8 +17,6 @@ eval "$(direnv hook zsh)"
 setopt rmstarsilent
 setopt clobber
 
-export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.ignore -g ""'
-
 
 source "${ZDOTDIR:-${HOME}}/.zshrc-`uname`"
 
