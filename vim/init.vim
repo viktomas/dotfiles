@@ -12,6 +12,8 @@ Plug 'airblade/vim-gitgutter'
 
 " language related plugins
 Plug 'sheerun/vim-polyglot'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
 " Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 " Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 " Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
@@ -44,7 +46,7 @@ set termguicolors
 :colorscheme gruvbox
 set background=dark    " Setting dark mode
 " cliboard is the default register
-set clipboard=unnamedplus
+" set clipboard=unnamedplus
 " x doesn't write to default cliboard
 noremap x "_x
 " vim waits 500ms after I'm finished editing before it tells plugins to do
@@ -63,7 +65,32 @@ let g:jsx_ext_required = 1
 
 :set completeopt=longest,menuone
 
-let g:go_rename_command = 'gopls'
+lua << EOF
+require'nvim-treesitter.configs'.setup {
+  -- A list of parser names, or "all"
+  ensure_installed = { "javascript", "typescript", "ruby" },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- Automatically install missing parsers when entering buffer
+  auto_install = true,
+
+  -- List of parsers to ignore installing (for "all")
+  -- ignore_install = { "javascript" },
+
+  highlight = {
+    -- `false` will disable the whole extension
+    enable = false,
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+EOF
 
 let b:ale_fixers = {
       \'javascript': ['prettier', 'eslint'],
@@ -110,14 +137,14 @@ set wildmode=longest:full
 " ignore files in file searches
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/bower_components/*,*/target/*,*/vendor/*
 
-" leader s mapped to toggle spell chec
+" leader s mapped to toggle spell check
 nmap <silent> <leader>s :set spell!<CR>
 set spell
 
 " I don't want to se Ex mode ever again
 nnoremap Q :bd<cr>
 
-"Ident parameters
+"Indent parameters
 " https://stackoverflow.com/questions/1878974/redefine-tab-as-4-spaces
 set autoindent
 set expandtab
