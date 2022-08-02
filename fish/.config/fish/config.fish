@@ -9,12 +9,13 @@ function fish_user_key_bindings
     end
 end
 
-alias code=code-insiders
+# init zoxide
+if command -sq zoxide
+    zoxide init --cmd j fish | source
+else
+    echo 'zoxide: command not found, please install it from https://github.com/ajeetdsouza/zoxide'
+end
 
-# Source autojump
-[ -e /usr/share/autojump/autojump.fish ]; and source /usr/share/autojump/autojump.fish
-[ -e /usr/local/share/autojump/autojump.fish ]; and source /usr/local/share/autojump/autojump.fish
-[ -e /opt/homebrew/share/autojump/autojump.fish ]; and source /opt/homebrew/share/autojump/autojump.fish
 [ -e (brew --prefix asdf)/libexec/asdf.fish ]; and source (brew --prefix asdf)/libexec/asdf.fish
 
 if test -d (brew --prefix)"/share/fish/completions"
@@ -25,6 +26,3 @@ if test -d (brew --prefix)"/share/fish/vendor_completions.d"
     set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/vendor_completions.d
 end
 
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-set --export --prepend PATH "/Users/tomas/.rd/bin"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
