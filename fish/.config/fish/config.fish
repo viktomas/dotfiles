@@ -10,6 +10,7 @@ function fish_user_key_bindings
 end
 
 # init zoxide
+complete -e j
 if command -sq zoxide
     zoxide init --cmd j fish | source
 else
