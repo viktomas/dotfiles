@@ -38,8 +38,6 @@ Plug 'prettier/vim-prettier', {
 
 
 call plug#end()
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gr <Plug>(coc-rename)
 
 let mapleader=" "
 set termguicolors
@@ -53,14 +51,6 @@ noremap x "_x
 " their thing (mainly gitgutter)
 set updatetime=500
 set hidden
-" HELP
-:helptags ~/.config/nvim/doc
-autocmd BufWritePost ~/.vim/doc/* :helptags ~/.config/nvim/doc
-" autocmd BufRead,BufNewFile *.hbs setlocal filetype=hbs
-" Polyglot don't set jsx as default for all javascript
-" potential problem when working with REACT again
-let g:jsx_ext_required = 1
-" let g:polyglot_disabled = ['go']
 " PLUGINS #####################################################
 
 :set completeopt=longest,menuone
