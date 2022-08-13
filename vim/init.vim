@@ -315,7 +315,6 @@ nnoremap <silent> <C-p> :FZF -m<cr>
 nnoremap <silent> gb :Buffers<cr>
 nnoremap <silent> // :History/<cr>
 vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
-nnoremap <C-f> :Ag<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -324,8 +323,19 @@ nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
-" clear search buffer when hitting enter (except for when in quickfix buffer)
-:nnoremap <expr> <CR> (&buftype is# "quickfix" ? "<CR>" : ":\:nohlsearch<cr>\n")
+
+lua << EOF
+-- I asked how to solve this in SO: https://stackoverflow.com/a/73290052/606571
+
+vim.keymap.set('n', '<CR>', function()
+  -- quickfix window and nofile (e.g. when editing the : command line) need enter to work normally
+  if vim.o.buftype == 'quickfix' or vim.bo.buftype == "nofile" then
+    return "<CR>"
+  else
+    return ":nohlsearch<CR>"
+  end
+end, {expr = true, replace_keycodes = true, desc = "call :nohlsearch to disable highlighting (but only if in file editing)"})
+EOF
 
 "  move text and rehighlight -- vim tip_id=224 
 vnoremap > ><CR>gv 
