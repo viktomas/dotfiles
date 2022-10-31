@@ -12,12 +12,7 @@
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "cSpell.userWords": [
-    "gitter",
-    "prerequisities",
-    "webapp",
-    "zettelkasten"
-  ],
+  "cSpell.userWords": ["gitter", "prerequisities", "webapp", "zettelkasten"],
   "cSpell.language": "en-GB",
   "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -44,44 +39,48 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "files.enableTrash": false,
-  "debug.javascript.usePreview": false,
   "editor.fontFamily": "JetBrains Mono",
   "editor.fontLigatures": true,
+  // I'm trying to make sure that autocomplete doesn't conflict with snippets
+  // https://stackoverflow.com/questions/41348083/tab-is-conflicting-intellisense-and-snippets-in-vs-code
+  // "editor.tabCompletion": "off",
+  // trying to make sure that snippets are selected first
+  // "editor.snippetSuggestions":"top",
+  // "editor.suggestSelection": "first",
+
   "workbench.statusBar.visible": true,
   "editor.minimap.enabled": false,
   "extensions.ignoreRecommendations": true,
-  "terminal.integrated.shell.linux": "/bin/zsh",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "prettier.singleQuote": true,
   "explorer.confirmDragAndDrop": false,
   "git.enableSmartCommit": true,
   "update.mode": "manual",
-  "python.autoUpdateLanguageServer": false,
   "extensions.autoCheckUpdates": false,
   "calva.prettyPrintingOptions": {
     "maxDepth": 100,
     "enabled": true,
     "printEngine": "pprint",
     "width": 120,
-    "maxLength": 50,
+    "maxLength": 50
   },
-  "prettier.documentSelectors": [
-    "*.js",
-    "*.ts",
-    "*.json",
-    "*.css",
-    "*.scss"
-  ],
+  "prettier.documentSelectors": ["*.js", "*.ts", "*.json", "*.css", "*.scss"],
   "vim.easymotion": true,
+  "vim.camelCaseMotion.enable": true,
   "vim.leader": "<space>",
-   "vim.normalModeKeyBindingsNonRecursive": [
+  "vim.sneak": true,
+  "vim.normalModeKeyBindingsNonRecursive": [
     {
       "before": ["g", "z"],
       "commands": ["workbench.action.toggleZenMode"]
-    }
+    },
+    { "before": ["<C-h>"], "after": ["<C-w>", "h"] },
+    { "before": ["<C-j>"], "after": ["<C-w>", "j"] },
+    { "before": ["<C-k>"], "after": ["<C-w>", "k"] },
+    { "before": ["<C-l>"], "after": ["<C-w>", "l"] },
   ],
   "[clojure]": {
-  "editor.defaultFormatter": "betterthantomorrow.calva",
+    "editor.defaultFormatter": "betterthantomorrow.calva",
     "editor.wordSeparators": "\t ()\"':,;~@#$%^&{}[]`",
     "editor.autoClosingBrackets": "always",
     "editor.autoClosingQuotes": "always",
@@ -90,16 +89,21 @@
     "editor.formatOnPaste": true,
     "files.trimTrailingWhitespace": false,
     "editor.matchBrackets": "never",
-    "editor.renderIndentGuides": false,
     "editor.parameterHints.enabled": false,
     "editor.guides.indentation": false
   },
   "go.toolsManagement.autoUpdate": true,
   "workbench.sideBar.location": "right",
-  "window.zoomLevel": 1,
-  "remote.SSH.defaultExtensions": [
-    "gitpod.gitpod-remote-ssh"
-  ],
-  "remote.SSH.configFile": "/var/folders/zf/7hg90bwn3871zcg3911dmc_00000gn/T/gitpod_ssh_config-20888-mwZYzdLs7i7o",
+  "remote.SSH.defaultExtensions": ["gitpod.gitpod-remote-ssh"],
+  "remote.SSH.configFile": "/var/folders/zf/7hg90bwn3871zcg3911dmc_00000gn/T/gitpod_ssh_config-32949-wYDyi5brBWcQ",
   "diffEditor.ignoreTrimWhitespace": false,
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "editor.stickyScroll.enabled": true,
+  "redhat.telemetry.enabled": true,
+  "window.zoomLevel": 1,
+  "[sql]": {
+    "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
+  }
 }

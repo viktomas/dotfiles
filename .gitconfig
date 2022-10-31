@@ -1,6 +1,9 @@
 [user]
   name = Tomas Vik
-  email = tvik@gitlab.com
+[includeIf "gitdir:~/workspace/work/"]
+  path = .gitconfig-work
+[includeIf "gitdir:~/workspace/private/"]
+  path = .gitconfig-private
 [core]
   editor = nvim
   autocrlf = input
