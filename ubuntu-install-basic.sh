@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo apt install silversearcher-ag fzf autojump tldr fish stow
+sudo apt install silversearcher-ag fzf tldr fish stow zoxide neovim
