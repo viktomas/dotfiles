@@ -17,7 +17,7 @@ else
     echo 'zoxide: command not found, please install it from https://github.com/ajeetdsouza/zoxide'
 end
 
-if type -q tldr
+if type -q brew
 
     [ -e (brew --prefix asdf)/libexec/asdf.fish ]; and source (brew --prefix asdf)/libexec/asdf.fish
 
