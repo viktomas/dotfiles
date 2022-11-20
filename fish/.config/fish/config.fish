@@ -17,13 +17,15 @@ else
     echo 'zoxide: command not found, please install it from https://github.com/ajeetdsouza/zoxide'
 end
 
-[ -e (brew --prefix asdf)/libexec/asdf.fish ]; and source (brew --prefix asdf)/libexec/asdf.fish
+if type -q tldr
 
-if test -d (brew --prefix)"/share/fish/completions"
-    set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/completions
+    [ -e (brew --prefix asdf)/libexec/asdf.fish ]; and source (brew --prefix asdf)/libexec/asdf.fish
+
+    if test -d (brew --prefix)"/share/fish/completions"
+        set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/completions
+    end
+
+    if test -d (brew --prefix)"/share/fish/vendor_completions.d"
+        set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/vendor_completions.d
+    end
 end
-
-if test -d (brew --prefix)"/share/fish/vendor_completions.d"
-    set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/vendor_completions.d
-end
-
