@@ -12,3 +12,7 @@ export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.ignore -g ""'
 alias gd="godu -print0 | xargs -0 rm -rf"
 alias gm="godu -print0 | xargs -0 -I _ mv _ "
 
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/tomas/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

@@ -29,3 +29,7 @@ if type -q brew
         set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/vendor_completions.d
     end
 end
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+set --export --prepend PATH "/Users/tomas/.rd/bin"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

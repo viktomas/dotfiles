@@ -1,6 +1,5 @@
-.vim/plugged
 .gitcofing
-vim/undo/
-vim/plugged/
-vim/.netrwhist
-vim/doc/tags
+nvim/.config/nvim/undo/
+nvim/.config/nvim/plugged/
+nvim/.config/nvim/.netrwhist
+nvim/.config/nvim/doc/tags

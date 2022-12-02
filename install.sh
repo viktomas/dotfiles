@@ -7,9 +7,6 @@ ln -s $LOCATION/.gitconfig ~/.gitconfig
 ln -s $LOCATION/.gitconfig-work ~/.gitconfig-work
 ln -s $LOCATION/.gitconfig-private ~/.gitconfig-private
 ln -s $LOCATION/.profile ~/.profile
-ln -s $LOCATION/vim ~/.config/nvim
-# Create files for vim backup/undo
-mkdir -p ~/.vim/swap ~/.vim/backup ~/.vim/undo
 ln -s $LOCATION/.ag-ignore ~/.ag-ignore
 ln -s $LOCATION/bin/ ~/
 ln -s $LOCATION/.global-gitignore ~/.gitignore
@@ -23,7 +20,13 @@ stow kitty
 stow fish
 stow fd
 
+### NeoVim
+stow nvim
+# Create files for vim backup/undo
+mkdir -p ~/.vim/swap ~/.vim/backup ~/.vim/undo
+
 [ "$(uname 2> /dev/null)" == "Darwin" ] && stow karabiner
 
-chsh -s $(which fish)
+
+[[ $SHELL != *"fish" ]] && chsh -s $(which fish)
 

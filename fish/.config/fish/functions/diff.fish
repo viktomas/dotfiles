@@ -1,3 +1,3 @@
-function diff --wraps=diff-so-fancy --description 'alias diff=diff-so-fancy'
-  diff-so-fancy $argv; 
+function diff --wraps=delta --description 'alias diff=delta'
+  delta $argv; 
 end

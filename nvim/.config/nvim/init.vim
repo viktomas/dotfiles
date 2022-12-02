@@ -13,6 +13,7 @@ Plug 'airblade/vim-gitgutter'
 " language related plugins
 Plug 'sheerun/vim-polyglot'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+" https://github.com/neovim/nvim-lspconfig
 Plug 'neovim/nvim-lspconfig'
 
 " Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
@@ -29,13 +30,14 @@ Plug 'milkypostman/vim-togglelist'
 " Plug 'pgr0ss/vim-github-url'
 
 " Autocomplete
+" https://github.com/hrsh7th/nvim-cmp
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/vim-vsnip'
 " general code helping plugins
-" Plug 'ajh17/VimCompletesMe'
 Plug 'tpope/vim-commentary'
 Plug 'w0rp/ale'
 Plug 'prettier/vim-prettier', {
@@ -136,14 +138,11 @@ lua <<EOF
   local cmp = require'cmp'
 
   cmp.setup({
-    snippet = {
-      -- REQUIRED - you must specify a snippet engine
-      expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-        -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-        -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-        -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-      end,
+     snippet = {
+       -- REQUIRED - you must specify a snippet engine
+       expand = function(args)
+         vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+       end,
     },
     window = {
       -- completion = cmp.config.window.bordered(),
@@ -222,7 +221,7 @@ autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.gra
 
 " JavaScript
 " TODO: more generic
-autocmd Filetype javascript nnoremap <leader>rt :!npm run mocha -- %<cr>
+" autocmd Filetype javascript nnoremap <leader>rt :!npm run mocha -- %<cr>
 
 set grepprg=ag\ --nogroup\ --nocolor
 
@@ -339,4 +338,15 @@ nnoremap <silent> [b :bprevious<CR>
 nnoremap <silent> ]b :bnext<CR>
 nnoremap <silent> [B :bfirst<CR>
 nnoremap <silent> ]B :blast<CR>
+
+" copied from https://github.com/nelstrom/vim-visual-star-search
+function! s:VSetSearch(cmdtype)
+  let temp = @s
+  norm! gv"sy
+  let @/ = '\V' . substitute(escape(@s, a:cmdtype.'\'), '\n', '\\n', 'g')
+  let @s = temp
+endfunction
+
+xnoremap * :<C-u>call <SID>VSetSearch('/')<CR>/<C-R>=@/<CR><CR>
+xnoremap # :<C-u>call <SID>VSetSearch('?')<CR>?<C-R>=@/<CR><CR>
 
