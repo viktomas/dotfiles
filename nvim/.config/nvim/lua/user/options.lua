@@ -1,3 +1,4 @@
+local expand = vim.fn.expand
 local options = {
   -- backup
   -- Backup and undo config taken from https://begriffs.com/posts/2019-07-19-history-use-vim.html
@@ -8,12 +9,13 @@ local options = {
   backupcopy = "auto",                     -- use rename-and-write-new method whenever safe
   writebackup = true,                      -- Make a backup when overwriting a file. Delete it afterwards
   swapfile = true,                         -- protect changes between writes by putting them to a swapfile
-  directory = "~/.vim/swap//",             -- swap directory
-  backupdir = "~/.vim/backup//",           -- backup dir - needs patch-8.1.0251
+  directory = expand("~/.vim/swap//"),             -- swap directory
+  
+  backupdir = expand("~/.vim/backup//"),           -- backup dir - needs patch-8.1.0251
 
   -- undo
   undofile = true,                         -- persist undo tree for each file
-  undodir = "~/.vim/undo//",               -- store undo files in directory
+  undodir = expand("~/.vim/undo//"),               -- store undo files in directory
 
   cursorline = true,                       -- highlight the current line
   number = true,                           -- add line numbers

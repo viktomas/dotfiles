@@ -3,6 +3,7 @@ require('user.plugins')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 
+require('gitsigns').setup()
 
 
 -- Setup lspconfig.

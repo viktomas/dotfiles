@@ -20,7 +20,7 @@ return require('packer').startup(function(use)
 
   -- git related plugins
   use 'tpope/vim-fugitive'
-  use 'airblade/vim-gitgutter'
+  use "lewis6991/gitsigns.nvim"
 
   -- language related plugins
   use 'sheerun/vim-polyglot'
