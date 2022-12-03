@@ -1,46 +1,4 @@
-local Plug = vim.fn['plug#']
-
-vim.call('plug#begin', '~/.config/nvim/plugged')
-
--- color scheme
-Plug 'morhetz/gruvbox'
-Plug 'vim-airline/vim-airline'
-
--- git related plugins
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-
--- language related plugins
-Plug 'sheerun/vim-polyglot'
-Plug('nvim-treesitter/nvim-treesitter', {['do'] = ':TSUpdate'})
-Plug 'neovim/nvim-lspconfig'
-
-
--- file orientation plugins
-Plug 'tpope/vim-vinegar'
-Plug 'justinmk/vim-sneak'
-Plug 'tpope/vim-surround'
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
-Plug 'milkypostman/vim-togglelist'
-
--- Autocomplete
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-cmdline'
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/vim-vsnip'
-
--- general code helping plugins
-Plug 'tpope/vim-commentary'
-Plug 'w0rp/ale'
-Plug ('prettier/vim-prettier', {
-  ['do'] = 'yarn install',
-  ['for'] = {'javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'yaml', 'html'},
-})
-
-vim.call('plug#end')
+require('user.plugins')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 
