@@ -2,6 +2,7 @@ require('user.options')
 require('user.keymaps')
 require('user.plugins')
 require('user.colorscheme')
+require('user.tree')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 

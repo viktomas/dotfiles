@@ -29,7 +29,13 @@ return require('packer').startup(function(use)
 
 
   -- file orientation plugins
-  use 'tpope/vim-vinegar'
+  use {
+    'nvim-tree/nvim-tree.lua',
+    requires = {
+      'nvim-tree/nvim-web-devicons', -- optional, for file icons
+    },
+    tag = 'nightly' -- optional, updated every week. (see issue #1193)
+  }
   use 'justinmk/vim-sneak'
   use 'tpope/vim-surround'
   use 'junegunn/fzf'
