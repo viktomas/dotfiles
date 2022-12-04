@@ -1,10 +1,5 @@
-let mapleader=" "
-:colorscheme gruvbox
-set background=dark    " Setting dark mode
 " cliboard is the default register
 " set clipboard=unnamedplus
-" x doesn't write to default cliboard
-noremap x "_x
 " vim waits 500ms after I'm finished editing before it tells plugins to do
 " their thing (mainly gitgutter)
 " PLUGINS #####################################################
@@ -39,9 +34,6 @@ augroup openQuickFixAutomatically
   autocmd QuickFixCmdPost l*    lwindow
 augroup END
 
-nnoremap [q :cprev<cr>
-nnoremap ]q :cnext<cr>
-
 let g:toggle_list_no_mappings=1
 nnoremap <leader>q :call ToggleQuickfixList()<CR>
 
@@ -66,24 +58,11 @@ vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Move around splits with <c-hjkl>
-nnoremap <c-j> <c-w>j
-nnoremap <c-k> <c-w>k
-nnoremap <c-h> <c-w>h
-nnoremap <c-l> <c-w>l
-
-"  move text and rehighlight -- vim tip_id=224 
-vnoremap > ><CR>gv 
-vnoremap < <<CR>gv 
 
 "air line settings
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 
-nnoremap <silent> [b :bprevious<CR>
-nnoremap <silent> ]b :bnext<CR>
-nnoremap <silent> [B :bfirst<CR>
-nnoremap <silent> ]B :blast<CR>
 
 " copied from https://github.com/nelstrom/vim-visual-star-search
 function! s:VSetSearch(cmdtype)
