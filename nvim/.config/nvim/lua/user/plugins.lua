@@ -14,6 +14,9 @@ local packer_bootstrap = ensure_packer()
 return require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
 
+  -- everyone wants these lua functions
+  use 'nvim-lua/plenary.nvim'
+
   -- color scheme
   use 'morhetz/gruvbox'
   use 'vim-airline/vim-airline'
@@ -35,6 +38,12 @@ return require('packer').startup(function(use)
       'nvim-tree/nvim-web-devicons', -- optional, for file icons
     },
     tag = 'nightly' -- optional, updated every week. (see issue #1193)
+  }
+  use { 
+    'tamago324/lir.nvim',
+    requires = {
+      'nvim-tree/nvim-web-devicons', -- optional, for file icons
+    },
   }
   use 'justinmk/vim-sneak'
   use 'tpope/vim-surround'
