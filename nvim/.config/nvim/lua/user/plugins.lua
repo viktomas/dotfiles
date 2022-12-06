@@ -26,7 +26,7 @@ return require('packer').startup(function(use)
   use "lewis6991/gitsigns.nvim"
 
   -- language related plugins
-  use 'sheerun/vim-polyglot'
+  -- use 'sheerun/vim-polyglot'
   use {'nvim-treesitter/nvim-treesitter', ['do'] = ':TSUpdate'}
   use 'neovim/nvim-lspconfig'
 
@@ -47,8 +47,10 @@ return require('packer').startup(function(use)
   }
   use 'justinmk/vim-sneak'
   use 'tpope/vim-surround'
-  use 'junegunn/fzf'
-  use 'junegunn/fzf.vim'
+  use {
+    'nvim-telescope/telescope.nvim', tag = '0.1.0',
+    requires = { {'nvim-lua/plenary.nvim'} }
+  }
   use 'milkypostman/vim-togglelist'
 
   -- Autocomplete

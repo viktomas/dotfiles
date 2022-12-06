@@ -46,6 +46,10 @@ local options = {
   linebreak = true,                        -- companion to wrap, don't split words
   scrolloff = 8,                           -- minimal number of screen lines to keep above and below the cursor
   sidescrolloff = 8,                       -- minimal number of screen columns either side of cursor if wrap is `false`
+
+  --grep
+  grepprg='rg --vimgrep --smart-case --hidden', --copied from https://phelipetls.github.io/posts/extending-vim-with-ripgrep/
+  grepformat='%f:%l:%c:%m',
 --------------------
   --wildmode = "longest:full"                -- completion mode for files and scripts
   -- showtabline = 2,                         -- always show tabs

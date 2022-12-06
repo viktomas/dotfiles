@@ -3,6 +3,7 @@ require('user.keymaps')
 require('user.plugins')
 require('user.colorscheme')
 require('user.tree')
+require('user.fuzzy-search')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 

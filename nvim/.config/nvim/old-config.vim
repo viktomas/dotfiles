@@ -22,12 +22,6 @@ let g:prettier#quickfix_enabled = 0
 let g:prettier#autoformat = 0
 autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue,*.yaml,*.html PrettierAsync
 
-" JavaScript
-" TODO: more generic
-" autocmd Filetype javascript nnoremap <leader>rt :!npm run mocha -- %<cr>
-
-set grepprg=ag\ --nogroup\ --nocolor
-
 augroup openQuickFixAutomatically
   autocmd!
   autocmd QuickFixCmdPost [^l]* cwindow
@@ -37,8 +31,6 @@ augroup END
 let g:toggle_list_no_mappings=1
 nnoremap <leader>q :call ToggleQuickfixList()<CR>
 
-nnoremap <leader><leader> :<c-p><cr>
-
 
 " leader s mapped to toggle spell check
 nmap <silent> <leader>s :set spell!<CR>
@@ -47,14 +39,6 @@ nmap <silent> <leader>s :set spell!<CR>
 nnoremap Q :bd<cr>
 
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" FZF customisation
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-nnoremap <silent> <C-p> :FZF -m<cr>
-nnoremap <silent> gb :Buffers<cr>
-nnoremap <silent> // :History/<cr>
-vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
