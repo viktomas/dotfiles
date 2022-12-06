@@ -24,6 +24,7 @@ stow fd
 stow nvim
 # Create files for vim backup/undo
 mkdir -p ~/.vim/swap ~/.vim/backup ~/.vim/undo
+chmod 700 ~/.vim ~/.vim/backup/ ~/.vim/undo/ ~/.vim/swap/ # sensitive information might be in vim tmp files
 
 [ "$(uname 2> /dev/null)" == "Darwin" ] && stow karabiner
 
