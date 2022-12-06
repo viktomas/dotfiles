@@ -28,17 +28,11 @@ require('telescope').setup({
 
 local builtin = require('telescope.builtin')
 
-local project_files = function()
-  local opts = {} -- define here if you want to define something
-  vim.fn.system('git rev-parse --is-inside-work-tree')
-  if vim.v.shell_error == 0 then
-    builtin.git_files(opts)
-  else
-    builtin.find_files(opts)
-  end
+local find_files = function()
+  builtin.find_files({ hidden = true })
 end
 
-vim.keymap.set('n', '<C-p>', project_files, {})
+vim.keymap.set('n', '<C-p>', find_files, {})
 vim.keymap.set('n', 'gb', builtin.buffers, {})
 vim.keymap.set('n', '//', builtin.live_grep, {})
 vim.keymap.set('n', '<F1>', builtin.help_tags, {})

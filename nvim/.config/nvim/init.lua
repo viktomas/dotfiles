@@ -4,6 +4,9 @@ require('user.plugins')
 require('user.colorscheme')
 require('user.tree')
 require('user.fuzzy-search')
+require('user.treesitter')
+require('user.completion')
+require('user.lsp')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 
