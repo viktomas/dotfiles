@@ -30,6 +30,7 @@ local options = {
   shiftwidth = 2,                          -- the number of spaces inserted for each indentation
 
   spell = true,                            -- enable spelling
+  spelloptions = "camel",                   -- check camel-case words separately
   splitbelow = true,                       -- force all horizontal splits to go below current window
   splitright = true,                       -- force all vertical splits to go to the right of current window
   mouse = "a",                             -- allow the mouse to be used in neovim

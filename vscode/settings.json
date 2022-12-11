@@ -1,4 +1,5 @@
 {
+  "gitlab.debug": true,
   "keyboard.dispatch": "keyCode",
   // Enable per-language
   "[javascript]": {
@@ -102,8 +103,8 @@
   },
   "editor.stickyScroll.enabled": true,
   "redhat.telemetry.enabled": true,
-  "window.zoomLevel": 1,
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
-  }
+  },
+  "window.zoomLevel": 1
 }

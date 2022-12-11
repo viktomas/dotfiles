@@ -7,22 +7,12 @@ require('user.fuzzy-search')
 require('user.treesitter')
 require('user.completion')
 require('user.lsp')
+require('user.test')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 
 require('gitsigns').setup()
 
-
--- Setup lspconfig.
--- Set up lspconfig.
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
--- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
-require('lspconfig')['gopls'].setup {
-  capabilities = capabilities
-}
-require('lspconfig')['tsserver'].setup {
-  capabilities = capabilities
-}
 
 -- I asked how to solve this in SO: https://stackoverflow.com/a/73290052/606571
 

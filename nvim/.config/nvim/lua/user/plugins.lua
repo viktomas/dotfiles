@@ -19,6 +19,7 @@ return require('packer').startup(function(use)
 
   -- color scheme
   use 'morhetz/gruvbox'
+  use 'sainnhe/sonokai'
   use 'vim-airline/vim-airline'
 
   -- git related plugins
@@ -64,6 +65,7 @@ return require('packer').startup(function(use)
   -- general code helping plugins
   use 'tpope/vim-commentary'
   use 'w0rp/ale'
+  use 'vim-test/vim-test'
   use {'prettier/vim-prettier',
     ['do'] = 'yarn install',
     ['for'] = {'javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'yaml', 'html'},

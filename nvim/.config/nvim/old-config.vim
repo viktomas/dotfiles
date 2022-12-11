@@ -4,7 +4,6 @@
 " their thing (mainly gitgutter)
 " PLUGINS #####################################################
 
-
 let g:vimsyn_embed = 'l'
 
 

@@ -1,4 +1,4 @@
-nmap <leader>t <Plug>(go-test)
+" nmap <leader>t <Plug>(go-test)
 nmap <leader>c <Plug>(go-coverage)
 nmap <leader>i <Plug>(go-imports)
 nmap <leader>v <Plug>(go-vet)
