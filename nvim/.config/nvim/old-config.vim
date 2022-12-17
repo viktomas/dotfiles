@@ -58,3 +58,12 @@ endfunction
 xnoremap * :<C-u>call <SID>VSetSearch('/')<CR>/<C-R>=@/<CR><CR>
 xnoremap # :<C-u>call <SID>VSetSearch('?')<CR>?<C-R>=@/<CR><CR>
 
+" Run neoformat on saving a file
+"[sbdchd/neoformat: A (Neo)vim plugin for formatting code.](https://github.com/sbdchd/neoformat)
+"
+" The `undojoin` command will put changes made by Neoformat into the same `undo-block` with the latest preceding change.
+" See [Managing Undo History](https://github.com/sbdchd/neoformat#managing-undo-history).
+augroup fmt
+  autocmd!
+  autocmd BufWritePre * undojoin | Neoformat
+augroup END

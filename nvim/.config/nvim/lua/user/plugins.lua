@@ -63,6 +63,7 @@ return require('packer').startup(function(use)
   use 'hrsh7th/vim-vsnip'
 
   -- general code helping plugins
+  use 'sbdchd/neoformat'
   use 'tpope/vim-commentary'
   use 'w0rp/ale'
   use 'vim-test/vim-test'
