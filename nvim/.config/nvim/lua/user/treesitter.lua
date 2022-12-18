@@ -16,3 +16,31 @@ require'nvim-treesitter.configs'.setup {
     additional_vim_regex_highlighting = false,
   },
 }
+
+-- folding with tree-sitter
+-- -------------------------
+-- https://www.jmaguire.tech/posts/treesitter_folding/
+-- This is partially broken thanks to telescope
+-- see issue https://github.com/nvim-telescope/telescope.nvim/issues/559
+-- and https://github.com/nvim-telescope/telescope.nvim/issues/699
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+
+-- workaraound for telescope issue https://github.com/nvim-telescope/telescope.nvim/issues/559#issuecomment-1074076011
+vim.api.nvim_create_autocmd('BufRead', {
+   callback = function()
+      vim.api.nvim_create_autocmd('BufWinEnter', {
+         once = true,
+         command = 'normal! zx'
+      })
+   end
+})
+
+-- this is my rewrite of the following autocmd
+-- autocmd BufReadPost,FileReadPost * normal zR
+-- it should unfold everything when opening a file
+-- it doesn't work, probably thanks to telescope
+-- vim.api.nvim_create_autocmd(
+--   {'BufReadPost', 'FileReadPost'},
+--   { command = 'normal zR' }
+-- )
