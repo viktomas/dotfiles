@@ -60,7 +60,11 @@ return require('packer').startup(function(use)
   use 'hrsh7th/cmp-path'
   use 'hrsh7th/cmp-cmdline'
   use 'hrsh7th/nvim-cmp'
+
+  -- snippets
   use 'hrsh7th/vim-vsnip'
+  use 'hrsh7th/cmp-vsnip'
+  use "rafamadriz/friendly-snippets"
 
   -- general code helping plugins
   use 'sbdchd/neoformat'

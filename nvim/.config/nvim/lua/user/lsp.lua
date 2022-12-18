@@ -32,8 +32,9 @@ vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
 vim.keymap.set('n', '<space>f', vim.lsp.buf.formatting, bufopts)
 end
 
+-- setting autocompletion for nvim-cmp
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
--- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+
 require('lspconfig')['gopls'].setup {
   capabilities = capabilities,
   on_attach = on_attach,

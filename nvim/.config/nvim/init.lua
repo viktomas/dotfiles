@@ -8,6 +8,7 @@ require('user.treesitter')
 require('user.completion')
 require('user.lsp')
 require('user.test')
+require('user.snippets')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 
