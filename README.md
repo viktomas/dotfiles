@@ -20,3 +20,11 @@ Edit crontab by running `./bin/edit-crontab.sh`.
 
 - Configured to use different `.gitconfig` for work and private repos based on [How to use different git emails · Hao's learning log](https://blog.hao.dev/how-to-use-different-git-emails-for-personal-and-work-repositories-on-the-same-machine)
 
+## Vim
+
+### TODO
+
+- [ ] use `pgrep -P $fish_pid nvim` to indicate that there is vim session in progress in the fish shell prompt
+- [ ] autocomplete uses fuzzy matching, sometimes completing bullshit
+- [ ] when I press `//` on visually selected text, I want the Telescope ripgrep to pre-populate the search
+- [ ] somehow restore previous search for `//`
