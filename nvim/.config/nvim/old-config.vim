@@ -6,6 +6,7 @@
 
 let g:vimsyn_embed = 'l'
 
+let g:hardtime_default_on = 1
 
 let b:ale_fixers = {
       \'javascript': ['prettier', 'eslint'],

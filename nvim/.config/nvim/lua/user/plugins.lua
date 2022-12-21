@@ -76,6 +76,9 @@ return require('packer').startup(function(use)
     ['for'] = {'javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'yaml', 'html'},
   }
 
+  -- Hard time to prevent me from using hjkl
+  use 'takac/vim-hardtime'
+
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then
