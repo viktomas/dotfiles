@@ -13,7 +13,19 @@ require("nvim-tree").setup({
   },
 })
 
-vim.keymap.set('n', '-', [[<Cmd>execute 'e ' .. expand('%:p:h')<CR>]], {noremap = true, silent = true})
+-- Gets only the folder path from full file path
+function getFolderPath(str)
+    return str:match("(.*[/\\])")
+end
+
+-- Lets vim open the current folder - that triggers lir
+function open_lir()
+  current_buffer_path = vim.api.nvim_buf_get_name(0)
+  current_folder_path = getFolderPath(current_buffer_path)
+  vim.cmd(':e '..current_folder_path);
+end
+
+vim.keymap.set('n', '-', open_lir, {noremap = true, silent = true, desc = 'run :e on the directory from current buffer'})
 
 local actions = require'lir.actions'
 local mark_actions = require 'lir.mark.actions'
