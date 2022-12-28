@@ -22,6 +22,11 @@ end
 function open_lir()
   current_buffer_path = vim.api.nvim_buf_get_name(0)
   current_folder_path = getFolderPath(current_buffer_path)
+  -- current buffer path (and by proxy the current folder path)
+  -- can be nil if the buffer is empty (e.g. after opening vim in a folder)
+  if current_folder_path == nil then
+    current_folder_path = '.'
+  end
   vim.cmd(':e '..current_folder_path);
 end
 
