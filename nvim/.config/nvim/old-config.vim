@@ -65,7 +65,10 @@ xnoremap # :<C-u>call <SID>VSetSearch('?')<CR>?<C-R>=@/<CR><CR>
 "
 " The `undojoin` command will put changes made by Neoformat into the same `undo-block` with the latest preceding change.
 " See [Managing Undo History](https://github.com/sbdchd/neoformat#managing-undo-history).
+" The catch tweak is from https://github.com/sbdchd/neoformat/issues/134#issuecomment-1034726786
+" it fixes the issue when I try to save file after undo
 augroup fmt
   autocmd!
-  autocmd BufWritePre * undojoin | Neoformat
+  au BufWritePre * try | undojoin | Neoformat | catch /E790/ | Neoformat | endtry
 augroup END
+
