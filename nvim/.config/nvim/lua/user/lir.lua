@@ -2,22 +2,6 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
--- empty setup using defaults
-require("nvim-tree").setup({
-  hijack_netrw = false,
-  view = {
-    adaptive_size = true,
-    float = {
-      enable = true,
-    },
-  },
-})
-
--- Gets only the folder path from full file path
-function getFolderPath(str)
-    return str:match("(.*[/\\])")
-end
-
 -- Lets vim open the current folder - that triggers lir
 function open_lir()
   current_buffer_path = vim.api.nvim_buf_get_name(0)
