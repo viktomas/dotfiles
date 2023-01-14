@@ -28,7 +28,8 @@ function n --wraps nnn --description 'support nnn quit and change directory'
     # making an infinitely recursive alias
     # -e opens text in $VISUAL or $EIDTOR
     # - A disables the auto-enter on filter match
-    command nnn -e -A $argv
+    # - H shows hidden files by default
+    command nnn -e -A -H $argv
 
     if test -e $NNN_TMPFILE
         source $NNN_TMPFILE
