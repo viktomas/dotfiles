@@ -75,6 +75,10 @@ return require('packer').startup(function(use)
     ['do'] = 'yarn install',
     ['for'] = {'javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'yaml', 'html'},
   }
+  use {
+    "windwp/nvim-autopairs",
+    config = function() require("nvim-autopairs").setup {} end
+  }
 
   -- Hard time to prevent me from using hjkl
   use 'takac/vim-hardtime'
