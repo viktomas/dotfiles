@@ -41,6 +41,9 @@ keymap("n", "]B", ":blast<CR>", opts)
 keymap("n", "[q", ":cprev<CR>", opts)
 keymap("n", "]q", ":cnext<CR>", opts)
 
+-- Keep cursor in a middle of the screen when I scroll
+keymap("n", "<C-d>", "<C-d>zz", opts)
+keymap("n", "<C-u>", "<C-u>zz", opts)
 
 -- Move text up and down
 -- keymap("n", "<A-j>", "<Esc>:m .+1<CR>==gi", opts)
