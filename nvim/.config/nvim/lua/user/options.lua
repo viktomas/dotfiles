@@ -19,6 +19,7 @@ local options = {
 
   cursorline = true,                       -- highlight the current line
   number = true,                           -- add line numbers
+  relativenumber = true,                  -- set relative numbered lines
   ignorecase = true,                       -- make searches case-sensitive only if they contain upper-case characters
   smartcase = true,                        -- see previous line
   -- indentation
@@ -55,7 +56,6 @@ local options = {
   --wildmode = "longest:full"                -- completion mode for files and scripts
   -- showtabline = 2,                         -- always show tabs
   -- timeoutlen = 300,                        -- time to wait for a mapped sequence to complete (in milliseconds)
-  -- relativenumber = false,                  -- set relative numbered lines
 
   -- signcolumn = "yes",                      -- always show the sign column, otherwise it would shift the text each time
   whichwrap = "bs<>[]hl",                  -- which "horizontal" keys are allowed to travel to prev/next line
