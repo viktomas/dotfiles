@@ -25,6 +25,7 @@ return require('packer').startup(function(use)
   -- git related plugins
   use 'tpope/vim-fugitive'
   use "lewis6991/gitsigns.nvim"
+  use 'pgr0ss/vim-github-url'
 
   -- language related plugins
   -- use 'sheerun/vim-polyglot'
@@ -39,6 +40,7 @@ return require('packer').startup(function(use)
       'nvim-tree/nvim-web-devicons', -- optional, for file icons
     },
   }
+  use 'xiyaowong/link-visitor.nvim' -- I have to have link visitor because gx stops working without netrw, netrw is disabled to have lir
   use 'justinmk/vim-sneak'
   use 'tpope/vim-surround'
   use {
@@ -76,6 +78,25 @@ return require('packer').startup(function(use)
   -- Hard time to prevent me from using hjkl
   use 'takac/vim-hardtime'
 
+  -- Which key shows helpful window to remind me of the keymaps
+  use {
+    'folke/which-key.nvim',
+    config = function()
+      vim.o.timeout = true
+      vim.o.timeoutlen = 300
+      require("which-key").setup {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      }
+    end
+  }
+        
+  -- Firevim!
+  use {
+    'glacambre/firenvim',
+    run = function() vim.fn['firenvim#install'](0) end 
+}
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then

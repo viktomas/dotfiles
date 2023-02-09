@@ -2,6 +2,11 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+-- Gets only the folder path from full file path
+function getFolderPath(str)
+    return str:match("(.*[/\\])")
+end
+
 -- Lets vim open the current folder - that triggers lir
 function open_lir()
   current_buffer_path = vim.api.nvim_buf_get_name(0)
