@@ -1,0 +1,6 @@
+theme = "dark_plus"
+[editor.cursor-shape]
+insert = "bar"
+
+[editor.file-picker]
+hidden = false

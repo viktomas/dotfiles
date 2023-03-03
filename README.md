@@ -28,3 +28,6 @@ Edit crontab by running `./bin/edit-crontab.sh`.
 - [ ] autocomplete uses fuzzy matching, sometimes completing bullshit
 - [ ] when I press `//` on visually selected text, I want the Telescope ripgrep to pre-populate the search
 - [ ] somehow restore previous search for `//`
+- [ ] I can't scroll through autocomplete options? :thinking: (C-P and C-N doesn't work in Go) I really need to sort it out.
+- [ ] Copy key mappings from helix (space mode, go mode)
+- [ ] try to use https://github.com/glepnir/lspsaga.nvim and see if it has better LSP rename

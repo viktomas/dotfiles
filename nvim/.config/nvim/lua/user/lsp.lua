@@ -1,38 +1,51 @@
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 local opts = { noremap=true, silent=true }
+
+function optsWithDesc(desc)
+  return { noremap=true, desc= desc}
+end
+
 -- the following diagnostic commands don't work :(
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
+-- vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
+-- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
 --- end of not working
 
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, optsWithDesc("previous diagnostics"))
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, optsWithDesc("next diagnostics"))
 
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 local on_attach = function(client, bufnr)
+
+  function bufoptsWithDesc(desc)
+    return { noremap=true, silent=true, buffer=bufnr, desc = desc }
+  end
+
+  local builtin = require('telescope.builtin')
+  vim.keymap.set('n', '<leader>s', builtin.lsp_document_symbols, bufoptsWithDesc("Open symbol picker"))
+  vim.keymap.set('n', '<leader>S', builtin.lsp_dynamic_workspace_symbols, bufoptsWithDesc("Open symbol picker (workspace)"))
+  vim.keymap.set('n', '<leader>d', builtin.diagnostics, bufoptsWithDesc("Open diagnostics picker"))
   -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
   -- Mappings.
   -- See `:help vim.lsp.*` for documentation on any of the below functions
-  local bufopts = { noremap=true, silent=true, buffer=bufnr }
-  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-  vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufopts)
-  vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
-  vim.keymap.set('n', '<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, bufopts)
-vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
-vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
-vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
-vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, bufopts)
+  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufoptsWithDesc("Declaration"))
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufoptsWithDesc("Definition"))
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufoptsWithDesc("LSP Hover"))
+  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufoptsWithDesc("Implementation"))
+  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufoptsWithDesc("Signature help"))
+  -- vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufoptsWithDesc(""))
+  -- vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufoptsWithDesc())
+  -- vim.keymap.set('n', '<leader>wl', function()
+  --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  -- end, bufoptsWithDesc())
+  vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, bufoptsWithDesc("Type definition"))
+  vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, bufoptsWithDesc("Rename symbol"))
+  vim.keymap.set('n', '<leader>a', vim.lsp.buf.code_action, bufoptsWithDesc("Run code action"))
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufoptsWithDesc("references"))
+  -- vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, bufoptsWithDesc())
 end
 
 -- setting autocompletion for nvim-cmp

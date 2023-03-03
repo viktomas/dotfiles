@@ -32,8 +32,9 @@ local find_files = function()
   builtin.find_files({ hidden = true })
 end
 
-vim.keymap.set('n', '<C-p>', find_files, {})
-vim.keymap.set('n', 'gb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>f', find_files, {desc = 'find files'})
+vim.keymap.set('n', "<leader>'", builtin.resume, {desc = 'resume last picker'})
+-- vim.keymap.set('n', 'gb', builtin.buffers, {})
 vim.keymap.set('n', '//', builtin.live_grep, {})
 vim.keymap.set('n', '<F1>', builtin.help_tags, {})
 

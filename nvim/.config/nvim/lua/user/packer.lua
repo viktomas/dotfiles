@@ -59,12 +59,14 @@ return require('packer').startup(function(use)
   -- snippets
   use 'hrsh7th/vim-vsnip'
   use 'hrsh7th/cmp-vsnip'
-  use "rafamadriz/friendly-snippets"
+  -- use "rafamadriz/friendly-snippets"
 
   -- general code helping plugins
   use 'sbdchd/neoformat'
   use 'tpope/vim-commentary'
-  use 'w0rp/ale'
+  -- linting with ALE
+  use 'dense-analysis/ale'
+
   use 'vim-test/vim-test'
   use {'prettier/vim-prettier',
     ['do'] = 'yarn install',
@@ -92,11 +94,6 @@ return require('packer').startup(function(use)
     end
   }
         
-  -- Firevim!
-  use {
-    'glacambre/firenvim',
-    run = function() vim.fn['firenvim#install'](0) end 
-}
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then

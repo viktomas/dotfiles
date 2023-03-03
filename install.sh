@@ -19,6 +19,7 @@ cd ~/.dotfiles
 stow kitty
 stow fish
 stow fd
+stow helix
 
 ### NeoVim
 stow nvim

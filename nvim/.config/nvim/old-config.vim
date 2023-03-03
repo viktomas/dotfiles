@@ -7,7 +7,7 @@
 let g:vimsyn_embed = 'l'
 
 let g:hardtime_default_on = 1
-let g:hardtime_maxcount = 3
+let g:hardtime_maxcount = 10
 let g:list_of_normal_keys = ["h", "j", "k", "l", "+", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
 
 let b:ale_fixers = {
@@ -35,7 +35,7 @@ nnoremap <leader>q :call ToggleQuickfixList()<CR>
 
 
 " leader s mapped to toggle spell check
-nmap <silent> <leader>s :set spell!<CR>
+" nmap <silent> <leader>s :set spell!<CR>
 
 " I don't want to se Ex mode ever again
 nnoremap Q :bd<cr>
