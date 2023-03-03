@@ -14,9 +14,6 @@ require('user.git')
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
 
-require('gitsigns').setup()
-
-
 -- I asked how to solve this in SO: https://stackoverflow.com/a/73290052/606571
 
 vim.keymap.set('n', '<CR>', function()

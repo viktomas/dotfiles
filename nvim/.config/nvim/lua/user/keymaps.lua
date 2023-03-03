@@ -17,8 +17,13 @@ vim.g.maplocalleader = " "
 --   visual_block_mode = "x",
 --   term_mode = "t",
 --   command_mode = "c",
+--
 
 -- Normal --
+-- Yank and paste from the system cliboard
+keymap("n", "<leader>y", '"+y', { noremap = true, desc = "yank to clipboard"})
+keymap("n", "<leader>p", '"+p', { noremap = true, desc = "paste from clipboard"})
+
 -- Move around splits with <c-hjkl>
 keymap("n", "<C-h>", "<C-w>h", opts)
 keymap("n", "<C-j>", "<C-w>j", opts)
