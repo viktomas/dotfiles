@@ -3,7 +3,7 @@ local opts = { noremap = true, silent = true }
 local term_opts = { silent = true }
 
 -- Shorten function name
-local keymap = vim.api.nvim_set_keymap
+local keymap = vim.keymap.set
 
 --Remap space as leader key
 keymap("", "<Space>", "<Nop>", opts)
@@ -21,8 +21,8 @@ vim.g.maplocalleader = " "
 
 -- Normal --
 -- Yank and paste from the system cliboard
-keymap("n", "<leader>y", '"+y', { noremap = true, desc = "yank to clipboard"})
-keymap("n", "<leader>p", '"+p', { noremap = true, desc = "paste from clipboard"})
+keymap({ "n", "v" }, "<leader>y", '"+y', { noremap = true, desc = "yank to clipboard"})
+keymap({ "n", "v" }, "<leader>p", '"+p', { noremap = true, desc = "paste from clipboard"})
 
 -- Move around splits with <c-hjkl>
 keymap("n", "<C-h>", "<C-w>h", opts)

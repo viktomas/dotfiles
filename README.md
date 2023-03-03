@@ -31,3 +31,4 @@ Edit crontab by running `./bin/edit-crontab.sh`.
 - [ ] I can't scroll through autocomplete options? :thinking: (C-P and C-N doesn't work in Go) I really need to sort it out.
 - [ ] Copy key mappings from helix (space mode, go mode)
 - [ ] try to use https://github.com/glepnir/lspsaga.nvim and see if it has better LSP rename
+- [ ] replace all legacy `nvim_set_keymap` with `vim.keymap.set`

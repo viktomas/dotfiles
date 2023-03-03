@@ -1,5 +1,4 @@
 local opts = { noremap = true, silent = true }
-local keymap = vim.api.nvim_set_keymap
 
 require('gitsigns').setup{
   on_attach = function(bufnr)
