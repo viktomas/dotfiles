@@ -1,9 +1,9 @@
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
-local opts = { noremap=true, silent=true }
+local opts = { silent=true }
 
 function optsWithDesc(desc)
-  return { noremap=true, desc= desc}
+  return { desc= desc}
 end
 
 -- the following diagnostic commands don't work :(
@@ -19,7 +19,7 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, optsWithDesc("next diagnosti
 local on_attach = function(client, bufnr)
 
   function bufoptsWithDesc(desc)
-    return { noremap=true, silent=true, buffer=bufnr, desc = desc }
+    return { silent=true, buffer=bufnr, desc = desc }
   end
 
   local builtin = require('telescope.builtin')
@@ -59,4 +59,29 @@ lspconfig['gopls'].setup {
 lspconfig['tsserver'].setup {
   capabilities = capabilities,
   on_attach = on_attach,
+}
+lspconfig['lua_ls'].setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+  settings = {
+    Lua = {
+      runtime = {
+        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+        version = 'LuaJIT',
+      },
+      diagnostics = {
+        -- Get the language server to recognize the `vim` global
+        globals = {'vim'},
+      },
+      workspace = {
+        -- Make the server aware of Neovim runtime files
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false, -- this line disables messages about adding libraries to work environment
+      },
+      -- Do not send telemetry data containing a randomized but unique identifier
+      telemetry = {
+        enable = false,
+      },
+    },
+  },
 }
