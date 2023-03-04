@@ -1,5 +1,3 @@
-local opts = { noremap = true, silent = true }
-
 require('gitsigns').setup{
   on_attach = function(bufnr)
     local gs = package.loaded.gitsigns

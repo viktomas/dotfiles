@@ -19,7 +19,7 @@ function open_lir()
   vim.cmd(':e '..current_folder_path);
 end
 
-vim.keymap.set('n', '-', open_lir, {noremap = true, silent = true, desc = 'run :e on the directory from current buffer'})
+vim.keymap.set('n', '-', open_lir, {silent = true, desc = 'run :e on the directory from current buffer'})
 
 local actions = require'lir.actions'
 local mark_actions = require 'lir.mark.actions'
