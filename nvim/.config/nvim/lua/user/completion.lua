@@ -2,6 +2,12 @@
 local cmp = require'cmp'
 
 cmp.setup({
+    completion = {
+      -- somohow this makes sure that cmp always selectes the first offered option
+      -- how is this not the default ¯\_(ツ)_/¯
+      -- https://github.com/hrsh7th/nvim-cmp/issues/209
+      completeopt = 'menu,menuone,noinsert',
+    },
     snippet = {
       -- REQUIRED - you must specify a snippet engine
       expand = function(args)
