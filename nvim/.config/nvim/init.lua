@@ -1,5 +1,5 @@
 require('user.options')
-require('user.keymaps')
+require('user.keymaps') -- keymaps has to be before lazy so the initialized plugins have correct mappings
 require('user.packer')
 require('user.colorscheme')
 require('user.lir')
