@@ -28,6 +28,8 @@ require("lazy").setup({
 
   -- language related plugins
   {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate'},
+  {'nvim-treesitter/nvim-treesitter-textobjects', dependencies={'nvim-treesitter/nvim-treesitter'}},
+  {'HiPhish/nvim-ts-rainbow2', dependencies={'nvim-treesitter/nvim-treesitter'}},
   'neovim/nvim-lspconfig',
 
   {
