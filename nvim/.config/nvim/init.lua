@@ -60,25 +60,15 @@ require("lazy").setup({
     ['do'] = 'yarn install',
     ['for'] = {'javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'yaml', 'html'},
   },
-  {
-    "windwp/nvim-autopairs",
-    config = function() require("nvim-autopairs").setup {} end
-  },
-
-  -- Hard time to prevent me from using hjkl
-  'takac/vim-hardtime',
+  { "windwp/nvim-autopairs", opts = {} },
 
   -- Which key shows helpful window to remind me of the keymaps
   {
     'folke/which-key.nvim',
+    opts = {},
     config = function()
       vim.o.timeout = true
       vim.o.timeoutlen = 300
-      require("which-key").setup {
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
-      }
     end
   },
   { import = 'custom.plugins' },
