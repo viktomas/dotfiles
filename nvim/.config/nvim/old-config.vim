@@ -41,10 +41,6 @@ nnoremap Q :bd<cr>
 " MISC KEY MAPS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"air line settings
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-
 
 " copied from https://github.com/nelstrom/vim-visual-star-search
 function! s:VSetSearch(cmdtype)

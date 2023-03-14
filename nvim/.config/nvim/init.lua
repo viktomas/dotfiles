@@ -39,7 +39,7 @@ require("lazy").setup({
     end,
   },
 
-  'vim-airline/vim-airline',
+  {'nvim-lualine/lualine.nvim', opts = {}},
 
   -- git related plugins
   'tpope/vim-fugitive',
