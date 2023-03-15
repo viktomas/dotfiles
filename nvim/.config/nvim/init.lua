@@ -52,7 +52,8 @@ require("lazy").setup({
 
   -- general code helping plugins
   'sbdchd/neoformat',
-  'tpope/vim-commentary',
+    -- "gc" to comment visual regions/lines
+  { 'numToStr/Comment.nvim', opts = {} },
   -- linting with ALE
   'dense-analysis/ale',
 
