@@ -1,5 +1,4 @@
 {
-  "Comment.nvim": { "branch": "master", "commit": "8d3aa5c22c2d45e788c7a5fe13ad77368b783c20" },
   "ale": { "branch": "master", "commit": "e1a0781f9de7d90554ea572cd220d72f823be3dc" },
   "cmp-buffer": { "branch": "main", "commit": "3022dbc9166796b644a841a02de8dd1cc1d311fa" },
   "cmp-cmdline": { "branch": "main", "commit": "8fcc934a52af96120fe26358985c10c035984b53" },
@@ -26,6 +25,7 @@
   "plenary.nvim": { "branch": "master", "commit": "253d34830709d690f013daf2853a9d21ad7accab" },
   "sonokai": { "branch": "master", "commit": "be321c982bf109b182fb38af2302da838fcaaa02" },
   "telescope.nvim": { "branch": "master", "commit": "a3f17d3baf70df58b9d3544ea30abe52a7a832c2" },
+  "vim-commentary": { "branch": "master", "commit": "e87cd90dc09c2a203e13af9704bd0ef79303d755" },
   "vim-fugitive": { "branch": "master", "commit": "5b52a0f395065d6cb7b65a00a5e17eaf9ebd64d5" },
   "vim-github-url": { "branch": "master", "commit": "48d6970a11728511e24f423d550cf6740a9371db" },
   "vim-prettier": { "branch": "master", "commit": "5e6cca21e12587c02e32a06bf423519eb1e9f1b2" },

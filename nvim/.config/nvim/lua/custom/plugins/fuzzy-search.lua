@@ -3,7 +3,6 @@ return {
   dependencies = {'nvim-lua/plenary.nvim'},
   config = function()
 
-    local telescope = require("telescope")
     local telescopeConfig = require("telescope.config")
     local telescopeActions = require("telescope.actions")
 
@@ -39,9 +38,9 @@ return {
 
     vim.keymap.set('n', '<leader>f', find_files, {desc = 'find files'})
     vim.keymap.set('n', "<leader>'", builtin.resume, {desc = 'resume last picker'})
-    -- vim.keymap.set('n', 'gb', builtin.buffers, {})
+    vim.keymap.set('n', '<leader>b', builtin.buffers, {desc = 'select buffer'})
     vim.keymap.set('n', '//', builtin.live_grep, {})
-    vim.keymap.set('n', '<F1>', builtin.help_tags, {})
+    vim.keymap.set('n', '<F1>', builtin.help_tags, {desc = 'search help tags'})
 
   end
 }

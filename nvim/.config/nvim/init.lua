@@ -52,8 +52,9 @@ require("lazy").setup({
 
   -- general code helping plugins
   'sbdchd/neoformat',
-    -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  'tpope/vim-commentary',
+  -- TODO: try to install comment.nvim but be careful about conflicting keybidings (:checkhealth which _key)
+  -- { 'numToStr/Comment.nvim', opts = {} },
   -- linting with ALE
   'dense-analysis/ale',
 
@@ -66,10 +67,10 @@ require("lazy").setup({
   -- Which key shows helpful window to remind me of the keymaps
   {
     'folke/which-key.nvim',
-    opts = {},
     config = function()
       vim.o.timeout = true
       vim.o.timeoutlen = 300
+      require("which-key").setup({})
     end
   },
   { import = 'custom.plugins' },
