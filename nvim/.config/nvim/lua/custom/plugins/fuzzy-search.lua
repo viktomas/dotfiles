@@ -36,10 +36,27 @@ return {
       builtin.find_files({ hidden = true })
     end
 
+    local function getVisualSelection()
+      vim.cmd('noau normal! "vy"')
+      local text = vim.fn.getreg('v')
+      vim.fn.setreg('v', {})
+
+      text = string.gsub(text, "\n", "")
+      if #text > 0 then
+        return text
+      else
+        return ''
+      end
+    end
+
     vim.keymap.set('n', '<leader>f', find_files, {desc = 'find files'})
     vim.keymap.set('n', "<leader>'", builtin.resume, {desc = 'resume last picker'})
     vim.keymap.set('n', '<leader>b', builtin.buffers, {desc = 'select buffer'})
     vim.keymap.set('n', '//', builtin.live_grep, {})
+    vim.keymap.set('v', '//', function ()
+      local text = getVisualSelection()
+      builtin.live_grep({default_text = text})
+    end)
     vim.keymap.set('n', '<F1>', builtin.help_tags, {desc = 'search help tags'})
 
   end

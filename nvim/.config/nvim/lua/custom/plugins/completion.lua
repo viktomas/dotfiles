@@ -2,7 +2,6 @@ return {
   'hrsh7th/nvim-cmp',
   dependencies = {
     'hrsh7th/cmp-nvim-lsp',
-    'hrsh7th/cmp-buffer',
     'hrsh7th/cmp-path',
     'hrsh7th/cmp-cmdline',
     'hrsh7th/cmp-nvim-lua',
@@ -40,8 +39,7 @@ return {
         { name = 'nvim_lsp' },
         { name = 'vsnip' }, -- For vsnip users.
         { name = 'nvim_lua' }
-      }, {
-        { name = 'buffer' },
+        -- TODO: add the buffer, but don't allow fuzzy search and don't pre-select the value
       })
     })
 
