@@ -3,10 +3,10 @@ return {
   config = function()
     local opts = { silent = true }
 
-    vim.keymap.set("n", "<leader>t", ":TestNearest<CR>", opts)
-    vim.keymap.set("n", "<leader>T", ":TestFile<CR>", opts)
-    vim.keymap.set("n", "<leader>a", ":TestSuite<CR>", opts)
-    vim.keymap.set("n", "<leader>l", ":TestLast<CR>", opts)
-    vim.keymap.set("n", "<leader>g", ":TestVisit<CR>", opts)
+    vim.keymap.set("n", "<leader>tt", ":TestNearest<CR>", opts)
+    vim.keymap.set("n", "<leader>tf", ":TestFile<CR>", opts)
+    vim.keymap.set("n", "<leader>ta", ":TestSuite<CR>", opts)
+    vim.keymap.set("n", "<leader>tl", ":TestLast<CR>", opts)
+    vim.keymap.set("n", "<leader>tg", ":TestVisit<CR>", opts)
   end
 }
