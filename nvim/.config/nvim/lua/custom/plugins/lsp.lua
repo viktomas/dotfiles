@@ -100,6 +100,17 @@ return {
           },
         },
       }
+      if vim.fn.executable("solargraph") == 1 then
+        lspconfig['solargraph'].setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = {
+            flags = {
+              debounce_text_changes = 150,
+            }
+          }
+        }
+      end
 
     end
   }
