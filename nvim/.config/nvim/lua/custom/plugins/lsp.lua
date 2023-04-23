@@ -39,7 +39,7 @@ return {
       local builtin = require('telescope.builtin')
       vim.keymap.set('n', '<leader>s', builtin.lsp_document_symbols, bufoptsWithDesc("Open symbol picker"))
       vim.keymap.set('n', '<leader>S', builtin.lsp_dynamic_workspace_symbols, bufoptsWithDesc("Open symbol picker (workspace)"))
-      vim.keymap.set('n', '<leader>d', builtin.diagnostics, bufoptsWithDesc("Open diagnostics picker"))
+      vim.keymap.set('n', '<leader>dd', builtin.diagnostics, bufoptsWithDesc("Open diagnostics picker"))
       -- Enable completion triggered by <c-x><c-o>
       vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 

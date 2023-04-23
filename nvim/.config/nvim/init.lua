@@ -32,10 +32,10 @@ require("lazy").setup({
 
   -- color scheme
   {
-    'sainnhe/sonokai',
+    'folke/tokyonight.nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'sonokai'
+      vim.cmd.colorscheme 'tokyonight'
     end,
   },
 
@@ -48,7 +48,6 @@ require("lazy").setup({
   'justinmk/vim-sneak',
   'tpope/vim-surround',
   'milkypostman/vim-togglelist',
-  {'karb94/neoscroll.nvim', opts = {}},
 
   -- general code helping plugins
   'sbdchd/neoformat',
