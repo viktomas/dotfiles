@@ -73,6 +73,14 @@ require("lazy").setup({
     end
   },
   { import = 'custom.plugins' },
+}, {
+  performance = {
+    rtp = {
+      paths = {
+        '/Users/tomas/workspace/private/nvim/git-link'
+      }
+    }
+  }
 })
 
 vim.cmd('source ' .. '~/.config/nvim/old-config.vim')
