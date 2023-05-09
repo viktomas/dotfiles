@@ -7,6 +7,7 @@ delta
 bat
 exa
 fd
+atuin
 brew install font-jetbrains-mono-nerd-font
 # prettier as a daemon for faster formatting https://github.com/fsouza/prettierd
 # used by neovim plugin https://github.com/sbdchd/neoformat
