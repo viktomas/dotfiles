@@ -1,0 +1,39 @@
+return {
+	"mhartington/formatter.nvim",
+	config = function()
+		require("formatter").setup({
+			-- Enable or disable logging
+			logging = true,
+			log_level = vim.log.levels.WARN,
+			filetype = {
+				lua = {
+					require("formatter.filetypes.lua").stylua,
+				},
+				json = {
+					-- require("formatter.filetypes.json").prettier,
+					require("formatter.filetypes.json").prettierd,
+					require("formatter.filetypes.json").jq,
+				},
+				typescript = require("formatter.filetypes.typescript"),
+				javascript = require("formatter.filetypes.javascript"),
+				go = require("formatter.filetypes.go"),
+
+				-- Use the special "*" filetype for defining formatter configurations on
+				-- any filetype
+				["*"] = {
+					-- "formatter.filetypes.any" defines default configurations for any
+					-- filetype
+					require("formatter.filetypes.any").remove_trailing_whitespace,
+				},
+			},
+		})
+		vim.api.nvim_create_augroup("format_on_save", {})
+		vim.api.nvim_create_autocmd("BufWritePost", {
+			group = "format_on_save",
+			pattern = "*",
+			callback = function()
+				vim.cmd("FormatWrite")
+			end,
+		})
+	end,
+}

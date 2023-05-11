@@ -50,17 +50,11 @@ require("lazy").setup({
   'milkypostman/vim-togglelist',
 
   -- general code helping plugins
-  'sbdchd/neoformat',
   'tpope/vim-commentary',
   -- TODO: try to install comment.nvim but be careful about conflicting keybidings (:checkhealth which _key)
   -- { 'numToStr/Comment.nvim', opts = {} },
   -- linting with ALE
   'dense-analysis/ale',
-
-  {'prettier/vim-prettier',
-    ['do'] = 'yarn install',
-    ['for'] = {'javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'vue', 'yaml', 'html'},
-  },
   { "windwp/nvim-autopairs", opts = {} },
 
   -- Which key shows helpful window to remind me of the keymaps
