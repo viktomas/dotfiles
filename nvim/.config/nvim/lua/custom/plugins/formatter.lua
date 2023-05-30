@@ -14,8 +14,12 @@ return {
 					require("formatter.filetypes.json").prettierd,
 					require("formatter.filetypes.json").jq,
 				},
-				typescript = require("formatter.filetypes.typescript"),
-				javascript = require("formatter.filetypes.javascript"),
+				typescript = {
+					require("formatter.filetypes.typescript").prettierd,
+				},
+				javascript = {
+					require("formatter.filetypes.javascript").prettierd,
+				},
 				go = require("formatter.filetypes.go"),
 
 				-- Use the special "*" filetype for defining formatter configurations on
