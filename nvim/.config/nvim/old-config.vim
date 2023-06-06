@@ -1,9 +1,10 @@
 
-let b:ale_fixers = {
+let g:ale_fixers = {
       \'javascript': ['prettier', 'eslint'],
       \'typescript': ['tslint'],
       \}
 let g:ale_completion_enabled = 0
+let g:ale_use_neovim_diagnostics_api = 1
 
 augroup openQuickFixAutomatically
   autocmd!
