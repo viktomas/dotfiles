@@ -21,8 +21,8 @@ vim.g.maplocalleader = " "
 
 -- Normal --
 -- Yank and paste from the system cliboard
-keymap({ "n", "v" }, "<leader>y", '"+y', { desc = "yank to clipboard"})
-keymap({ "n", "v" }, "<leader>p", '"+p', { desc = "paste from clipboard"})
+keymap({ "n", "v" }, "<leader>y", '"+y', { desc = "yank to clipboard" })
+keymap({ "n", "v" }, "<leader>p", '"+p', { desc = "paste from clipboard" })
 
 -- Move around splits with <c-hjkl>
 keymap("n", "<C-h>", "<C-w>h", opts)
@@ -54,15 +54,13 @@ keymap("n", "<C-u>", "<C-u>zz", opts)
 -- keymap("n", "<A-j>", "<Esc>:m .+1<CR>==gi", opts)
 -- keymap("n", "<A-k>", "<Esc>:m .-2<CR>==gi", opts)
 
-
 -- x doesn't write to default cliboard
 keymap("n", "x", '"_x', opts)
-
 
 -- Visual --
 -- don't put replaced code to buffer
 keymap("v", "p", '"_dP', opts)
---  move text and rehighlight -- vim tip_id=224 
+--  move text and rehighlight -- vim tip_id=224
 keymap("v", "<", "<gv", opts)
 keymap("v", ">", ">gv", opts)
 

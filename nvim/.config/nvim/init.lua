@@ -70,14 +70,11 @@ require("lazy").setup({
 			require("which-key").setup({})
 		end,
 	},
+	{ "viktomas/diff-clip.nvim", dev = true },
 	{ import = "custom.plugins" },
 }, {
-	performance = {
-		rtp = {
-			paths = {
-				"/Users/tomas/workspace/private/nvim/git-link",
-			},
-		},
+	dev = {
+		path = "~/workspace/private/nvim/mine",
 	},
 })
 
