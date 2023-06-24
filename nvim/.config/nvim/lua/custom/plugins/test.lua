@@ -4,6 +4,7 @@ return {
 		local opts = { silent = true }
 
 		vim.g["test#strategy"] = "neovim"
+		vim.g["test#javascript#runner"] = "jest"
 		vim.keymap.set("n", "<leader>tt", ":TestNearest<CR>", opts)
 		vim.keymap.set("n", "<leader>tf", ":TestFile<CR>", opts)
 		vim.keymap.set("n", "<leader>ta", ":TestSuite<CR>", opts)

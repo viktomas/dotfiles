@@ -61,7 +61,17 @@ return {
 			--   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 			-- end, bufoptsWithDesc())
 			vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, bufoptsWithDesc("Type definition"))
-			vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, bufoptsWithDesc("Rename symbol"))
+			vim.keymap.set("n", "<leader>r", function()
+				vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
+					callback = function()
+						local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
+						vim.api.nvim_feedkeys(key, "c", false)
+						vim.api.nvim_feedkeys("0", "n", false)
+						return true
+					end,
+				})
+				vim.lsp.buf.rename()
+			end, bufoptsWithDesc("Rename symbol"))
 			vim.keymap.set("n", "<leader>a", vim.lsp.buf.code_action, bufoptsWithDesc("Run code action"))
 			vim.keymap.set("n", "gr", vim.lsp.buf.references, bufoptsWithDesc("references"))
 			-- vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, bufoptsWithDesc())

@@ -1,7 +1,5 @@
 local opts = { silent = true }
 
-local term_opts = { silent = true }
-
 -- Shorten function name
 local keymap = vim.keymap.set
 
@@ -81,3 +79,11 @@ keymap("v", "<A-k>", ":m .-2<CR>==", opts)
 -- keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", term_opts)
 -- keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
 -- keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)
+
+-- This kemap makes it possible to exit the command-window (:h cmdwin)
+-- with <ESC>
+vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
+	callback = function()
+		vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
+	end,
+})

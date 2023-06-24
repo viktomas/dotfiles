@@ -78,4 +78,5 @@ require("lazy").setup({
 	},
 })
 
+require("user.globals")
 vim.cmd("source " .. "~/.config/nvim/old-config.vim")
