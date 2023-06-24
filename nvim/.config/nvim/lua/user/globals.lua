@@ -1,5 +1,4 @@
--- taken from TJ
-// https://github.com/tjdevries/config_manager/blob/78608334a7803a0de1a08a9a4bd1b03ad2a5eb11/xdg_config/nvim/lua/tj/globals.lua
+-- taken from TJ https://github.com/tjdevries/config_manager/blob/78608334a7803a0de1a08a9a4bd1b03ad2a5eb11/xdg_config/nvim/lua/tj/globals.lua
 local ok, plenary_reload = pcall(require, "plenary.reload")
 local reloader = require
 if ok then

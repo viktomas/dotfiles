@@ -62,6 +62,9 @@ return {
 			-- end, bufoptsWithDesc())
 			vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, bufoptsWithDesc("Type definition"))
 			vim.keymap.set("n", "<leader>r", function()
+				-- when rename opens the prompt, this autocommand will trigger
+				-- it will "press" CTRL-F to enter the command-line window `:h cmdwin`
+				-- in this window I can use normal mode keybindings
 				vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
 					callback = function()
 						local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
