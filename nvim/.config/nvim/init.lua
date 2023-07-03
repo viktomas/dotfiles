@@ -48,12 +48,13 @@ require("lazy").setup({
 	"tpope/vim-fugitive",
 
 	-- file orientation plugins
-	"justinmk/vim-sneak",
 	"tpope/vim-surround",
 	"milkypostman/vim-togglelist",
 
 	-- general code helping plugins
 	"tpope/vim-commentary",
+	"tpope/vim-abolish",
+
 	-- TODO: try to install comment.nvim but be careful about conflicting keybidings (:checkhealth which _key)
 	-- { 'numToStr/Comment.nvim', opts = {} },
 	-- linting with ALE
