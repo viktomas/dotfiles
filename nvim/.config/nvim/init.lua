@@ -33,7 +33,7 @@ require("lazy").setup({
 	"tpope/vim-fugitive",
 
 	-- file orientation plugins
-	"tpope/vim-surround",
+	"kylechui/nvim-surround",
 	"milkypostman/vim-togglelist",
 
 	-- general code helping plugins
