@@ -1,21 +1,6 @@
 require("user.options")
 require("user.keymaps") -- keymaps has to be before lazy so the initialized plugins have correct mappings
 
--- I asked how to solve this in SO: https://stackoverflow.com/a/73290052/606571
-
-vim.keymap.set("n", "<CR>", function()
-	-- quickfix window and nofile (e.g. when editing the : command line) need enter to work normally
-	if vim.o.buftype == "quickfix" or vim.bo.buftype == "nofile" then
-		return "<CR>"
-	else
-		return ":nohlsearch<CR>"
-	end
-end, {
-	expr = true,
-	replace_keycodes = true,
-	desc = "call :nohlsearch to disable highlighting (but only if in file editing)",
-})
-
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({

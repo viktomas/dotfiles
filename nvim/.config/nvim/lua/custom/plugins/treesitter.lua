@@ -1,6 +1,6 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	dependencies = { "RRethy/nvim-treesitter-textsubjects", "HiPhish/nvim-ts-rainbow2" },
+	dependencies = { "HiPhish/nvim-ts-rainbow2" },
 	build = ":TSUpdate",
 	config = function()
 		require("nvim-treesitter.configs").setup({
@@ -21,13 +21,13 @@ return {
 				additional_vim_regex_highlighting = false,
 			},
 
-			textsubjects = {
+			incremental_selection = {
 				enable = true,
-				prev_selection = ",", -- (Optional) keymap to select the previous selection
 				keymaps = {
-					["."] = "textsubjects-smart",
-					[";"] = "textsubjects-container-outer",
-					["i;"] = "textsubjects-container-inner",
+					init_selection = "<Enter>",
+					node_incremental = "<Enter>",
+					scope_incremental = "<c-s>",
+					node_decremental = "<BS>",
 				},
 			},
 
