@@ -14,6 +14,11 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Default Config - named dc so I have all plugin names roughly in the same column
+local function dc(plugin)
+	return { plugin, opts = {}, event = "VeryLazy" }
+end
+
 require("lazy").setup({
 	-- everyone wants these lua functions
 	"nvim-lua/plenary.nvim",
@@ -26,18 +31,17 @@ require("lazy").setup({
 			vim.cmd.colorscheme("tokyonight")
 		end,
 	},
-
-	{ "nvim-lualine/lualine.nvim", opts = {} },
+	dc("nvim-lualine/lualine.nvim"),
 
 	-- git related plugins
 	"tpope/vim-fugitive",
 
 	-- file orientation plugins
-	"kylechui/nvim-surround",
 	"milkypostman/vim-togglelist",
 
 	-- general code helping plugins
-	"tpope/vim-commentary",
+	dc("kylechui/nvim-surround"),
+	dc("numToStr/Comment.nvim"),
 	"tpope/vim-abolish",
 
 	-- TODO: try to install comment.nvim but be careful about conflicting keybidings (:checkhealth which _key)
@@ -45,17 +49,17 @@ require("lazy").setup({
 	-- linting with ALE
 	"dense-analysis/ale",
 	{ "dmmulroy/tsc.nvim", opts = {}, event = "BufEnter *.ts" },
-	{ "windwp/nvim-autopairs", opts = {} },
-
-	-- Which key shows helpful window to remind me of the keymaps
-	{
-		"folke/which-key.nvim",
-		config = function()
-			vim.o.timeout = true
-			vim.o.timeoutlen = 300
-			require("which-key").setup({})
-		end,
-	},
+	dc("windwp/nvim-autopairs")(
+		-- Which key shows helpful window to remind me of the keymaps
+		{
+			"folke/which-key.nvim",
+			config = function()
+				vim.o.timeout = true
+				vim.o.timeoutlen = 300
+				require("which-key").setup({})
+			end,
+		}
+	),
 	{ "viktomas/diff-clip.nvim", dev = true },
 	{ import = "custom.plugins" },
 }, {
