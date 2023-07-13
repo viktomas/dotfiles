@@ -28,15 +28,18 @@
   b = branch
   ds = diff --stat=160,120
   dh1 = diff HEAD~1
+  dft = difftool
 
   # Fancy logging.
   h = head
   l = log --decorate --oneline --graph
+  ll = !git l -10
   la = !git l --all
 
 
 [push]
   default = current
+  autoSetupRemote = true
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
@@ -52,4 +55,5 @@
 
 [interactive]
   diffFilter = delta --color-only --features=interactive
-
+[diff]
+    tool = difftastic
