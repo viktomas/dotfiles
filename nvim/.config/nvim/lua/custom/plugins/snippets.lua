@@ -8,7 +8,7 @@ return {
 		}
 
 		-- Shorten function name
-		local keymap = vim.api.nvim_set_keymap
+		local keymap = vim.keymap.set
 
 		--  Expand
 		keymap("i", "<C-j>", [[vsnip#expandable()? '<Plug>(vsnip-expand)' : '<C-j>']], opts)
