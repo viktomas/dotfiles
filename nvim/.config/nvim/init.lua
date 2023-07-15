@@ -49,17 +49,16 @@ require("lazy").setup({
 	-- linting with ALE
 	"dense-analysis/ale",
 	{ "dmmulroy/tsc.nvim", opts = {}, event = "BufEnter *.ts" },
-	dc("windwp/nvim-autopairs")(
-		-- Which key shows helpful window to remind me of the keymaps
-		{
-			"folke/which-key.nvim",
-			config = function()
-				vim.o.timeout = true
-				vim.o.timeoutlen = 300
-				require("which-key").setup({})
-			end,
-		}
-	),
+	dc("windwp/nvim-autopairs"),
+	-- Which key shows helpful window to remind me of the keymaps
+	{
+		"folke/which-key.nvim",
+		config = function()
+			vim.o.timeout = true
+			vim.o.timeoutlen = 300
+			require("which-key").setup({})
+		end,
+	},
 	{ "viktomas/diff-clip.nvim", dev = true },
 	{ import = "custom.plugins" },
 }, {
