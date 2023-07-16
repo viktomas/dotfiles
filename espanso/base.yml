@@ -1,0 +1,14 @@
+---
+# espanso match file
+matches:
+  # Simple text replacement
+  - trigger: "..lex"
+    replace: '/label ~"devops::create" ~"group::ide" ~"VS Code" ~"Category:Editor Extension" ~"section::dev"'
+  - trigger: "..lf"
+    replace: '/label ~"type::feature"'
+  - trigger: "..lb"
+    replace: '/label ~"type::bug"'
+  - trigger: "..lm"
+    replace: '/label ~"type::maintenance"'
+  - trigger: "..thx"
+    replace: 'Thank you for creating this issue :pray:'
