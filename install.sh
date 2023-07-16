@@ -22,6 +22,10 @@ stow fish
 stow fd
 stow helix
 
+# tiling window manager
+stow yabai
+stow skhd
+
 ### NeoVim
 stow nvim
 # Create files for vim backup/undo
