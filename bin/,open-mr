@@ -1,0 +1,3 @@
+#!/usr/bin/env fish
+
+read -z | grep merge_requests | awk '{print $2}' | read -l mr_url ; open $mr_url
