@@ -5,6 +5,7 @@ return {
 		"hrsh7th/cmp-path",
 		"hrsh7th/cmp-cmdline",
 		"hrsh7th/cmp-nvim-lua",
+		"saadparwaiz1/cmp_luasnip",
 	},
 	config = function()
 		-- Setup nvim-cmp.
@@ -18,9 +19,8 @@ return {
 				completeopt = "menu,menuone,noinsert",
 			},
 			snippet = {
-				-- REQUIRED - you must specify a snippet engine
 				expand = function(args)
-					vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+					require("luasnip").lsp_expand(args.body)
 				end,
 			},
 			window = {
@@ -37,7 +37,7 @@ return {
 			}),
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },
-				{ name = "vsnip" }, -- For vsnip users.
+				{ name = "luasnip" },
 				{ name = "nvim_lua" },
 				-- TODO: add the buffer, but don't allow fuzzy search and don't pre-select the value
 			}),

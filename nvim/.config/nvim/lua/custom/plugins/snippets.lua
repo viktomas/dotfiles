@@ -1,34 +1,27 @@
 return {
-	"hrsh7th/vim-vsnip",
-	dependencies = { "hrsh7th/cmp-vsnip" },
+	"L3MON4D3/LuaSnip",
+	build = (not jit.os:find("Windows"))
+			and "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp"
+		or nil,
+	opts = {
+		history = true,
+		delete_check_events = "TextChanged",
+	},
+    -- stylua: ignore
+    keys = {
+      {
+        "<tab>",
+        function()
+          return require("luasnip").jumpable(1) and "<Plug>luasnip-jump-next" or "<tab>"
+        end,
+        expr = true, silent = true, mode = "i",
+      },
+      { "<tab>", function() require("luasnip").jump(1) end, mode = "s" },
+      { "<s-tab>", function() require("luasnip").jump(-1) end, mode = { "i", "s" } },
+      -- <NL> is C-j in lua
+      { "<NL>", function () require("luasnip").expand() end, mode ="i"},
+    },
 	config = function()
-		local opts = {
-			-- silent = true,
-			expr = true,
-		}
-
-		-- Shorten function name
-		local keymap = vim.keymap.set
-
-		--  Expand
-		keymap("i", "<C-j>", [[vsnip#expandable()? '<Plug>(vsnip-expand)' : '<C-j>']], opts)
-		keymap("s", "<C-j>", [[vsnip#expandable()? '<Plug>(vsnip-expand)' : '<C-j>']], opts)
-
-		-- Expand or jump
-		keymap("i", "<C-l>", [[vsnip#available()? '<Plug>(vsnip-expand-or-jump)' : '<C-l>']], opts)
-		keymap("s", "<C-l>", [[vsnip#available()? '<Plug>(vsnip-expand-or-jump)' : '<C-l>']], opts)
-
-		-- Jump forward or backward
-		keymap("i", "<Tab>", [[vsnip#jumpable(1)? '<Plug>(vsnip-jump-next)' : '<Tab>']], opts)
-		keymap("s", "<Tab>", [[vsnip#jumpable(1)? '<Plug>(vsnip-jump-next)' : '<Tab>']], opts)
-		keymap("i", "<S-Tab>", [[vsnip#jumpable(-1)? '<Plug>(vsnip-jump-prev)' : '<S-Tab>']], opts)
-		keymap("s", "<S-Tab>", [[vsnip#jumpable(-1)? '<Plug>(vsnip-jump-prev)' : '<S-Tab>']], opts)
-
-		-- " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
-		-- " See https://github.com/hrsh7th/vim-vsnip/pull/50
-		-- nmap        s   <Plug>(vsnip-select-text)
-		-- xmap        s   <Plug>(vsnip-select-text)
-		-- nmap        S   <Plug>(vsnip-cut-text)
-		-- xmap        S   <Plug>(vsnip-cut-text)
+		require("luasnip.loaders.from_vscode").load({ paths = "./snippets" })
 	end,
 }
