@@ -12,3 +12,8 @@ matches:
     replace: '/label ~"type::maintenance"'
   - trigger: "..thx"
     replace: 'Thank you for creating this issue :pray:'
+  # Common spelling mistakes
+  - trigger: "lenght"
+    replace: 'length'
+    # propagate_case: true
+    # word: true
