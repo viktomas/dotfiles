@@ -20,7 +20,11 @@ return {
 				javascript = {
 					require("formatter.filetypes.javascript").prettierd,
 				},
-				go = require("formatter.filetypes.go"),
+				go = {
+					-- require("formatter.filetypes.go").gofmt,
+					require("formatter.filetypes.go").gofumpt,
+					require("formatter.filetypes.go").goimports,
+				},
 
 				-- Use the special "*" filetype for defining formatter configurations on
 				-- any filetype
