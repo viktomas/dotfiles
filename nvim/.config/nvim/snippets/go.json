@@ -229,6 +229,11 @@
     "body": "func Test$1(t *testing.T) {\n\t$0\n}",
     "description": "Snippet for Test function"
   },
+  "test run": {
+    "prefix": "tr",
+    "body": "t.Run(\"$1\", func (t *testing.T) {\n\t$0\n})",
+    "description": "Snippet for Test Run function"
+  },
   "test main": {
     "prefix": "tm",
     "body": "func TestMain(m *testing.M) {\n\t$1\n\n\tos.Exit(m.Run())\n}",
