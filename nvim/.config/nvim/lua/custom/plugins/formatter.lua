@@ -21,8 +21,8 @@ return {
 					require("formatter.filetypes.javascript").prettierd,
 				},
 				go = {
-					-- require("formatter.filetypes.go").gofmt,
-					require("formatter.filetypes.go").gofumpt,
+					require("formatter.filetypes.go").gofmt,
+					-- require("formatter.filetypes.go").gofumpt,
 					require("formatter.filetypes.go").goimports,
 				},
 
