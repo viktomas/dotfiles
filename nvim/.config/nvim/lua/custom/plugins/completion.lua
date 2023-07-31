@@ -12,12 +12,6 @@ return {
 		local cmp = require("cmp")
 
 		cmp.setup({
-			completion = {
-				-- somohow this makes sure that cmp always selectes the first offered option
-				-- how is this not the default ¯\_(ツ)_/¯
-				-- https://github.com/hrsh7th/nvim-cmp/issues/209
-				completeopt = "menu,menuone,noinsert",
-			},
 			snippet = {
 				expand = function(args)
 					require("luasnip").lsp_expand(args.body)
@@ -52,16 +46,11 @@ return {
 			}),
 		})
 
-		-- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-		cmp.setup.cmdline("/", {
-			mapping = cmp.mapping.preset.cmdline(),
-			sources = {
-				{ name = "buffer" },
-			},
-		})
-
 		-- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
 		cmp.setup.cmdline(":", {
+			completion = {
+				autocomplete = false,
+			},
 			mapping = cmp.mapping.preset.cmdline(),
 			sources = cmp.config.sources({
 				{ name = "path" },
