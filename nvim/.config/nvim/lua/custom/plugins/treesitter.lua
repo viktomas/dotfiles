@@ -6,6 +6,7 @@ return {
 		require("nvim-treesitter.configs").setup({
 			-- A list of parser names, or "all"
 			ensure_installed = { "javascript", "typescript", "ruby", "go" },
+			sync_install = false,
 
 			-- Automatically install missing parsers when entering buffer
 			auto_install = true,
@@ -29,6 +30,14 @@ return {
 					scope_incremental = "<c-s>",
 					node_decremental = "<BS>",
 				},
+				-- we don't want this to work in command window, because TS doesn't work there
+				is_supported = function()
+					local mode = vim.api.nvim_get_mode().mode
+					if mode == "c" then
+						return false
+					end
+					return true
+				end,
 			},
 
 			rainbow = {
