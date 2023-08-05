@@ -2,6 +2,7 @@
 let g:ale_fixers = {
       \'javascript': ['prettier', 'eslint'],
       \'typescript': ['tslint'],
+      \'sh': ['shellcheck'],
       \}
 let g:ale_completion_enabled = 0
 let g:ale_use_neovim_diagnostics_api = 1
