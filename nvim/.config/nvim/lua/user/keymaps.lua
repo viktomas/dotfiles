@@ -51,16 +51,15 @@ keymap("n", "]q", ":cnext<CR>", opts)
 keymap("n", "<C-d>", "<C-d>zz", opts)
 keymap("n", "<C-u>", "<C-u>zz", opts)
 
--- Move text up and down
--- keymap("n", "<A-j>", "<Esc>:m .+1<CR>==gi", opts)
--- keymap("n", "<A-k>", "<Esc>:m .-2<CR>==gi", opts)
-
 -- x doesn't write to default cliboard
 keymap("n", "x", '"_x', opts)
 
 -- Visual --
+
+-- this keymap is now affecting LuaSnip and I had to move altered version there
 -- don't put replaced code to buffer
 keymap("v", "p", '"_dP', opts)
+--
 --  move text and rehighlight -- vim tip_id=224
 keymap("v", "<", "<gv", opts)
 keymap("v", ">", ">gv", opts)
