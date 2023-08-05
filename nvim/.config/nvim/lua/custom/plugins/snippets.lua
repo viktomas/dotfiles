@@ -30,6 +30,23 @@ return {
 			end,
 			mode = { "i", "s" },
 		},
+		-- this complicated mapping makes sure that when I'm completing a snippet, I can press p
+		-- and the luasnip will write p, instead of using the "_dP
+		--[[ {
+			"p",
+			function()
+				local luasnip = require("luasnip")
+
+				if luasnip.expand_or_jumpable() then
+					-- Send "p"
+					vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("p", true, false, true), "n", false)
+				else
+					-- Send "_dP"
+					vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('"_dP', true, false, true), "n", false)
+				end
+			end,
+			mode = { "v" },
+		}, ]]
 		-- -- <NL> is C-j in lua
 		-- { "<NL>", function () require("luasnip").expand() end, mode ="i"},
 	},
