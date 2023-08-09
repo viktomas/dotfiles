@@ -1,6 +1,16 @@
 set fish_greeting # Turn off greeting
 source ~/.profile
 
+if type -q brew
+    [ -e (brew --prefix asdf)/libexec/asdf.fish ]; and source (brew --prefix asdf)/libexec/asdf.fish
+end
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+set --export --prepend PATH "/Users/tomas/.rd/bin"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+
+# Be careful not tu put anything that is required in scripts to this section
+# E.g. sourcing the asdf above needs to be in the non-interactive part because otherwise ASDF is missing in the $PATH
 if status is-interactive
     fish_vi_key_bindings # vi insert mode
 
@@ -23,8 +33,6 @@ if status is-interactive
 
     if type -q brew
 
-        [ -e (brew --prefix asdf)/libexec/asdf.fish ]; and source (brew --prefix asdf)/libexec/asdf.fish
-
         if test -d (brew --prefix)"/share/fish/completions"
             set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/completions
         end
@@ -33,8 +41,4 @@ if status is-interactive
             set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/vendor_completions.d
         end
     end
-
-    ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-    set --export --prepend PATH "/Users/tomas/.rd/bin"
-    ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
 end
