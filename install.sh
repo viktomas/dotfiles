@@ -21,6 +21,7 @@ stow kitty
 stow fish
 stow fd
 stow helix
+stow yamlfmt
 
 # tiling window manager
 stow yabai

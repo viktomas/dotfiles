@@ -1,0 +1,5 @@
+# The configuration is described here:
+# https://github.com/google/yamlfmt/blob/main/docs/config-file.md
+formatter:
+  type: basic
+  retain_line_breaks: true
