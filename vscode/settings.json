@@ -1,5 +1,5 @@
 {
-  "gitlab.debug": true,
+  // "gitlab.debug": true,
   "keyboard.dispatch": "keyCode",
   // Enable per-language
   "[javascript]": {
@@ -106,5 +106,9 @@
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
   },
+  "gitlab.aiAssistedCodeSuggestions.enabled": true,
+  "gitlab.featureFlags.commonCurrentBranch":true,
+  "gitlab.featureFlags.chat":true,
+  "cody.serverEndpoint": "https://sourcegraph.com/",
   "window.zoomLevel": 1
 }
