@@ -28,6 +28,9 @@ return {
 				sh = {
 					require("formatter.filetypes.sh").shfmt,
 				},
+				yaml = {
+					require("formatter.filetypes.yaml").yamlfmt,
+				},
 
 				-- Use the special "*" filetype for defining formatter configurations on
 				-- any filetype
