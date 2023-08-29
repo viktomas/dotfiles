@@ -4,8 +4,8 @@ return {
 			and "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp"
 		or nil,
 	opts = {
-		history = true,
 		delete_check_events = "TextChanged",
+		region_check_events = "InsertEnter",
 	},
 	keys = {
 		{
@@ -32,7 +32,7 @@ return {
 		},
 		-- this complicated mapping makes sure that when I'm completing a snippet, I can press p
 		-- and the luasnip will write p, instead of using the "_dP
-		--[[ {
+		{
 			"p",
 			function()
 				local luasnip = require("luasnip")
@@ -46,11 +46,12 @@ return {
 				end
 			end,
 			mode = { "v" },
-		}, ]]
+		},
 		-- -- <NL> is C-j in lua
 		-- { "<NL>", function () require("luasnip").expand() end, mode ="i"},
 	},
-	config = function()
+	config = function(_, opts)
 		require("luasnip.loaders.from_vscode").load({ paths = "./snippets" })
+		require("luasnip").setup(opts)
 	end,
 }
