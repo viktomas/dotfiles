@@ -15,11 +15,9 @@ if status is-interactive
     fish_vi_key_bindings # vi insert mode
 
 
-    function fish_user_key_bindings
-        for mode in insert default visual
-            bind -M $mode \cf forward-char
-        end
-    end
+    bind -M insert \cf accept-autosuggestion
+    bind -M default gcc "fish_commandline_prepend '#'"
+    bind -M insert \c_ "fish_commandline_prepend '#'"
 
     # init zoxide
     complete -e j
