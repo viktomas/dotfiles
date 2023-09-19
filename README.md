@@ -22,6 +22,8 @@ Edit crontab by running `./bin/edit-crontab.sh`.
 
 ## `neovim`
 
+- [ ] replacing visually selected text by pressing `p` removes leading spaces. Fix it
+
 ## Mac-specific setup
 
 ### Resize screenshots and add them to clipboard

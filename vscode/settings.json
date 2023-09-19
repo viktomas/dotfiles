@@ -22,6 +22,7 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "git.autofetch": true,
   "go.formatTool": "goimports",
+  "go.coverOnSave": true,
   "files.associations": {
     "*.mongo": "javascript"
   },

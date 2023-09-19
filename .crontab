@@ -4,12 +4,14 @@
 #
 # crontab can use .pam_environment, so advantage is taken of that to set
 # dbus and X related variables.
-PATH=$HOME/tomas/.asdf/shims:/opt/homebrew/opt/asdf/libexec/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/workspace/go/bin:$HOME/workspace/go/bin
+PATH=$HOME.asdf/shims:/opt/homebrew/opt/asdf/libexec/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/workspace/go/bin:$HOME/workspace/go/bin
 
 # use https://crontab.guru/ to validate schedule expressions
 
 # delete old screenshots
 @hourly         $HOME/bin/delete-old-screenshots.sh
+# backup my shell history database
+@hourly         cp $HOME/.local/share/atuin/history.db $HOME/Nextcloud-nuc/
 
 # cronjob for my rails pet project
 # 0,10,20,30,40,50 * * * * /bin/bash -l -c 'cd /Users/tomas/workspace/private/realestate && /Users/tomas/.asdf/shims/bundle exec bin/rails runner -e development "GetPropertiesJob.perform_now"'

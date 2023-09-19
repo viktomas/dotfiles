@@ -35,6 +35,16 @@ return {
 				{ name = "nvim_lua" },
 				-- TODO: add the buffer, but don't allow fuzzy search and don't pre-select the value
 			}),
+			enabled = function()
+				if
+					require("cmp.config.context").in_treesitter_capture("string") == true
+					-- or require("cmp.config.context").in_syntax_group("String")
+				then
+					return false
+				else
+					return true
+				end
+			end,
 		})
 
 		-- Set configuration for specific filetype.

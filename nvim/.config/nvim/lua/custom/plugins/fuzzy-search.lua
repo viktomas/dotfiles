@@ -21,9 +21,6 @@ return {
 					i = {
 						["<C-u>"] = false, -- clear the prompt with CTRL-U
 						["<esc>"] = telescopeActions.close, --close the picker on ESC
-						-- ctrl+J and ctrl+K to scroll through the selection to match my FZF muscle memory
-						-- ["<C-j>"] = telescopeActions.move_selection_next,
-						-- ["<C-k>"] = telescopeActions.move_selection_previous,
 					},
 				},
 			},
