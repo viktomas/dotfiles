@@ -35,15 +35,20 @@ return {
 				{ name = "nvim_lua" },
 				-- TODO: add the buffer, but don't allow fuzzy search and don't pre-select the value
 			}),
+			-- This will avoid autocomplete in string literals
+			-- I had to combine the default conditions: https://github.com/hrsh7th/nvim-cmp/blob/5dce1b778b85c717f6614e3f4da45e9f19f54435/lua/cmp/config/default.lua#L10-L16
+			-- with checking for string literals
+			-- Otherwise telescope would be broken
+			--
+			-- I added comment to the GitHub issue https://github.com/hrsh7th/nvim-cmp/pull/676#issuecomment-1724981778
 			enabled = function()
-				if
-					require("cmp.config.context").in_treesitter_capture("string") == true
-					-- or require("cmp.config.context").in_syntax_group("String")
-				then
-					return false
-				else
-					return true
-				end
+				local context = require("cmp.config.context")
+				local disabled = false
+				disabled = disabled or (vim.api.nvim_buf_get_option(0, "buftype") == "prompt")
+				disabled = disabled or (vim.fn.reg_recording() ~= "")
+				disabled = disabled or (vim.fn.reg_executing() ~= "")
+				disabled = disabled or context.in_treesitter_capture("comment")
+				return not disabled
 			end,
 		})
 
