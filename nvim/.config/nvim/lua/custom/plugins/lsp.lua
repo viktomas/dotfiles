@@ -53,8 +53,7 @@ return {
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufoptsWithDesc("Definition"))
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, bufoptsWithDesc("LSP Hover"))
 			vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufoptsWithDesc("Implementation"))
-			-- TODO: C-k is already used for going to the top split figure out a different keymap
-			-- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufoptsWithDesc("Signature help"))
+			vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, bufoptsWithDesc("Signature help"))
 			-- vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufoptsWithDesc(""))
 			-- vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufoptsWithDesc())
 			-- vim.keymap.set('n', '<leader>wl', function()
@@ -97,6 +96,11 @@ return {
 		lspconfig["gopls"].setup({
 			capabilities = capabilities,
 			on_attach = on_attach,
+			settings = {
+				gopls = {
+					symbolScope = "workspace",
+				}, -- when I search for symbols, I don't want to see dependencies
+			},
 		})
 		lspconfig["tsserver"].setup({
 			capabilities = capabilities,
