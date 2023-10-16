@@ -14,6 +14,9 @@ set --export --prepend PATH "/Users/tomas/.rd/bin"
 if status is-interactive
     fish_vi_key_bindings # vi insert mode
 
+    # ctrl+alt+G will show FZF with git log (the derault ctrl+alt+l) conflicts with skhd (yabai window operations)
+    fzf_configure_bindings --git_log=\e\a
+
 
     bind -M insert \cf accept-autosuggestion
     bind -M default gcc "fish_commandline_prepend '#'"
