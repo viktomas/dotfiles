@@ -41,8 +41,8 @@ return {
 					-- Send "p"
 					vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("p", true, false, true), "n", false)
 				else
-					-- Send "_dP"
-					vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('"_dP', true, false, true), "n", false)
+					-- run the "keep the buffer content after replace" magic
+					vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("pgvygv<ESC>", true, false, true), "n", false)
 				end
 			end,
 			mode = { "v" },

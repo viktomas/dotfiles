@@ -58,7 +58,7 @@ keymap("n", "x", '"_x', opts)
 
 -- this keymap is now affecting LuaSnip and I had to move altered version there
 -- don't put replaced code to buffer
-keymap("v", "p", '"_dP', opts)
+keymap("v", "p", "pgvygv<ESC>", opts)
 --
 --  move text and rehighlight -- vim tip_id=224
 keymap("v", "<", "<gv", opts)
