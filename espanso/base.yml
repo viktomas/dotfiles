@@ -2,7 +2,9 @@
 matches:
   # Simple text replacement
   - trigger: "..lex"
-    replace: '/label ~"devops::create" ~"group::ide" ~"VS Code" ~"Category:Editor Extension" ~"section::dev"'
+    replace: '/label ~"devops::create" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::VS Code"'
+  - trigger: "..lls"
+    replace: '/label ~"devops::create" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Language Server"'
   - trigger: "..lf"
     replace: '/label ~"type::feature"'
   - trigger: "..lb"
@@ -18,3 +20,7 @@ matches:
     # word: true
   - trigger: "..shrug"
     replace: "¯\\_(ツ)_/¯"
+  - trigger: "..approve"
+    replace: "/approve\n\n/unassign_reviewer @viktomas \n\n/assign_reviewer \n\ncan I please ask you to do a ~frontend maintainer review for this MR? :pray:\n"
+  - trigger: "VSE"
+    replace: "VS Code Extension"
