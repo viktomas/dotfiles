@@ -108,8 +108,10 @@
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
   },
   "gitlab.aiAssistedCodeSuggestions.enabled": true,
-  "gitlab.featureFlags.commonCurrentBranch":true,
+  "gitlab.debug": true,
+  "gitlab.featureFlags.languageServer":true,
   "gitlab.featureFlags.chat":true,
   "cody.serverEndpoint": "https://sourcegraph.com/",
+  "gitlab.aiAssistedCodeSuggestions.preferredAccount": "viktomas",
   "window.zoomLevel": 1
 }
