@@ -86,6 +86,7 @@ return {
 			end, bufoptsWithDesc("Rename symbol"))
 			vim.keymap.set("n", "<leader>a", vim.lsp.buf.code_action, bufoptsWithDesc("Run code action"))
 			vim.keymap.set("n", "gr", vim.lsp.buf.references, bufoptsWithDesc("references"))
+			vim.keymap.set("n", "gm", vim.lsp.buf.implementation, bufoptsWithDesc("implementations"))
 			-- vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, bufoptsWithDesc())
 		end
 
