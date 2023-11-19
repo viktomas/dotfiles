@@ -79,5 +79,13 @@ return {
 		--   {'BufReadPost', 'FileReadPost'},
 		--   { command = 'normal zR' }
 		-- )
+
+		-- Workaround: vim automatically pushes `noplainbuffer` setting to
+		-- https://github.com/neovim/neovim/pull/19419
+		vim.api.nvim_create_autocmd({ "Bufenter" }, {
+			callback = function()
+				vim.opt.spelloptions = "camel"
+			end,
+		})
 	end,
 }
