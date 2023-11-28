@@ -49,3 +49,5 @@ Neovim
 localhost
 readonly
 Ai
+keyof
+typeof

@@ -33,8 +33,15 @@ return {
 				{ name = "nvim_lsp" },
 				{ name = "luasnip" },
 				{ name = "nvim_lua" },
+			}, {
 				-- TODO: add the buffer, but don't allow fuzzy search and don't pre-select the value
+				{ name = "buffer" },
 			}),
+			experimental = {
+				ghost_text = {
+					hl_group = "CmpGhostText",
+				},
+			},
 			-- This will avoid autocomplete in string literals
 			-- I had to combine the default conditions: https://github.com/hrsh7th/nvim-cmp/blob/5dce1b778b85c717f6614e3f4da45e9f19f54435/lua/cmp/config/default.lua#L10-L16
 			-- with checking for string literals
