@@ -81,11 +81,11 @@
   },
   "it synchronous": {
     "prefix": "it",
-    "body": "it('${1:description}', () => {\n\t${0}\n})"
+    "body": "it('${1:description}', () => {\n\t${0}\n});"
   },
   "beforeAll": {
     "prefix": "bfaa",
-    "body": "beforeAll(async () => {\n\t${0}\n})"
+    "body": "beforeAll(async () => {\n\t${0}\n});"
   },
   "beforeEach": {
     "prefix": "bfe",
