@@ -28,7 +28,8 @@
   dft = difftool
 
   # Fancy logging.
-  l = log --decorate --oneline --graph
+  l = log --pretty=format:'%C(yellow)%h%Creset %C(auto)%d%Creset %C(white)%s%Creset %C(dim white)%an (%as)%Creset'  --graph
+
   ll = !git l -10
   la = !git l --all
 
