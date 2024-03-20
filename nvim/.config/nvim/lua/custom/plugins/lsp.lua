@@ -8,10 +8,16 @@ return {
 		-- Useful status updates for LSP
 		{ "j-hui/fidget.nvim", opts = {} },
 
+		{ "https://git.sr.ht/~whynothugo/lsp_lines.nvim", opts = {} },
+
 		-- Additional lua configuration, makes nvim stuff amazing!
 		"folke/neodev.nvim",
 	},
 	config = function()
+		-- we use the lsp_lines plugin (defined in this file, so let's not show the default virtual text)
+		vim.diagnostic.config({
+			virtual_text = false,
+		})
 		-- Mappings.
 		-- See `:help vim.diagnostic.*` for documentation on any of the below functions
 		local opts = { silent = true }

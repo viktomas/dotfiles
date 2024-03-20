@@ -43,6 +43,7 @@ require("lazy").setup({
 	dc("kylechui/nvim-surround"),
 	dc("numToStr/Comment.nvim"),
 	"tpope/vim-abolish",
+	"tpope/vim-scriptease",
 
 	-- TODO: try to install comment.nvim but be careful about conflicting keybidings (:checkhealth which _key)
 	-- { 'numToStr/Comment.nvim', opts = {} },
