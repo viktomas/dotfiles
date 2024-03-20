@@ -13,6 +13,14 @@ matches:
     replace: '/label ~"type::maintenance"'
   - trigger: "..thx"
     replace: 'Thank you for creating this issue :pray:'
+  - trigger: "..p1"
+    replace: '🔴'
+  - trigger: "..p2"
+    replace: '🟠'
+  - trigger: "..p3"
+    replace: '🟡'
+  - trigger: "..p4"
+    replace: '🟢'
   # Common spelling mistakes
   - trigger: "lenght"
     replace: 'length'
@@ -21,6 +29,8 @@ matches:
   - trigger: "..shrug"
     replace: "¯\\_(ツ)_/¯"
   - trigger: "..approve"
-    replace: "/approve\n\n/unassign_reviewer @viktomas \n\n/assign_reviewer \n\ncan I please ask you to do a ~frontend maintainer review for this MR? :pray:\n"
+    replace: "/approve\n\n/unassign_reviewer @viktomas \n\n/assign_reviewer \n\n can I please ask you to do a ~frontend maintainer review for this MR? :pray:\n"
   - trigger: "VSE"
     replace: "VS Code Extension"
+  - trigger: "..parrots"
+    replace: ":parrot-wave-1::parrot-wave-2::parrot-wave-3::parrot-wave-4::parrot-wave-5::parrot-wave-6::parrot-wave-7::parrot-wave-8::parrot-wave-9:"
