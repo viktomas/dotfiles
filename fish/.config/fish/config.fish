@@ -1,9 +1,7 @@
 set fish_greeting # Turn off greeting
 source ~/.profile
 
-if type -q brew
-    [ -e (brew --prefix asdf)/libexec/asdf.fish ]; and source (brew --prefix asdf)/libexec/asdf.fish
-end
+source ~/.asdf/asdf.fish
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 set --export --prepend PATH "/Users/tomas/.rd/bin"
