@@ -54,3 +54,4 @@ typeof
 init
 lodash
 param
+getSuggestions

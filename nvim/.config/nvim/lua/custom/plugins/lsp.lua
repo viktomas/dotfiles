@@ -8,7 +8,8 @@ return {
 		-- Useful status updates for LSP
 		{ "j-hui/fidget.nvim", opts = {} },
 
-		{ "https://git.sr.ht/~whynothugo/lsp_lines.nvim", opts = {} },
+		-- https://git.sr.ht/~whynothugo/lsp_lines.nvim - it's nice but the buffer jumps around too much
+		-- { "https://git.sr.ht/~whynothugo/lsp_lines.nvim", opts = {} },
 
 		-- Additional lua configuration, makes nvim stuff amazing!
 		"folke/neodev.nvim",
@@ -27,7 +28,7 @@ return {
 		end
 
 		-- the following diagnostic commands don't work :(
-		-- vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
+		vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
 		-- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
 		--- end of not working
 

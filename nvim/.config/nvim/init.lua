@@ -49,7 +49,11 @@ require("lazy").setup({
 	-- { 'numToStr/Comment.nvim', opts = {} },
 	-- linting with ALE
 	"dense-analysis/ale",
-	{ "dmmulroy/tsc.nvim", opts = {}, event = "BufEnter *.ts" },
+	{ "dmmulroy/tsc.nvim", opts = {
+		flags = {
+			noEmit = false,
+		},
+	}, event = "BufEnter *.ts" },
 	dc("windwp/nvim-autopairs"),
 	-- Which key shows helpful window to remind me of the keymaps
 	{
@@ -61,6 +65,7 @@ require("lazy").setup({
 		end,
 	},
 	{ "viktomas/diff-clip.nvim", dev = true },
+	-- { "viktomas/ghost.nvim", dev = true, opts = {} },
 	{ import = "custom.plugins" },
 }, {
 	dev = {

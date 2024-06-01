@@ -4,7 +4,9 @@ return {
 	event = { "BufReadPre", "BufNewFile" }, -- Activate when a file is created/opened
 	ft = { "go", "javascript", "python", "ruby" }, -- Activate when a supported filetype is open
 	cond = function()
-		return vim.env.GITLAB_TOKEN ~= nil and vim.env.GITLAB_TOKEN ~= "" -- Only activate is token is present in environment variable (remove to use interactive workflow)
+		-- temporarily disable
+		return false
+		-- return vim.env.GITLAB_TOKEN ~= nil and vim.env.GITLAB_TOKEN ~= "" -- Only activate is token is present in environment variable (remove to use interactive workflow)
 	end,
 	opts = {
 		statusline = {
