@@ -5,6 +5,8 @@ matches:
     replace: '/label ~"devops::create" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::VS Code"'
   - trigger: "..lls"
     replace: '/label ~"devops::create" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Language Server"'
+  - trigger: '..lteam'
+    replace: '/label ~"devops::create" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev"'
   - trigger: "..lf"
     replace: '/label ~"type::feature"'
   - trigger: "..lb"
@@ -21,6 +23,10 @@ matches:
     replace: '🟡'
   - trigger: "..p4"
     replace: '🟢'
+  - trigger: "..kbd"
+    replace: '<kbd></kbd>'
+  - trigger: "..tl"
+    replace: '- [ ] '
   # Common spelling mistakes
   - trigger: "lenght"
     replace: 'length'
