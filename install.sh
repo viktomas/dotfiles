@@ -22,6 +22,7 @@ stow fish
 stow fd
 stow helix
 stow yamlfmt
+stow zellij
 
 # tiling window manager
 stow yabai
@@ -36,3 +37,5 @@ chmod 700 ~/.vim ~/.vim/backup/ ~/.vim/undo/ ~/.vim/swap/ # sensitive informatio
 [ "$(uname 2>/dev/null)" == "Darwin" ] && stow karabiner
 
 [[ $SHELL != *"fish" ]] && chsh -s $(which fish)
+
+[ ! -d ~/.asdf ] && git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
