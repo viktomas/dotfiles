@@ -1,12 +1,11 @@
 
-let g:ale_fixers = {
-      \'javascript': ['prettier', 'eslint'],
-      \'typescript': ['tslint'],
-      \'sh': ['shellcheck'],
-      \}
-let g:ale_completion_enabled = 0
-let g:ale_use_neovim_diagnostics_api = 1
-let g:ale_virtualtext_cursor = 'disabled' " this disables ALE virtual text and relies solely on diagnostics API
+" let g:ale_fixers = {
+"       \'javascript': ['prettier', 'eslint'],
+"       \'sh': ['shellcheck'],
+"       \}
+" let g:ale_completion_enabled = 0
+" let g:ale_use_neovim_diagnostics_api = 1
+" let g:ale_virtualtext_cursor = 'disabled' " this disables ALE virtual text and relies solely on diagnostics API
 
 augroup openQuickFixAutomatically
   autocmd!

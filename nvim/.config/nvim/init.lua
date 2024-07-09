@@ -48,7 +48,7 @@ require("lazy").setup({
 	-- TODO: try to install comment.nvim but be careful about conflicting keybidings (:checkhealth which _key)
 	-- { 'numToStr/Comment.nvim', opts = {} },
 	-- linting with ALE
-	"dense-analysis/ale",
+	-- "dense-analysis/ale",
 	{ "dmmulroy/tsc.nvim", opts = {
 		flags = {
 			noEmit = false,
@@ -58,6 +58,7 @@ require("lazy").setup({
 	-- Which key shows helpful window to remind me of the keymaps
 	{
 		"folke/which-key.nvim",
+		version = "2.1.0",
 		config = function()
 			vim.o.timeout = true
 			vim.o.timeoutlen = 300
