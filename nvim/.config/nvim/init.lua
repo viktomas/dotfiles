@@ -44,6 +44,12 @@ require("lazy").setup({
 	dc("numToStr/Comment.nvim"),
 	"tpope/vim-abolish",
 	"tpope/vim-scriptease",
+	{
+		"HiPhish/rainbow-delimiters.nvim",
+		config = function()
+			require("rainbow-delimiters.setup").setup()
+		end,
+	},
 
 	-- TODO: try to install comment.nvim but be careful about conflicting keybidings (:checkhealth which _key)
 	-- { 'numToStr/Comment.nvim', opts = {} },
