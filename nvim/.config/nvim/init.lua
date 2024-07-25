@@ -43,6 +43,7 @@ require("lazy").setup({
 	dc("kylechui/nvim-surround"),
 	dc("numToStr/Comment.nvim"),
 	"tpope/vim-abolish",
+    dc("nvimdev/hlsearch.nvim"),
 	"tpope/vim-scriptease",
 	{
 		"HiPhish/rainbow-delimiters.nvim",

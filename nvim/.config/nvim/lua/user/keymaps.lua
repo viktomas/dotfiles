@@ -18,9 +18,10 @@ vim.g.maplocalleader = " "
 --
 
 -- Normal --
-keymap("n", "<leader><CR>", ":nohlsearch<CR>", {
-	desc = "call :nohlsearch to disable highlighting",
-})
+-- not needed thanks to 'nvimdev/hlsearch.nvim'
+-- keymap("n", "<leader><CR>", ":nohlsearch<CR>", {
+-- 	desc = "call :nohlsearch to disable highlighting",
+-- })
 -- Yank and paste from the system cliboard
 keymap({ "n", "v" }, "<leader>y", '"+y', { desc = "yank to clipboard" })
 keymap({ "n", "v" }, "<leader>p", '"+p', { desc = "paste from clipboard" })

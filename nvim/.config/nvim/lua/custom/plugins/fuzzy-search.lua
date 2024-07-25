@@ -45,6 +45,15 @@ return {
 			end
 		end
 
+        -- automatically open file picker if neovim has been started with no arguments
+		vim.api.nvim_create_autocmd("VimEnter", {
+			callback = function()
+				if vim.fn.argc() == 0 then
+					find_files()
+				end
+			end,
+		})
+
 		vim.keymap.set("n", "<leader>f", find_files, { desc = "find files" })
 		vim.keymap.set("n", "<leader>;", builtin.resume, { desc = "resume last picker" })
 		vim.keymap.set("n", "<leader>b", builtin.buffers, { desc = "select buffer" })
