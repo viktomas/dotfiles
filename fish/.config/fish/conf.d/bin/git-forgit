@@ -132,6 +132,7 @@ _forgit_log_format=${FORGIT_LOG_FORMAT:-%C(auto)%h%d %s %C(black)%C(bold)%cr%Cre
 _forgit_log_preview_options=("--graph" "--pretty=format:$_forgit_log_format" "--color=always" "--abbrev-commit" "--date=relative")
 _forgit_fullscreen_context=${FORGIT_FULLSCREEN_CONTEXT:-10}
 _forgit_preview_context=${FORGIT_PREVIEW_CONTEXT:-3}
+_forgit_dir_view=${FORGIT_DIR_VIEW:-$(hash tree &> /dev/null && echo 'tree' || echo 'find')}
 
 _forgit_pager() {
     local pager
@@ -156,6 +157,21 @@ _forgit_get_pager() {
 
 _forgit_is_file_tracked() {
     git ls-files "$1" --error-unmatch &> /dev/null
+}
+
+_forgit_list_files() {
+    local rootdir
+    rootdir=$(git rev-parse --show-toplevel)
+    # git escapes special characters in it's output when core.quotePath is
+    # true or unset. Git always expects unquoted file paths as input. This
+    # leads to issues when we consume output from git and use it to build
+    # input for other git commands. Use the -z flag to ensure file paths are
+    # unquoted.
+    # uniq is necessary because unmerged files are printed once for each
+    # merge conflict.
+    # With the -z flag, git also uses \0 line termination, so we 
+    # have to replace the terminators.
+    git ls-files -z "$@" "$rootdir" | tr '\0' '\n' | uniq
 }
 
 _forgit_log_preview() {
@@ -241,9 +257,11 @@ _forgit_diff_view() {
 }
 
 _forgit_edit_diffed_file() {
-    local input_line=$1
+    local input_line rootdir
+    input_line=$1
+    rootdir=$(git rev-parse --show-toplevel)
     filename=$(echo "$input_line" | _forgit_get_single_file_from_diff_line)
-    $EDITOR "$filename" >/dev/tty </dev/tty
+    $EDITOR "$rootdir/$filename" >/dev/tty </dev/tty
 }
 
 _forgit_diff_enter() {
@@ -345,7 +363,7 @@ _forgit_add() {
     files=()
     while IFS='' read -r file; do
         files+=("$file")
-    done < <(git -c color.status=always -c status.relativePaths=true status -su |
+    done < <(git -c color.status=always -c status.relativePaths=true -c core.quotePath=false status -su |
         grep -F -e "$changed" -e "$unmerged" -e "$untracked" |
         sed -E 's/^(..[^[:space:]]*)[[:space:]]+(.*)$/[\1]  \2/' |
         FZF_DEFAULT_OPTS="$opts" fzf |
@@ -380,7 +398,7 @@ _forgit_reset_head() {
     files=()
     while IFS='' read -r file; do
         files+=("$file")
-    done < <(git diff --staged --name-only | FZF_DEFAULT_OPTS="$opts" fzf)
+    done < <(git diff -z --staged --name-only | tr '\0' '\n' | FZF_DEFAULT_OPTS="$opts" fzf)
     if [[ ${#files} -eq 0 ]]; then
         echo 'Nothing to unstage.'
         return 1
@@ -458,16 +476,27 @@ _forgit_stash_push() {
     opts="
         $FORGIT_FZF_DEFAULT_OPTS
         -m
+        --preview=\"$FORGIT stash_push_preview {}\"
         $FORGIT_STASH_PUSH_FZF_OPTS
     "
     # Show both modified and untracked files
     files=()
     while IFS='' read -r file; do
         files+=("$file")
-    done < <(git ls-files --exclude-standard --modified --others |
-        FZF_DEFAULT_OPTS="$opts" fzf --preview="$FORGIT stash_push_preview {}")
-    [[ "${#files[@]}" -eq 0 ]] && return 1
+    done < <(_forgit_list_files --exclude-standard --modified --others |
+        FZF_DEFAULT_OPTS="$opts" fzf --exit-0)
+    [[ "${#files[@]}" -eq 0 ]] && echo "Nothing to stash" && return 1
     _forgit_git_stash_push ${msg:+-m "$msg"} -u "${files[@]}"
+}
+
+_forgit_clean_preview() {
+    local path
+    path=$1
+    if [[ -d "$path" ]]; then
+        eval "$_forgit_dir_view \"$path\""
+    else
+        git diff --color=always /dev/null "$path" | _forgit_pager diff
+    fi
 }
 
 # git clean selector
@@ -479,11 +508,12 @@ _forgit_clean() {
     _forgit_parse_array _forgit_clean_git_opts "$FORGIT_CLEAN_GIT_OPTS"
     opts="
         $FORGIT_FZF_DEFAULT_OPTS
+        --preview=\"$FORGIT clean_preview {}\"
         -m -0
         $FORGIT_CLEAN_FZF_OPTS
     "
     # Note: Postfix '/' in directory path should be removed. Otherwise the directory itself will not be removed.
-    files=$(git clean -xdffn "$@"| sed 's/^Would remove //' | FZF_DEFAULT_OPTS="$opts" fzf |sed 's#/$##')
+    files=$(git -c core.quotePath=false clean -xdffn "$@"| sed 's/^Would remove //' | FZF_DEFAULT_OPTS="$opts" fzf |sed 's#/$##')
     [[ -n "$files" ]] && echo "$files" | tr '\n' '\0' | xargs -0 -I% git clean "${_forgit_clean_git_opts[@]}" -xdff '%' && git status --short && return
     echo 'Nothing to clean.'
 }
@@ -661,7 +691,7 @@ _forgit_checkout_file() {
     files=()
     while IFS='' read -r file; do
         files+=("$file")
-    done < <(git ls-files --modified "$(git rev-parse --show-toplevel)" |
+    done < <(_forgit_list_files --modified |
         FZF_DEFAULT_OPTS="$opts" fzf)
     [[ "${#files[@]}" -gt 0 ]] && _forgit_git_checkout_file "${files[@]}"
 }
@@ -820,10 +850,13 @@ _forgit_revert_commit() {
 
     opts="
         $FORGIT_FZF_DEFAULT_OPTS
-        +s --tiebreak=index
+        -m +s --tiebreak=index
         --ansi --with-nth 2..
+        --preview=\"$FORGIT revert_preview {}\"
         $FORGIT_REVERT_COMMIT_FZF_OPTS
     "
+    graph=()
+    [[ $_forgit_log_graph_enable == true ]] && graph=(--graph)
 
     # in this function, we do something interesting to maintain proper ordering as it's assumed 
     # you generally want to revert newest->oldest when you multiselect
@@ -834,10 +867,10 @@ _forgit_revert_commit() {
     while IFS='' read -r commit; do
         commits+=("$commit")
     done < <(
-        git log --graph --color=always --format="$_forgit_log_format" |
+        git log "${graph[@]}" --color=always --format="$_forgit_log_format" |
         _forgit_emojify |
         nl |
-        FZF_DEFAULT_OPTS="$opts" fzf --preview="$FORGIT revert_preview {}" -m |
+        FZF_DEFAULT_OPTS="$opts" fzf |
         sort -n -k 1 | 
         cut -f2- |
         sed 's/^[^a-f^0-9]*\([a-f0-9]*\).*/\1/')
@@ -851,7 +884,7 @@ _forgit_blame_preview() {
     if _forgit_is_file_tracked "$1"; then
         _forgit_blame_git_opts=()
         _forgit_parse_array _forgit_blame_git_opts "$FORGIT_BLAME_GIT_OPTS"
-        git blame "$@" "${_forgit_blame_git_opts[@]}" --date=short | _forgit_pager blame
+        git blame --date=short "${_forgit_blame_git_opts[@]}" "$@" | _forgit_pager blame
     else
         echo "File not tracked"
     fi
@@ -868,17 +901,18 @@ _forgit_blame() {
     _forgit_inside_work_tree || return 1
     local opts flags file
     _forgit_contains_non_flags "$@" && { _forgit_git_blame "$@"; return $?; }
-    opts="
-        $FORGIT_FZF_DEFAULT_OPTS
-        $FORGIT_BLAME_FZF_OPTS
-    "
     flags=()
     while IFS='' read -r flag; do
         flags+=("$flag")
     done < <(git rev-parse --flags "$@")
+    opts="
+        $FORGIT_FZF_DEFAULT_OPTS
+        --preview=\"$FORGIT blame_preview {} ${flags[*]}\"
+        $FORGIT_BLAME_FZF_OPTS
+    "
     # flags is not quoted here, which is fine given that they are retrieved
     # with git rev-parse and can only contain flags
-    file=$(FZF_DEFAULT_OPTS="$opts" fzf --preview="$FORGIT blame_preview {} ${flags[*]}")
+    file=$(FZF_DEFAULT_OPTS="$opts" fzf)
     [[ -z "$file" ]] && return 1
     _forgit_git_blame "$file" "${flags[@]}"
 }
@@ -973,6 +1007,7 @@ private_commands=(
     "checkout_file_preview"
     "cherry_pick_from_branch_preview"
     "cherry_pick_preview"
+    "clean_preview"
     "diff_enter"
     "file_preview"
     "ignore_preview"
