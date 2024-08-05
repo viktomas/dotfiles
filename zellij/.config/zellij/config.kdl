@@ -18,7 +18,7 @@ keybinds {
         bind "s" { SwitchToMode "scroll"; }
         bind "m" { SwitchToMode "move"; }
         bind "o" { SwitchToMode "session"; }
-        bind "/" { SwitchToMode "entersearch"; SearchInput 0; }
+        bind "/" { EditScrollback; SwitchToMode "normal"; }
         bind "Ctrl q" { Quit; }
         bind "h" "Left" { MoveFocus "Left"; }
         bind "l" "Right" { MoveFocus "Right"; }
