@@ -36,14 +36,11 @@ require("lazy").setup({
 	-- git related plugins
 	"tpope/vim-fugitive",
 
-	-- file orientation plugins
-	"milkypostman/vim-togglelist",
-
 	-- general code helping plugins
 	dc("kylechui/nvim-surround"),
 	dc("numToStr/Comment.nvim"),
 	"tpope/vim-abolish",
-    dc("nvimdev/hlsearch.nvim"),
+	dc("nvimdev/hlsearch.nvim"),
 	"tpope/vim-scriptease",
 	{
 		"HiPhish/rainbow-delimiters.nvim",
@@ -82,4 +79,3 @@ require("lazy").setup({
 })
 
 require("user.globals")
-vim.cmd("source " .. "~/.config/nvim/old-config.vim")
