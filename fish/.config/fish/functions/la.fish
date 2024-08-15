@@ -1,3 +1,3 @@
-function la --wraps=ls --wraps='exa -laF' --description 'alias la exa -laF'
-  exa -laF $argv; 
+function la --wraps=ls --wraps='eza -laF' --description 'alias la eza -laF'
+  eza -laF $argv; 
 end
