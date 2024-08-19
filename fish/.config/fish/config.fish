@@ -1,5 +1,4 @@
 set fish_greeting # Turn off greeting
-source ~/.profile
 
 source ~/.asdf/asdf.fish
 

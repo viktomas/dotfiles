@@ -37,9 +37,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
-  "[markdown]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+
   "files.enableTrash": false,
   "editor.fontFamily": "JetBrains Mono",
   "editor.fontLigatures": true,
@@ -57,7 +55,6 @@
   "prettier.singleQuote": true,
   "explorer.confirmDragAndDrop": false,
   "git.enableSmartCommit": true,
-  "update.mode": "manual",
   "extensions.autoCheckUpdates": false,
   "calva.prettyPrintingOptions": {
     "maxDepth": 100,
@@ -108,10 +105,56 @@
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
   },
   "gitlab.aiAssistedCodeSuggestions.enabled": true,
+  // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
   "gitlab.debug": true,
   "gitlab.featureFlags.languageServer":true,
   "gitlab.featureFlags.chat":true,
   "cody.serverEndpoint": "https://sourcegraph.com/",
+  "gitlab.ls.debug": true,
   "gitlab.aiAssistedCodeSuggestions.preferredAccount": "viktomas",
-  "window.zoomLevel": 1
+  // for GitLab CI https://docs.gitlab.com/ee/ci/yaml/yaml_optimization.html#configure-your-ide-to-support-reference-tags
+  "yaml.customTags": [
+    "!reference sequence"
+],
+"window.zoomLevel": 1,
+"[c]": {
+  "editor.defaultFormatter": "ms-vscode.cpptools"
+},
+"window.nativeTabs": true,
+"workbench.editor.enablePreviewFromCodeNavigation": true,
+"workbench.editor.enablePreviewFromQuickOpen": true,
+"git.replaceTagsWhenPull": true,
+"gitlab.aiAssistedCodeSuggestions.additionalLanguages": [
+  "clojure",
+  "haskel"
+],
+
+"proofer.prompts":[
+  {
+    "name": "Paragraph flow",
+    "systemPrompt": "You're my proofreader.\n\nHow we'll proceed:\n\n1. I'll provide you with an article.\n\n2. You'll analyze and identify the main idea of the article, and how each subheader helps get the main idea across.\n\n3. You'll give me SPECIFIC suggestions on:\n\n3.1. the overall flow of ideas in the subheaders\n\n3.2. the overall flow of the paragraphs\n\n4. Then you output this exact string: %%%%%\n\n5. Then provide the new version of the article with your suggestions worked in but without any commentary\n\n This is the article:"
+  },
+  {
+    "name": "no that or it",
+    "systemPrompt": "You are my proofreader. I'll provide you with a text. You'll replace all some or all demonstrative pronouns to increase the text clarity. Only respond with the new version of the text. This is the text:\n\n"
+  },
+  {
+    "name": "Active verbs",
+    "systemPrompt": "You are my proofreader. I'll provide you with a text. You'll replace all inactive verbs with active verbs (for example 'A grandfather clock was in the corner' changes to 'A grandfather clock towered in the corner').  Only respond with the new version of the text. This is the text:\n\n"
+  },
+  {
+    "name": "Fix all grammar issues",
+    "systemPrompt": "You are my proofreader. I'll provide you with a text. Fix all grammar mistakes. If I there are words that are not correctly used, replace them with better words.  Only respond with the new version of the text. This is the text:\n\n"
+  },
+  {
+    "name": "Fix awkward expressions",
+    "systemPrompt": "You are my proofreader. I'll provide you with a text. Replace all expressions that would seem awkward to a native English speaker with idioms/phrases that would seem natural. If I there are words that are not correctly used, replace them with better words.  Only respond with the new version of the text. This is the text:\n\n"
+  },
+  {
+    "name": "Make sentences shorter",
+    "systemPrompt": "You are my proofreader. I'll provide you with a text. If a shorter or simpler word can be used, use it. If the sentence/paragraph can be made shorter without significant change to the meaning, shorten it. Only respond with the new version of the text. This is the text:\n\n"
+  }
+],
+// "gitlab.duo.enabledWithoutGitlabProject": false
 }
+

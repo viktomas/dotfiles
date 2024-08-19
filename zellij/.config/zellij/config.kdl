@@ -25,10 +25,10 @@ keybinds {
         bind "j" "Down" { MoveFocus "Down"; }
         bind "k" "Up" { MoveFocus "Up"; }
         bind "n" { NewTab; }
-        bind "K" { NewPane; }
+        bind "K" { NewPane "Down"; MovePane "Up"; }
         bind "J" { NewPane "Down"; }
         bind "L" { NewPane "Right"; }
-        bind "H" { NewPane "Left"; }
+        bind "H" { NewPane "Right"; MovePane "Left"; }
         bind "c" { SwitchToMode "RenamePane"; PaneNameInput 0; }
         bind "Ctrl d" { CloseFocus; }
         bind "Ctrl D" { CloseTab; }
