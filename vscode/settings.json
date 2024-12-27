@@ -95,7 +95,7 @@
   "workbench.sideBar.location": "right",
   "remote.SSH.defaultExtensions": ["gitpod.gitpod-remote-ssh"],
   "remote.SSH.configFile": "/var/folders/zf/7hg90bwn3871zcg3911dmc_00000gn/T/gitpod_ssh_config-32949-wYDyi5brBWcQ",
-  "diffEditor.ignoreTrimWhitespace": false,
+  "diffEditor.ignoreTrimWhitespace": true,
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },
@@ -104,14 +104,13 @@
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
   },
-  "gitlab.aiAssistedCodeSuggestions.enabled": true,
   // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
+  // "gitlab-lsp.trace.server": "verbose",
   "gitlab.debug": true,
-  "gitlab.featureFlags.languageServer":true,
-  "gitlab.featureFlags.chat":true,
+  // "gitlab.featureFlags.languageServerWebviews":true,
+  "gitlab.featureFlags.singleAccount":true,
   "cody.serverEndpoint": "https://sourcegraph.com/",
-  "gitlab.ls.debug": true,
-  "gitlab.aiAssistedCodeSuggestions.preferredAccount": "viktomas",
+  "gitlab.ls.debug": false,
   // for GitLab CI https://docs.gitlab.com/ee/ci/yaml/yaml_optimization.html#configure-your-ide-to-support-reference-tags
   "yaml.customTags": [
     "!reference sequence"
@@ -124,15 +123,11 @@
 "workbench.editor.enablePreviewFromCodeNavigation": true,
 "workbench.editor.enablePreviewFromQuickOpen": true,
 "git.replaceTagsWhenPull": true,
-"gitlab.aiAssistedCodeSuggestions.additionalLanguages": [
-  "clojure",
-  "haskel"
-],
 
 "proofer.prompts":[
-  {
+{
     "name": "Paragraph flow",
-    "systemPrompt": "You're my proofreader.\n\nHow we'll proceed:\n\n1. I'll provide you with an article.\n\n2. You'll analyze and identify the main idea of the article, and how each subheader helps get the main idea across.\n\n3. You'll give me SPECIFIC suggestions on:\n\n3.1. the overall flow of ideas in the subheaders\n\n3.2. the overall flow of the paragraphs\n\n4. Then you output this exact string: %%%%%\n\n5. Then provide the new version of the article with your suggestions worked in but without any commentary\n\n This is the article:"
+    "systemPrompt": "You're my proofreader.\n\nHow we'll proceed:\n\n1. I'll provide you with an article.\n\n2. You'll analyze and identify the main idea of the article, and how each subheader helps get the main idea across.\n\n3. You'll give me SPECIFIC suggestions on:\n\n3.1. the overall flow of ideas in the subheaders\n\n3.2. the overall flow of the paragraphs\n\n4. Then you output this exact string: %%%%%\n\n5. Then provide the new version of the article with your suggestions worked in but without any commentary. Don't change cited text.\n\n This is the article:"
   },
   {
     "name": "no that or it",
@@ -148,13 +143,30 @@
   },
   {
     "name": "Fix awkward expressions",
-    "systemPrompt": "You are my proofreader. I'll provide you with a text. Replace all expressions that would seem awkward to a native English speaker with idioms/phrases that would seem natural. If I there are words that are not correctly used, replace them with better words.  Only respond with the new version of the text. This is the text:\n\n"
+    "systemPrompt": "In the following text, replace all expressions that would seem awkward to a native English speaker with idioms/phrases that would seem natural. If I there are words that are not correctly used, replace them with better words. If the text uses simple words, don't replace them with more complex words unless you are fixing an awkward expression. Only respond with the new version of the text. This is the text:\n\n"
   },
   {
     "name": "Make sentences shorter",
     "systemPrompt": "You are my proofreader. I'll provide you with a text. If a shorter or simpler word can be used, use it. If the sentence/paragraph can be made shorter without significant change to the meaning, shorten it. Only respond with the new version of the text. This is the text:\n\n"
   }
 ],
+"gitlab.duoCodeSuggestions.preferredAccount": "viktomas",
+// "gitlab.duoCodeSuggestions.additionalLanguages": [
+//   "clojure",
+//   "haskel"
+// ],
+// "gitlab.duoWorkflow.dockerSocket": "/does-not-exist/docker.sock",
+"gitlab.showProjectMergeRequests": false,
+"gitlab.duoCodeSuggestions.enabledSupportedLanguages": {
+  "scala": false,
+  "php": false,
+  "sql": false
+},
+"gitlab.ignoreCertificateErrors": true,
+"gitlens.ai.experimental.model": "anthropic:claude-3-5-sonnet-20240620",
+"gitlab.duoWorkflow.dockerSocket": "/Users/tomas/.colima/default/docker.sock",
+"gitlab.keybindingHints.enabled": true,
+"window.confirmSaveUntitledWorkspace": false
 // "gitlab.duo.enabledWithoutGitlabProject": false
 }
 

@@ -48,6 +48,11 @@ end
 -- })
 -- Yank and paste from the system cliboard
 keymap({ "n", "v" }, "<leader>y", '"+y', { desc = "yank to clipboard" })
+keymap({ "n" }, "<leader>yp", function()
+	local rel_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":.")
+	vim.fn.setreg("+", rel_path)
+	print("copied: " .. rel_path)
+end, { desc = "yank relative path to clipboard" })
 keymap({ "n", "v" }, "<leader>p", '"+p', { desc = "paste from clipboard" })
 
 -- allows to search for visually selected text with * and #

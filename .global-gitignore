@@ -1,3 +1,4 @@
 .envrc
 .DS_Store
+.aider*
 #.vscode
