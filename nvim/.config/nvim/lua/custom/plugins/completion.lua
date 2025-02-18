@@ -17,6 +17,10 @@ return {
 					require("luasnip").lsp_expand(args.body)
 				end,
 			},
+			completion = {
+				completeopt = "menu,menuone,noinsert" .. (auto_select and "" or ",noselect"),
+			},
+			preselect = auto_select and cmp.PreselectMode.Item or cmp.PreselectMode.None,
 			window = {
 				-- comment these out if you want to use native popup menu
 				completion = cmp.config.window.bordered(),
