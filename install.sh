@@ -13,6 +13,7 @@ ln -s "$LOCATION/.global-gitignore" ~/.gitignore
 ln -s "$LOCATION/.goduignore" ~/.goduignore
 ln -s "$LOCATION/.yamllint.yaml" ~/.yamllint.yaml
 [ "$(uname 2>/dev/null)" == "Darwin" ] && ln -s "$LOCATION/espanso/base.yml" "$HOME/Library/Application Support/espanso/match/base.yml"
+[ "$(uname 2>/dev/null)" == "Darwin" ] && ln -s "$LOCATION/espanso/default.yml" "$HOME/Library/Application Support/espanso/config/default.yml"
 [ "$(uname 2>/dev/null)" == "Darwin" ] && ln -s "$LOCATION/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
 [ "$(uname 2>/dev/null)" == "Darwin" ] && ln -s "$LOCATION/vscode/settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
 [ "$(uname 2>/dev/null)" == "Linux" ] && ln -s "$LOCATION/vscode/settings.json" "$HOME/.config/Code - OSS/User/settings.json"
