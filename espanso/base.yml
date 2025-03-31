@@ -30,12 +30,16 @@ matches:
   # Common spelling mistakes
   - trigger: "lenght"
     replace: 'length'
+  - trigger: "taht"
+    replace: 'that'
     # propagate_case: true
     # word: true
   - trigger: "..shrug"
     replace: "¯\\_(ツ)_/¯"
   - trigger: "..approve"
     replace: "/approve\n\n/unassign_reviewer @viktomas \n\n/assign_reviewer \n\n can I please ask you to do a ~frontend maintainer review for this MR? :pray:\n"
+  - trigger: "..fr"
+    replace: "\n\n---\n _Help me improve my MR reviews. [Give me feedback](https://forms.gle/3UfFQBbGs28rP5Pz7). All answers are optional, it can take as little as 20s._\n"
   - trigger: "VSE"
     replace: "VS Code Extension"
   - trigger: "..parrots"
