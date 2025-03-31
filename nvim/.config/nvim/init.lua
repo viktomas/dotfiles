@@ -1,5 +1,6 @@
 require("user.keymaps")
 require("user.options")
+require("user.dev")
 
 require("plugins.minipack").setup({
 	verbose = true,
@@ -28,3 +29,7 @@ require("plugins.fuzzy")
 require("plugins.lsp")
 require("plugins.treesitter")
 require("plugins.formatter")
+require("plugins.gitlab")
+require("permalink")
+
+vim.keymap.set("n", "<leader>c", ":GitPermalink<CR>", { noremap = true, silent = true })
