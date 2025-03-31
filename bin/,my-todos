@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Script to find TODOs and FIXMEs authored by a specific email
+# Usage: ./find_todos.sh [path]
+
+SEARCH_PATH="${1:-.}"   # Default to current directory if no path provided
+EMAIL="tvik@gitlab.com" # Your email
+
+echo "Finding TODO and FIXME comments from ${EMAIL}..."
+
+# Search for TODO or FIXME using git grep
+git grep -n "TODO\|FIXME" "$SEARCH_PATH" | while IFS=: read -r file line_num content; do
+	# Get the author's email for this line
+	author_email=$(git blame -L "$line_num,$line_num" --porcelain "$file" | grep "^author-mail" | sed 's/^author-mail <\(.*\)>/\1/')
+
+	# Only show lines authored by the specified email
+	if [ "$author_email" = "$EMAIL" ]; then
+		echo "${file}:${line_num}: ${content}"
+	fi
+done
