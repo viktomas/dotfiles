@@ -2,3 +2,4 @@
 nvim/.config/nvim/undo/
 nvim/.config/nvim/.netrwhist
 nvim/.config/nvim/doc/tags
+bin/fennel-ls
