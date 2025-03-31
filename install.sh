@@ -35,8 +35,9 @@ stow nvim
 mkdir -p ~/.vim/swap ~/.vim/backup ~/.vim/undo
 chmod 700 ~/.vim ~/.vim/backup/ ~/.vim/undo/ ~/.vim/swap/ # sensitive information might be in vim tmp files
 
+touch ~/.hushlogin # make sure I don't get any login message from the `login` program
+
 [ "$(uname 2>/dev/null)" == "Darwin" ] && stow karabiner
 
 [[ $SHELL != *"fish" ]] && chsh -s "$(which fish)"
 
-[ ! -d ~/.asdf ] && git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
