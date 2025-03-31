@@ -1,28 +1,31 @@
 {
   /* GitLab VS Code Extension */
-  // "gitlab.debug": true,
-  // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
-  // "gitlab-lsp.trace.server": "verbose",
   "gitlab.debug": true,
-  "gitlab.ls.debug": false,
+  "gitlab.webviewTimeoutSeconds": 20,
+  // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
+  "gitlab-lsp.trace.server": "verbose",
+  // "gitlab.debug": true,
   // "gitlab.featureFlags.languageServerWebviews":true,
   // "gitlab.featureFlags.singleAccount":false,
-  // "gitlab.duoCodeSuggestions.additionalLanguages": [
-  //   "clojure",
-  //   "haskel"
-  // ],
+  "gitlab.duoCodeSuggestions.additionalLanguages": [
+    "powershell",
+  ],
   // "gitlab.duoWorkflow.dockerSocket": "/does-not-exist/docker.sock",
   "gitlab.showProjectMergeRequests": false,
   "gitlab.duoCodeSuggestions.enabledSupportedLanguages": {
-    "scala": false,
+    // "scala": false,
     "php": false,
     "sql": false
   },
   "gitlab.ignoreCertificateErrors": true,
-  "gitlab.duoWorkflow.dockerSocket": "/Users/tomas/.colima/default/docker.sock",
+  // "gitlab.duoWorkflow.dockerSocket": "/Users/tomas/.colima/default/docker.sock",
   "gitlab.keybindingHints.enabled": true,
+  // "gitlab.featureFlags.streamCodeGenerations": false,
   // "gitlab.duo.enabledWithoutGitlabProject": false
+  // "gitlab.trackingUrl": "http://localhost:9091",
   /* GitLab VS Code Extension END */
+
+  "editor.inlineSuggest.logFetch": true,
 
   "keyboard.dispatch": "keyCode",
   // Enable per-language
@@ -97,6 +100,18 @@
       "before": ["g", "z"],
       "commands": ["workbench.action.toggleZenMode"]
     },
+    {
+      "before": ["g", "r"],
+      "commands": ["editor.action.goToReferences"]
+    },
+    {
+      "before": ["g", "d"],
+      "commands": ["editor.action.revealDefinition"]
+    },
+    {
+      "before": ["<leader>", "r"],
+      "commands": ["editor.action.rename"]
+    },
     { "before": ["<C-h>"], "after": ["<C-w>", "h"] },
     { "before": ["<C-j>"], "after": ["<C-w>", "j"] },
     { "before": ["<C-k>"], "after": ["<C-w>", "k"] },
@@ -119,7 +134,7 @@
   "workbench.sideBar.location": "right",
   "remote.SSH.defaultExtensions": ["gitpod.gitpod-remote-ssh"],
   "remote.SSH.configFile": "/var/folders/zf/7hg90bwn3871zcg3911dmc_00000gn/T/gitpod_ssh_config-32949-wYDyi5brBWcQ",
-  "diffEditor.ignoreTrimWhitespace": true,
+  "diffEditor.ignoreTrimWhitespace": false,
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },
@@ -170,5 +185,7 @@
   "gitlens.ai.experimental.model": "anthropic:claude-3-5-sonnet-20240620",
   "window.confirmSaveUntitledWorkspace": false,
   "continue.enableTabAutocomplete": false,
-  "update.mode": "manual"
+  "update.mode": "manual",
+  "gitlab.duoCodeSuggestions.preferredAccount": "viktomas",
+  "coderider.autocompleteEnhance.enable": false
 }
