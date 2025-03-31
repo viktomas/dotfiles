@@ -37,6 +37,7 @@
 [push]
   default = current
   autoSetupRemote = true
+  followTags = true
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
@@ -55,9 +56,28 @@
 
 [diff]
   tool = difftastic
+  algorithm = histogram
+  colorMoved = plain
+  mnemonicPrefix = true
+  renames = true
 [difftool]
   prompt = false
 [difftool "difftastic"]
   cmd = difft "$LOCAL" "$REMOTE"
 [init]
 	defaultBranch = main
+[column]
+	ui = auto
+[branch]
+	sort = -committerdate
+[tag]
+	sort = version:refname
+[fetch]
+	prune = true
+	pruneTags = true
+[rerere]
+	enabled = true
+	autoupdate = true
+[maintenance]
+	repo = /Users/tomas/workspace/gl/gdk
+	repo = /Users/tomas/workspace/gl/gdk/gitlab
