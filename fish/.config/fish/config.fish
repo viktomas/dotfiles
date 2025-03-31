@@ -8,4 +8,6 @@ if status is-interactive
 
     zoxide init fish --no-cmd | source
     mise activate fish | source
+
+    source ~/.secrets
 end
