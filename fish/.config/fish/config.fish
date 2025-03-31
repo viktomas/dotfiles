@@ -1,7 +1,5 @@
 set fish_greeting # Turn off greeting
 
-source ~/.asdf/asdf.fish
-
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 set --export --prepend PATH "/Users/tomas/.rd/bin"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
@@ -40,3 +38,6 @@ if status is-interactive
         end
     end
 end
+
+# uv
+fish_add_path "/Users/tomas/.local/bin"
