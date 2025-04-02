@@ -12,3 +12,4 @@ fzf.setup({
 vim.keymap.set("n", "<leader>f", fzf.files)
 vim.keymap.set("n", "<leader>gs", fzf.git_status)
 vim.keymap.set("n", "//", fzf.live_grep)
+vim.keymap.set("n", "gh", fzf.helptags)
