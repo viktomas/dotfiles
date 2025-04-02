@@ -32,8 +32,8 @@ stow skhd
 ### NeoVim
 stow nvim
 # Create files for vim backup/undo
-mkdir -p ~/.vim/swap ~/.vim/backup ~/.vim/undo
-chmod 700 ~/.vim ~/.vim/backup/ ~/.vim/undo/ ~/.vim/swap/ # sensitive information might be in vim tmp files
+mkdir -p ~/.local/share/nvim/swap ~/.local/share/nvim/backup ~/.local/share/nvim/undo
+chmod 700 ~/.local/share/nvim/swap ~/.local/share/nvim/backup ~/.local/share/nvim/undo # sensitive information might be in vim tmp files
 
 touch ~/.hushlogin # make sure I don't get any login message from the `login` program
 
