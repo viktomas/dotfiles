@@ -14,7 +14,7 @@ local options = {
 	ignorecase = true, -- make searches case-sensitive only if they contain upper-case characters
 	smartcase = true, -- see previous line
 
-	completeopt = { "menuone", "noselect", "popup" }, -- prevent the built-in vim.lsp.completion autotrigger from selecting the first item
+	completeopt = { "menuone", "noinsert", "popup" }, -- prevent the built-in vim.lsp.completion autotrigger from selecting the first item
 
 	-- backup
 	-- Backup and undo config taken from https://begriffs.com/posts/2019-07-19-history-use-vim.html

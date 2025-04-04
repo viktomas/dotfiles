@@ -2,19 +2,23 @@
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous diagnostics" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diagnostics" })
 
+require("blink.cmp").setup({
+	fuzzy = { implementation = "lua" },
+})
+
 local on_attach = function(client, bufnr)
-	vim.lsp.completion.enable(true, client.id, bufnr, {
-		autotrigger = true,
-		convert = function(item)
-			return { abbr = item.label:gsub("%b()", "") }
-		end,
-	})
+	-- vim.lsp.completion.enable(true, client.id, bufnr, {
+	-- 	autotrigger = true,
+	-- 	convert = function(item)
+	-- 		return { abbr = item.label:gsub("%b()", "") }
+	-- 	end,
+	-- })
 	vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Declaration" })
 	vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Definition" })
 	vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP Hover" })
 	vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "Implementation" })
 	vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, { desc = "Signature help" })
-	vim.keymap.set("i", "<C-space>", vim.lsp.completion.get, { desc = "trigger autocompletion" })
+	-- vim.keymap.set("i", "<C-space>", vim.lsp.completion.get, { desc = "trigger autocompletion" })
 	vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, { desc = "Type definition" })
 	vim.keymap.set({ "n", "v" }, "<leader>a", vim.lsp.buf.code_action, { desc = "Run code action" })
 	vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "references" })
@@ -46,10 +50,11 @@ local on_attach = function(client, bufnr)
 end
 
 -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 local lspconfig = require("lspconfig")
 lspconfig["gopls"].setup({
-	-- capabilities = capabilities,
+	capabilities = capabilities,
 	on_attach = on_attach,
 	settings = {
 		gopls = {
@@ -58,7 +63,7 @@ lspconfig["gopls"].setup({
 	},
 })
 lspconfig["ts_ls"].setup({
-	-- capabilities = capabilities,
+	capabilities = capabilities,
 	on_attach = on_attach,
 })
 lspconfig["fennel_ls"].setup({
@@ -76,7 +81,7 @@ lspconfig["fennel_ls"].setup({
 -- 	},
 -- })
 lspconfig["lua_ls"].setup({
-	-- capabilities = capabilities,
+	capabilities = capabilities,
 	on_attach = on_attach,
 	settings = {
 		Lua = {

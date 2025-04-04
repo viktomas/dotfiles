@@ -2,7 +2,7 @@ require("gitlab").setup({
 	code_suggestions = {
 		-- auto_filetypes = { "ruby" },
 		ghost_text = {
-			enabled = true,
+			enabled = false,
 			-- toggle_enabled = "<leader>gle",
 			accept_suggestion = "<C-y>",
 			-- clear_suggestions = "<C-c>",

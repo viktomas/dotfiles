@@ -16,14 +16,19 @@ require("plugins.minipack").setup({
 		{ url = "https://github.com/stevearc/conform.nvim.git", ref = "f9ef25a7ef00267b7d13bfc00b0dea22d78702d5" },
 		{ url = "https://github.com/lewis6991/gitsigns.nvim.git", ref = "v1.0.2" },
 		{ url = "https://github.com/kylechui/nvim-surround.git", ref = "v3.1.0" },
+		{ url = "https://github.com/windwp/nvim-autopairs.git", ref = "84a81a7d1f28b381b32acf1e8fe5ff5bef4f7968" },
+		{ url = "https://github.com/mfussenegger/nvim-lint.git", ref = "93b8040115c9114dac1047311763bef275e752dc" },
+		{ url = "https://github.com/saghen/blink.cmp.git", ref = "dbdde6e5d457da5d70da9b54fef204e14ed3a3db" },
 	},
 })
 
 vim.cmd.colorscheme("tokyonight")
 
 require("nvim-surround").setup()
+require("nvim-autopairs").setup()
 
 require("plugins.oil")
+require("plugins.lint")
 require("plugins.git")
 require("plugins.fuzzy")
 require("plugins.lsp")
