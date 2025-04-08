@@ -18,7 +18,12 @@ require("plugins.minipack").setup({
 		{ url = "https://github.com/kylechui/nvim-surround.git", ref = "v3.1.0" },
 		{ url = "https://github.com/windwp/nvim-autopairs.git", ref = "84a81a7d1f28b381b32acf1e8fe5ff5bef4f7968" },
 		{ url = "https://github.com/mfussenegger/nvim-lint.git", ref = "93b8040115c9114dac1047311763bef275e752dc" },
-		{ url = "https://github.com/saghen/blink.cmp.git", ref = "dbdde6e5d457da5d70da9b54fef204e14ed3a3db" },
+		{
+			url = "https://github.com/echasnovski/mini.completion.git",
+			ref = "main",
+		},
+		{ url = "https://github.com/echasnovski/mini.icons.git", ref = "main" },
+		{ url = "https://github.com/echasnovski/mini.snippets.git", ref = "main" },
 	},
 })
 
@@ -27,6 +32,7 @@ vim.cmd.colorscheme("tokyonight")
 require("nvim-surround").setup()
 require("nvim-autopairs").setup()
 
+require("plugins.mini")
 require("plugins.oil")
 require("plugins.lint")
 require("plugins.git")
@@ -34,7 +40,7 @@ require("plugins.fuzzy")
 require("plugins.lsp")
 require("plugins.treesitter")
 require("plugins.formatter")
-require("plugins.gitlab")
+-- require("plugins.gitlab")
 require("permalink")
 
 vim.keymap.set("n", "<leader>c", ":GitPermalink<CR>", { noremap = true, silent = true })

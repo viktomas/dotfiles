@@ -1,3 +1,7 @@
+// {
+//   "gitlab.featureFlags.languageServerWebviews":true,
+// }
+
 {
   /* GitLab VS Code Extension */
   "gitlab.debug": true,
@@ -5,7 +9,7 @@
   // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
   "gitlab-lsp.trace.server": "verbose",
   // "gitlab.debug": true,
-  // "gitlab.featureFlags.languageServerWebviews":true,
+  "gitlab.featureFlags.languageServerWebviews":true,
   // "gitlab.featureFlags.singleAccount":false,
   "gitlab.duoCodeSuggestions.additionalLanguages": [
     "powershell",

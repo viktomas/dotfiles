@@ -2,17 +2,20 @@
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous diagnostics" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diagnostics" })
 
-require("blink.cmp").setup({
-	fuzzy = { implementation = "lua" },
-})
-
 local on_attach = function(client, bufnr)
+	-- add LSP kind icons to autocompletion
+	MiniIcons.tweak_lsp_kind()
 	-- vim.lsp.completion.enable(true, client.id, bufnr, {
 	-- 	autotrigger = true,
 	-- 	convert = function(item)
 	-- 		return { abbr = item.label:gsub("%b()", "") }
 	-- 	end,
 	-- })
+	local fzf = require("fzf-lua")
+
+	vim.keymap.set("n", "<leader>s", fzf.lsp_document_symbols, { desc = "Open symbol picker" })
+	vim.keymap.set("n", "<leader>S", fzf.lsp_live_workspace_symbols, { desc = "Open symbol picker (workspace)" })
+	vim.keymap.set("n", "<leader>dd", fzf.diagnostics_document, { desc = "Open diagnostics picker" })
 	vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Declaration" })
 	vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Definition" })
 	vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP Hover" })
@@ -21,7 +24,7 @@ local on_attach = function(client, bufnr)
 	-- vim.keymap.set("i", "<C-space>", vim.lsp.completion.get, { desc = "trigger autocompletion" })
 	vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, { desc = "Type definition" })
 	vim.keymap.set({ "n", "v" }, "<leader>a", vim.lsp.buf.code_action, { desc = "Run code action" })
-	vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "references" })
+	vim.keymap.set("n", "gr", fzf.lsp_references, { desc = "references" })
 	vim.keymap.set("n", "gm", vim.lsp.buf.implementation, { desc = "implementations" })
 	vim.keymap.set("n", "<leader>r", function()
 		-- when rename opens the prompt, this autocommand will trigger
@@ -50,11 +53,11 @@ local on_attach = function(client, bufnr)
 end
 
 -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
-local capabilities = require("blink.cmp").get_lsp_capabilities()
+-- local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 local lspconfig = require("lspconfig")
 lspconfig["gopls"].setup({
-	capabilities = capabilities,
+	-- capabilities = capabilities,
 	on_attach = on_attach,
 	settings = {
 		gopls = {
@@ -63,7 +66,7 @@ lspconfig["gopls"].setup({
 	},
 })
 lspconfig["ts_ls"].setup({
-	capabilities = capabilities,
+	-- capabilities = capabilities,
 	on_attach = on_attach,
 })
 lspconfig["fennel_ls"].setup({
@@ -81,7 +84,7 @@ lspconfig["fennel_ls"].setup({
 -- 	},
 -- })
 lspconfig["lua_ls"].setup({
-	capabilities = capabilities,
+	-- capabilities = capabilities,
 	on_attach = on_attach,
 	settings = {
 		Lua = {

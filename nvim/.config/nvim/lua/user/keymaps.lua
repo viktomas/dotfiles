@@ -14,3 +14,13 @@ vim.keymap.set("v", ">", ">gv", { desc = "reload visual selection on indent chan
 
 -- x doesn't write to default cliboard
 vim.keymap.set("n", "x", '"_x')
+
+vim.keymap.set({ "n" }, "<leader>yp", function()
+	local rel_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":.")
+	vim.fn.setreg("+", rel_path)
+	print("copied: " .. rel_path)
+end, { desc = "yank relative path to clipboard" })
+
+-- allows to search for visually selected text with * and #
+vim.keymap.set("v", "*", [[:<C-u>lua v_set_search('/')<CR>/<C-R>=@/<CR><CR>]], opts)
+vim.keymap.set("v", "#", [[:<C-u>lua v_set_search('?')<CR>?<C-R>=@/<CR><CR>]], opts)
