@@ -24,3 +24,11 @@ end, { desc = "yank relative path to clipboard" })
 -- allows to search for visually selected text with * and #
 vim.keymap.set("v", "*", [[:<C-u>lua v_set_search('/')<CR>/<C-R>=@/<CR><CR>]], opts)
 vim.keymap.set("v", "#", [[:<C-u>lua v_set_search('?')<CR>?<C-R>=@/<CR><CR>]], opts)
+
+-- x doesn't write to default cliboard
+vim.keymap.set("n", "x", '"_x', opts)
+
+-- might affect snippets when I introduce them
+-- outdated (this keymap is now affecting LuaSnip and I had to move altered version there)
+-- don't put replaced code to buffer
+vim.keymap.set("v", "p", "pgvygv<ESC>", opts)
