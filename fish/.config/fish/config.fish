@@ -6,6 +6,7 @@ if status is-interactive
         bind --mode insert \cr fzf_history_search
         bind --mode insert \cf forward-char
         bind --mode insert ctrl-alt-l fzf_git_log
+        bind --mode insert ctrl-alt-p fzf_process_search
         bind --mode insert ctrl-alt-f fzf_file
     end
 
@@ -15,3 +16,6 @@ if status is-interactive
 
     source ~/.secrets
 end
+
+# Added by GDK bootstrap
+/opt/homebrew/bin/mise activate fish | source

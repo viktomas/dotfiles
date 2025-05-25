@@ -5,11 +5,15 @@
 {
   /* GitLab VS Code Extension */
   "gitlab.debug": true,
+  // "gitlab.ca": "/Users/tomas/Downloads/gitlab-com-chain.pem",
   "gitlab.webviewTimeoutSeconds": 20,
   // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
   "gitlab-lsp.trace.server": "verbose",
   // "gitlab.debug": true,
   "gitlab.featureFlags.languageServerWebviews":true,
+  "gitlab.featureFlags.agenticDuoChat": true,
+  "gitlab.featureFlags.fixWithDuoQuickChatCodeActions": true,
+  "gitlab.duo.workflow.executor": "node",
   // "gitlab.featureFlags.singleAccount":false,
   "gitlab.duoCodeSuggestions.additionalLanguages": [
     "powershell",
@@ -21,7 +25,7 @@
     "php": false,
     "sql": false
   },
-  "gitlab.ignoreCertificateErrors": true,
+  // "gitlab.ignoreCertificateErrors": true,
   // "gitlab.duoWorkflow.dockerSocket": "/Users/tomas/.colima/default/docker.sock",
   "gitlab.keybindingHints.enabled": true,
   // "gitlab.featureFlags.streamCodeGenerations": false,
@@ -31,7 +35,7 @@
 
   "editor.inlineSuggest.logFetch": true,
 
-  "keyboard.dispatch": "keyCode",
+  // "keyboard.dispatch": "keyCode",
   // Enable per-language
   "[javascript]": {
     "editor.formatOnSave": true,
@@ -191,5 +195,14 @@
   "continue.enableTabAutocomplete": false,
   "update.mode": "manual",
   "gitlab.duoCodeSuggestions.preferredAccount": "viktomas",
-  "coderider.autocompleteEnhance.enable": false
+  "coderider.autocompleteEnhance.enable": false,
+  "haskell.manageHLS": "GHCup",
+  "yaml.schemas": {
+    "/Users/tomas/.vscode-insiders/extensions/continue.continue-1.1.24-darwin-arm64/config-yaml-schema.json": [
+      ".continue/**/*.yaml"
+    ]
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  }
 }

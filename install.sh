@@ -38,6 +38,7 @@ chmod 700 ~/.local/share/nvim/swap ~/.local/share/nvim/backup ~/.local/share/nvi
 touch ~/.hushlogin # make sure I don't get any login message from the `login` program
 
 [ "$(uname 2>/dev/null)" == "Darwin" ] && stow karabiner
+[ "$(uname 2>/dev/null)" == "Darwin" ] && defaults write -g ApplePressAndHoldEnabled -bool false # disable the press and hold input method https://apple.stackexchange.com/questions/332769/macos-disable-popup-showing-accented-characters-when-holding-down-a-key
 
 [[ $SHELL != *"fish" ]] && chsh -s "$(which fish)"
 
