@@ -1,8 +1,9 @@
 #!/usr/bin/env lua
 
+
 function count_workdays()
   -- Define the end date
-  local end_date = "2025-10-27"
+  local end_date = os.getenv("COUNTDOWN_DATE")
 
   -- Get current date
   local current_date = os.date("%Y-%m-%d")
@@ -22,15 +23,6 @@ function count_workdays()
   local current_time = parse_date(current_date)
   local end_time = parse_date(end_date)
 
-  -- If we're past the end date, return 0
-  if current_time >= end_time then
-    -- ANSI color codes
-    local red = "\27[31m"
-    local reset = "\27[0m"
-    print(red .. "0" .. reset .. " days")
-    return
-  end
-
   -- Count work days (Monday = 2, Tuesday = 3, ..., Friday = 6)
   local workdays = 0
   local current = current_time + 86400 -- Start from tomorrow
@@ -44,10 +36,11 @@ function count_workdays()
   end
 
   -- ANSI color codes
-  local red = "\27[31m"
-  local reset = "\27[0m"
+  local color_red = "\27[31m"
+  local color_blue = "\27[34m"
+  local color_reset = "\27[0m"
 
-  print(red .. workdays .. reset .. " days")
+  print(color_red .. workdays .. color_reset .. " days (" .. color_blue .. workdays // 5 .. color_reset .. " weeks)")
 end
 
 count_workdays()

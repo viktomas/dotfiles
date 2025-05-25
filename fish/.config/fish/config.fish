@@ -1,3 +1,4 @@
+source ~/.secrets
 if status is-interactive
     ,countdown
     fish_vi_key_bindings
@@ -14,7 +15,6 @@ if status is-interactive
     mise activate fish | source
     direnv hook fish | source
 
-    source ~/.secrets
 end
 
 # Added by GDK bootstrap
