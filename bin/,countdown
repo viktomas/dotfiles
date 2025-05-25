@@ -1,0 +1,53 @@
+#!/usr/bin/env lua
+
+function count_workdays()
+  -- Define the end date
+  local end_date = "2025-10-27"
+
+  -- Get current date
+  local current_date = os.date("%Y-%m-%d")
+
+  -- Parse dates
+  local function parse_date(date_str)
+    if type(date_str) ~= "string" then
+      error("Expected string, got " .. type(date_str))
+    end
+    local year, month, day = date_str:match("(%d%d%d%d)-(%d%d)-(%d%d)")
+    if not year or not month or not day then
+      error("Invalid date format: " .. date_str)
+    end
+    return os.time({ year = tonumber(year), month = tonumber(month), day = tonumber(day) })
+  end
+
+  local current_time = parse_date(current_date)
+  local end_time = parse_date(end_date)
+
+  -- If we're past the end date, return 0
+  if current_time >= end_time then
+    -- ANSI color codes
+    local red = "\27[31m"
+    local reset = "\27[0m"
+    print(red .. "0" .. reset .. " days")
+    return
+  end
+
+  -- Count work days (Monday = 2, Tuesday = 3, ..., Friday = 6)
+  local workdays = 0
+  local current = current_time + 86400 -- Start from tomorrow
+
+  while current <= end_time do
+    local weekday = tonumber(os.date("%w", current)) -- 0=Sunday, 1=Monday, ..., 6=Saturday
+    if weekday >= 1 and weekday <= 5 then            -- Monday through Friday
+      workdays = workdays + 1
+    end
+    current = current + 86400 -- Add one day
+  end
+
+  -- ANSI color codes
+  local red = "\27[31m"
+  local reset = "\27[0m"
+
+  print(red .. workdays .. reset .. " days")
+end
+
+count_workdays()

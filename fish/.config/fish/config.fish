@@ -1,5 +1,5 @@
 if status is-interactive
-    progress_bar
+    ,countdown
     fish_vi_key_bindings
 
     function fish_user_key_bindings
