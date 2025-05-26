@@ -3,8 +3,6 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous diagnosti
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diagnostics" })
 
 local on_attach = function(client, bufnr)
-  -- add LSP kind icons to autocompletion
-  MiniIcons.tweak_lsp_kind()
   -- vim.lsp.completion.enable(true, client.id, bufnr, {
   -- 	autotrigger = true,
   -- 	convert = function(item)

@@ -16,12 +16,22 @@ vim.keymap.set("v", ">", ">gv", { desc = "reload visual selection on indent chan
 vim.keymap.set("n", "x", '"_x')
 
 vim.keymap.set({ "n" }, "<leader>yp", function()
-	local rel_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":.")
-	vim.fn.setreg("+", rel_path)
-	print("copied: " .. rel_path)
+  local rel_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":.")
+  vim.fn.setreg("+", rel_path)
+  print("copied: " .. rel_path)
 end, { desc = "yank relative path to clipboard" })
 
 -- allows to search for visually selected text with * and #
+-- Copied from https://github.com/nelstrom/vim-visual-star-search
+function v_set_search(cmdtype)
+  local temp = vim.fn.getreg("s")
+  vim.cmd('normal! gv"sy')
+  local escaped = vim.fn.escape(vim.fn.getreg("s"), cmdtype .. "\\")
+  local replaced = vim.fn.substitute(escaped, [[\n]], [[\n]], "g")
+  vim.fn.setreg("/", [[\V]] .. replaced)
+  vim.fn.setreg("s", temp)
+end
+
 vim.keymap.set("v", "*", [[:<C-u>lua v_set_search('/')<CR>/<C-R>=@/<CR><CR>]], opts)
 vim.keymap.set("v", "#", [[:<C-u>lua v_set_search('?')<CR>?<C-R>=@/<CR><CR>]], opts)
 
