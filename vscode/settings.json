@@ -4,6 +4,7 @@
 
 {
   /* GitLab VS Code Extension */
+  "gitlab.duoAgenticChat.enabled": true,
   "gitlab.debug": true,
   // "gitlab.ca": "/Users/tomas/Downloads/gitlab-com-chain.pem",
   "gitlab.webviewTimeoutSeconds": 20,
@@ -16,7 +17,7 @@
   "gitlab.duo.workflow.executor": "node",
   // "gitlab.featureFlags.singleAccount":false,
   "gitlab.duoCodeSuggestions.additionalLanguages": [
-    "powershell",
+    "json",
   ],
   // "gitlab.duoWorkflow.dockerSocket": "/does-not-exist/docker.sock",
   "gitlab.showProjectMergeRequests": false,

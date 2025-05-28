@@ -9,6 +9,7 @@ if status is-interactive
         bind --mode insert ctrl-alt-l fzf_git_log
         bind --mode insert ctrl-alt-p fzf_process_search
         bind --mode insert ctrl-alt-f fzf_file
+        bind --mode insert \cx zummoner
     end
 
     zoxide init fish --no-cmd | source
