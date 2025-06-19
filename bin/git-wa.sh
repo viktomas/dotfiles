@@ -3,9 +3,8 @@
 # Execute git worktree with all passed arguments and
 # Check if git worktree command was successful
 if git worktree add "$@"; then
-    # Get the last argument as the worktree path
-    for last; do true; done
-    worktree_path="$last"
+# The first argument is always the worktree path for git worktree add
+    worktree_path=$(cd "$1" && pwd)
     
     # Check if worktree path exists and is a directory
     if [ -d "$worktree_path" ]; then

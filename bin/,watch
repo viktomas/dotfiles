@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# Configuration variables
+EXTENSION_PATH="/Users/tomas/workspace/gl/gitlab-vscode-extension"
+LS_PATH="/Users/tomas/workspace/gl/gitlab-lsp"
+
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to get worktrees from a repository
+get_worktrees() {
+    local repo_path="$1"
+    cd "$repo_path" || echo "can't cd to $repo_path" && exit 1
+    git worktree list | grep -v '(bare)' | awk '{print $1}' | xargs -I {} basename {}
+}
+
+# Function to select worktree using fzf
+select_worktree() {
+    local repo_path="$1"
+    local repo_name="$2"
+    
+    echo -e "${YELLOW}Select $repo_name worktree:${NC}" >&2
+    get_worktrees "$repo_path" | fzf --prompt="$repo_name worktree: " --height=10 --border
+}
+
+# Function to generate Zellij layout content (KDL format)
+generate_zellij_layout() {
+    local extension_path="$1"
+    local ls_path="$2"
+    
+    cat << EOF
+layout {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+    pane split_direction="vertical" {
+        pane size="50%" {
+            command "bash"
+            args "-c" "cd '$extension_path' && npm run watch:desktop"
+        }
+        pane size="50%" {
+            command "bash"
+            args "-c" "cd '$ls_path' && npm run watch -- --editor=vscode --editor-path='$extension_path'"
+        }
+    }
+    pane size=2 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+}
+EOF
+}
+
+# Main script
+main() {
+    echo -e "${GREEN}Worktree Watch Script${NC}"
+    echo "=========================="
+    
+    # Select worktrees
+    extension_worktree=$(select_worktree "$EXTENSION_PATH" "Extension")
+    ls_worktree=$(select_worktree "$LS_PATH" "LS")
+    
+    # Set full paths
+    extension_path="$EXTENSION_PATH/$extension_worktree"
+    ls_path="$LS_PATH/$ls_worktree"
+    
+    echo
+    echo -e "${GREEN}Selected worktrees:${NC}"
+    echo -e "  Extension: ${YELLOW}$extension_worktree${NC}"
+    echo -e "  LS: ${YELLOW}$ls_worktree${NC}"
+    echo
+    
+    # Create temporary layout file
+    layout_file=$(mktemp).kdl
+    generate_zellij_layout "$extension_path" "$ls_path" > "$layout_file"
+    
+    # Start Zellij session
+    session_name="worktree-watch-$(date +%s)"
+    echo -e "${GREEN}Starting Zellij session: $session_name${NC}"
+    
+    zellij --new-session-with-layout "$layout_file" --session "$session_name"
+    
+    # Clean up
+    rm -f "$layout_file"
+}
+
+main "$@"
