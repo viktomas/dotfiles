@@ -1,5 +1,5 @@
 function fzf_file
-    set -l initial_query (commandline -b)
+    set -l initial_query (commandline --current-token)
 
     fd | fzf \
         --query "$initial_query" \
