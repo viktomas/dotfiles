@@ -6,6 +6,8 @@ if status is-interactive
     function fish_user_key_bindings
         bind --mode insert \cr fzf_history_search
         bind --mode insert \cf forward-char
+        bind --mode default gcc "fish_commandline_prepend '#'"
+        bind --mode insert \c_ "fish_commandline_prepend '#'"
         bind --mode insert ctrl-alt-l fzf_git_log
         bind --mode insert ctrl-alt-p fzf_process_search
         bind --mode insert ctrl-alt-f fzf_file
@@ -20,3 +22,6 @@ end
 
 # Added by GDK bootstrap
 /opt/homebrew/bin/mise activate fish | source
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/tomas/google-cloud-sdk/path.fish.inc' ]; . '/Users/tomas/google-cloud-sdk/path.fish.inc'; end
