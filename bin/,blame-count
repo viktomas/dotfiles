@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Git Blame Analysis Script
+# Usage: ./blame_analysis.sh file1.txt file2.py file3.js
+# Or: find . -name "*.py" | xargs ./blame_analysis.sh
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <file1> [file2] [file3] ..."
+    echo "Example: $0 src/main.py src/utils.py"
+    echo "Or pipe files: find . -name '*.py' | xargs $0"
+    exit 1
+fi
+
+# Create a temporary file to collect all blame data
+temp_file=$(mktemp)
+
+# Process each file and collect author data
+for file in "$@"; do
+    if [ ! -f "$file" ]; then
+        echo "Warning: File '$file' not found, skipping..." >&2
+        continue
+    fi
+    
+    # Check if file is in a git repository
+    if ! git ls-files --error-unmatch "$file" &>/dev/null; then
+        echo "Warning: File '$file' is not tracked by git, skipping..." >&2
+        continue
+    fi
+    
+    echo "Processing: $file" >&2
+    
+    # Get git blame output and extract author names, append to temp file
+    git blame --line-porcelain "$file" 2>/dev/null | \
+    grep "^author " | \
+    sed 's/^author //' >> "$temp_file"
+done
+
+# Count occurrences and sort by count (descending)
+if [ -s "$temp_file" ]; then
+    echo
+    echo "Blame Analysis Results:"
+    echo "======================="
+    # Sort authors, count unique occurrences, sort by count (descending), format output
+    sort "$temp_file" | uniq -c | sort -nr | while read -r count author_name; do
+        # Handle multi-word author names properly
+        printf "%-40s - %d lines blamed\n" "$author_name" "$count"
+    done
+else
+    echo "No git blame data found for the provided files."
+fi
+
+# Clean up
+rm -f "$temp_file"

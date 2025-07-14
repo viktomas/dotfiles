@@ -7,6 +7,7 @@
   editor = nvim
   autocrlf = input
   excludesfile = ~/.gitignore
+	pager = cat
 [color]
   ui = auto
 [merge]
@@ -32,12 +33,15 @@
 
   ll = !git l -10
   la = !git l --all
+	wta = !~/bin/git-wa.sh
+	wtclone = !~/bin/git-wclone.sh
+	wt = worktree
 
 
 [push]
   default = current
   autoSetupRemote = true
-  followTags = true
+  followTags = false
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
