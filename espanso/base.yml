@@ -2,11 +2,11 @@
 matches:
   # Simple text replacement
   - trigger: "..lex"
-    replace: '/label ~"devops::create" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::VS Code"'
+    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::VS Code"'
   - trigger: "..lls"
-    replace: '/label ~"devops::create" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Language Server"'
+    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Language Server"'
   - trigger: '..lteam'
-    replace: '/label ~"devops::create" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev"'
+    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev"'
   - trigger: "..lf"
     replace: '/label ~"type::feature"'
   - trigger: "..lb"
@@ -44,3 +44,5 @@ matches:
     replace: "VS Code Extension"
   - trigger: "..parrots"
     replace: ":parrot-wave-1::parrot-wave-2::parrot-wave-3::parrot-wave-4::parrot-wave-5::parrot-wave-6::parrot-wave-7::parrot-wave-8::parrot-wave-9:"
+  - trigger: "..multiroot"
+    replace: "[Multiroot Workspaces](https://code.visualstudio.com/docs/editing/workspaces/workspaces#_multiroot-workspaces)"
