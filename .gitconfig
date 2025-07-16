@@ -20,22 +20,16 @@
   dc = diff --cached
   amend = commit --amend
   pushf = push --force-with-lease
-  aa = add --all
-  fa = fetch --all
-  b = branch
   ds = diff --stat=160,120
   ss = show --stat=160,120
-  dh1 = diff HEAD~1
-  dft = difftool
 
   # Fancy logging.
   l = log --pretty=format:'%C(yellow)%h%Creset %C(auto)%d%Creset %C(white)%s%Creset %C(dim white)%an (%as)%Creset'  --graph
 
   ll = !git l -10
   la = !git l --all
-	wta = !~/bin/git-wa.sh
-	wtclone = !~/bin/git-wclone.sh
-	wt = worktree
+  wtclone = !~/bin/git-wclone.sh
+  wt = worktree
 
 
 [push]
