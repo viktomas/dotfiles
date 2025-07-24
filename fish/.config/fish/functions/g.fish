@@ -10,16 +10,7 @@ function g
     end
 
     set alias $argv[1]
-
-    # Parse G_FOLDER_ALIASES (format: "alias1:/path1,alias2:/path2")
-    set folder_path ""
-    for pair in (string split "," $G_FOLDER_ALIASES)
-        set parts (string split ":" $pair)
-        if test "$parts[1]" = "$alias"
-            set folder_path $parts[2]
-            break
-        end
-    end
+    set folder_path (__g_get_alias_path $alias)
 
     # Check if alias exists
     if test -z "$folder_path"
@@ -39,18 +30,6 @@ function g
         return 0
     end
 
-    # No folder specified, use fzf to select
-    if not command -v fzf >/dev/null
-        echo "fzf is required but not installed"
-        return 1
-    end
-
-    # Find folders and let user select with fzf
-    set selected_folder (find "$folder_path" -maxdepth 1 -type d ! -path "$folder_path" -exec basename {} \; | fzf --prompt="Select folder in $alias: ")
-
-    if test -n "$selected_folder"
-        # Replace current command line with the selected folder and execute
-        commandline "g $alias $selected_folder"
-        commandline -f execute
-    end
+    # No folder specified, cd to the base path
+    cd "$folder_path"
 end
