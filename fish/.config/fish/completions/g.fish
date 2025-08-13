@@ -1,5 +1,5 @@
 ####
-# Duplicated in the completion file `fish/.config/fish/completions/g.fish`
+# Duplicated in the completion file `fish/.config/fish/functions/g.fish`
 ######
 
 function __g_get_alias_path
