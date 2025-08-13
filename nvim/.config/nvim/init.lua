@@ -24,6 +24,7 @@ require("plugins.minipack").setup({
     },
     { url = "https://github.com/echasnovski/mini.icons.git",    ref = "main" },
     { url = "https://github.com/echasnovski/mini.snippets.git", ref = "main" },
+    -- { url = "https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim.git", ref = "e840d3f8a3ebf1fafe6b3f2970e3c1906a4de8b0" },
   },
 })
 

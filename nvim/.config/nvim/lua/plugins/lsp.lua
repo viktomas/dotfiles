@@ -3,6 +3,28 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous diagnosti
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diagnostics" })
 
 local on_attach = function(client, bufnr)
+  local function check_codelens_support()
+    local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+    for _, c in ipairs(clients) do
+      if c.server_capabilities.codeLensProvider then
+        return true
+      end
+    end
+    return false
+  end
+
+  vim.api.nvim_create_autocmd({ 'TextChanged', 'InsertLeave', 'CursorHold', 'LspAttach', 'BufEnter' }, {
+    buffer = bufnr,
+    callback = function()
+      if check_codelens_support() then
+        vim.lsp.codelens.refresh({ bufnr = 0 })
+      end
+    end
+  })
+  -- trigger codelens refresh
+  vim.api.nvim_exec_autocmds('User', { pattern = 'LspAttached' })
+
+
   -- vim.lsp.completion.enable(true, client.id, bufnr, {
   -- 	autotrigger = true,
   -- 	convert = function(item)
@@ -105,4 +127,25 @@ lspconfig["lua_ls"].setup({
       },
     },
   },
+})
+
+
+lspconfig.markdown_oxide.setup({
+  cmd = { vim.fn.expand('~/workspace/tmp/oxide-vim-config/markdown-oxide-fixed') }, -- can be removed after https://github.com/Feel-ix-343/markdown-oxide/issues/278 is fixed
+  on_attach = function(client, bufnr)
+    on_attach(client, bufnr)
+
+    -- daily note command
+    if client.name == "markdown_oxide" then
+      vim.api.nvim_create_user_command(
+        "Daily",
+        function(args)
+          local input = args.args
+
+          vim.lsp.buf.execute_command({ command = "jump", arguments = { input } })
+        end,
+        { desc = 'Open daily note', nargs = "*" }
+      )
+    end
+  end,
 })
