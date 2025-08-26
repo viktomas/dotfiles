@@ -1,6 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR EDITOR:nvim
+SETUVAR --export EDITOR:nvim
 SETUVAR --export G_FOLDER_ALIASES:e\x3a/Users/tomas/workspace/gl/gitlab\x2dvscode\x2dextension\x2cl\x3a/Users/tomas/workspace/gl/gitlab\x2dlsp
 SETUVAR HOMEBREW_CELLAR:/opt/homebrew/Cellar
 SETUVAR HOMEBREW_PREFIX:/opt/homebrew

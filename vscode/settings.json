@@ -5,19 +5,25 @@
 {
   /* GitLab VS Code Extension */
   "gitlab.duoAgenticChat.enabled": true,
-  "gitlab.debug": true,
+  // "gitlab.debug": true,
   // "gitlab.ca": "/Users/tomas/Downloads/gitlab-com-chain.pem",
   "gitlab.webviewTimeoutSeconds": 20,
   // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
-  "gitlab-lsp.trace.server": "verbose",
+  // "gitlab-lsp.trace.server": "verbose",
+  "markdown-oxide.trace.server": "verbose",
   // "gitlab.debug": true,
   "gitlab.featureFlags.languageServerWebviews":true,
   "gitlab.featureFlags.agenticDuoChat": true,
+  "gitlab.featureFlags.agenticChatSlashCommands": true,
+  // "gitlab.featureFlags.duoWorkflowDiff": true,
   "gitlab.featureFlags.fixWithDuoQuickChatCodeActions": true,
+  "gitlab.featureFlags.formatEdits": true,
+
   "gitlab.duo.workflow.executor": "node",
   // "gitlab.featureFlags.singleAccount":false,
   "gitlab.duoCodeSuggestions.additionalLanguages": [
     "json",
+    "markdown"
   ],
   // "gitlab.duoWorkflow.dockerSocket": "/does-not-exist/docker.sock",
   "gitlab.showProjectMergeRequests": false,
@@ -31,7 +37,7 @@
   "gitlab.keybindingHints.enabled": true,
   // "gitlab.featureFlags.streamCodeGenerations": false,
   // "gitlab.duo.enabledWithoutGitlabProject": false
-  // "gitlab.trackingUrl": "http://localhost:9091",
+  "gitlab.trackingUrl": "http://localhost:9091",
   /* GitLab VS Code Extension END */
 
   "editor.inlineSuggest.logFetch": true,
@@ -205,5 +211,15 @@
   },
   "[xml]": {
     "editor.defaultFormatter": "redhat.vscode-xml"
-  }
+  },
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "workbench.secondarySideBar.defaultVisibility": "hidden"
 }

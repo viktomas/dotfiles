@@ -1,0 +1,40 @@
+# taken from https://github.com/jarun/nnn/blob/master/misc/quitcd/quitcd.fish
+# it maps nnn to n and makes sure that if I press ^G, fish changes to the folder
+
+function n --wraps nnn --description 'support nnn quit and change directory'
+    # Block nesting of nnn in subshells
+    if test -n "$NNNLVL" -a "$NNNLVL" -ge 1
+        echo "nnn is already running"
+        return
+    end
+
+    # The behaviour is set to cd on quit (nnn checks if NNN_TMPFILE is set)
+    # If NNN_TMPFILE is set to a custom path, it must be exported for nnn to
+    # see. To cd on quit only on ^G, remove the "-x" from both lines below,
+    # without changing the paths.
+    if test -n "$XDG_CONFIG_HOME"
+        set NNN_TMPFILE "$XDG_CONFIG_HOME/nnn/.lastd"
+    else
+        set NNN_TMPFILE "$HOME/.config/nnn/.lastd"
+    end
+
+    # Unmask ^Q (, ^V etc.) (if required, see `stty -a`) to Quit nnn
+    # stty start undef
+    # stty stop undef
+    # stty lwrap undef
+    # stty lnext undef
+
+    # The command function allows one to alias this function to `nnn` without
+    # making an infinitely recursive alias
+    # -e opens text in $VISUAL or $EIDTOR
+    # - A disables the auto-enter on filter match
+    # - H shows hidden files by default
+    # command nnn -e -A -H $argv
+    # I'm trying this without the A to see if I can get used to auto-enter
+    command nnn -e -H $argv
+
+    if test -e $NNN_TMPFILE
+        source $NNN_TMPFILE
+        rm $NNN_TMPFILE
+    end
+end

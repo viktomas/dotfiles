@@ -9,6 +9,16 @@ vim.keymap.set({ "n", "v" }, "<leader>y", '"+y')
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p')
 vim.keymap.set({ "n", "v" }, "<leader>P", '"+P')
 
+-- Navigate buffers
+vim.keymap.set("n", "[b", ":bprevious<CR>", { desc = "previous buffer" })
+vim.keymap.set("n", "]b", ":bnext<CR>", { desc = "next buffer" })
+vim.keymap.set("n", "[B", ":bfirst<CR>", { desc = "first buffer" })
+vim.keymap.set("n", "]B", ":blast<CR>", { desc = "last buffer" })
+
+-- Navigate quickfix
+vim.keymap.set("n", "[q", ":cprev<CR>", { desc = "previous quick fix" })
+vim.keymap.set("n", "]q", ":cnext<CR>", { desc = "next quick fix" })
+
 --  move text and rehighlight -- vim tip_id=224
 vim.keymap.set("v", "<", "<gv", { desc = "reload visual selection on indent change" })
 vim.keymap.set("v", ">", ">gv", { desc = "reload visual selection on indent change" })

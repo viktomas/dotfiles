@@ -46,3 +46,10 @@ matches:
     replace: ":parrot-wave-1::parrot-wave-2::parrot-wave-3::parrot-wave-4::parrot-wave-5::parrot-wave-6::parrot-wave-7::parrot-wave-8::parrot-wave-9:"
   - trigger: "..multiroot"
     replace: "[Multiroot Workspaces](https://code.visualstudio.com/docs/editing/workspaces/workspaces#_multiroot-workspaces)"
+  - trigger: "..today"
+    replace: "{{today}}"
+    vars:
+      - name: today
+        type: date
+        params:
+          format: "%F"

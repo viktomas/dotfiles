@@ -1,6 +1,15 @@
+-- vim.lsp.log.set_level('debug')
 -- LSP
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "previous diagnostics" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "next diagnostics" })
+vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "previous diagnostics" })
+vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "next diagnostics" })
+
+-- This kemap makes it possible to exit the command-window (:h cmdwin)
+-- with <ESC>
+vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
+  callback = function()
+    vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
+  end,
+})
 
 local on_attach = function(client, bufnr)
   local function check_codelens_support()
@@ -131,21 +140,24 @@ lspconfig["lua_ls"].setup({
 
 
 lspconfig.markdown_oxide.setup({
-  cmd = { vim.fn.expand('~/workspace/tmp/oxide-vim-config/markdown-oxide-fixed') }, -- can be removed after https://github.com/Feel-ix-343/markdown-oxide/issues/278 is fixed
+  -- cmd = { vim.fn.expand('~/workspace/tmp/oxide-vim-config/markdown-oxide/target/release/markdown-oxide') }, -- can be removed after https://github.com/Feel-ix-343/markdown-oxide/issues/278 is fixed
   on_attach = function(client, bufnr)
     on_attach(client, bufnr)
 
     -- daily note command
-    if client.name == "markdown_oxide" then
-      vim.api.nvim_create_user_command(
-        "Daily",
-        function(args)
-          local input = args.args
+    vim.api.nvim_create_user_command(
+      "Daily",
+      function(args)
+        local input = args.args
 
-          vim.lsp.buf.execute_command({ command = "jump", arguments = { input } })
-        end,
-        { desc = 'Open daily note', nargs = "*" }
-      )
-    end
+        vim.lsp.buf.execute_command({ command = "jump", arguments = { input } })
+      end,
+      { desc = 'Open daily note', nargs = "*" }
+    )
+    vim.api.nvim_create_user_command(
+      "Today",
+      function() vim.lsp.buf.execute_command({ command = "jump", arguments = { "today" } }) end,
+      { desc = 'Open today note', nargs = "*" }
+    )
   end,
 })
