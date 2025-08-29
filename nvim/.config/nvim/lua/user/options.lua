@@ -1,4 +1,6 @@
 local options = {
+  secure = true,
+  exrc = true,
   autoindent = true,                                         -- copy indent from current line when starting a new line
   smartindent = true,                                        -- guess indentation based on opening braces
   tabstop = 4,                                               -- insert 4 spaces for a tab

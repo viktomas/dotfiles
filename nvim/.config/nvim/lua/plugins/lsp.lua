@@ -1,7 +1,8 @@
 -- vim.lsp.log.set_level('debug')
 -- LSP
-vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "previous diagnostics" })
-vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "next diagnostics" })
+vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end,
+  { desc = "previous diagnostics" })
+vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, { desc = "next diagnostics" })
 
 -- This kemap makes it possible to exit the command-window (:h cmdwin)
 -- with <ESC>
@@ -96,7 +97,17 @@ lspconfig["gopls"].setup({
 })
 lspconfig["ts_ls"].setup({
   -- capabilities = capabilities,
-  on_attach = on_attach,
+  on_attach = function(client, bufnr)
+    on_attach(client, bufnr)
+    -- let TS LS organise the imports
+    vim.api.nvim_create_user_command('OrganizeImports', function()
+      local params = {
+        command = '_typescript.organizeImports',
+        arguments = { vim.api.nvim_buf_get_name(0) },
+      }
+      vim.lsp.buf.execute_command(params)
+    end, {})
+  end
 })
 lspconfig["fennel_ls"].setup({
   -- capabilities = capabilities,
@@ -139,25 +150,46 @@ lspconfig["lua_ls"].setup({
 })
 
 
-lspconfig.markdown_oxide.setup({
-  -- cmd = { vim.fn.expand('~/workspace/tmp/oxide-vim-config/markdown-oxide/target/release/markdown-oxide') }, -- can be removed after https://github.com/Feel-ix-343/markdown-oxide/issues/278 is fixed
-  on_attach = function(client, bufnr)
-    on_attach(client, bufnr)
+-- lspconfig.markdown_oxide.setup({
+--   -- cmd = { vim.fn.expand('~/workspace/tmp/oxide-vim-config/markdown-oxide/target/release/markdown-oxide') }, -- can be removed after https://github.com/Feel-ix-343/markdown-oxide/issues/278 is fixed
+--   on_attach = function(client, bufnr)
+--     on_attach(client, bufnr)
+--
+--     -- daily note command
+--     vim.api.nvim_create_user_command(
+--       "Daily",
+--       function(args)
+--         local input = args.args
+--
+--         vim.lsp.buf.execute_command({ command = "jump", arguments = { input } })
+--       end,
+--       { desc = 'Open daily note', nargs = "*" }
+--     )
+--     vim.api.nvim_create_user_command(
+--       "Today",
+--       function() vim.lsp.buf.execute_command({ command = "jump", arguments = { "today" } }) end,
+--       { desc = 'Open today note', nargs = "*" }
+--     )
+--   end,
+-- })
+--
+-- Define gowl LSP server
+local configs = require "lspconfig.configs"
+if not configs.gowl then
+  configs.gowl = {
+    default_config = {
+      cmd = { vim.fn.expand('~/private/gowl/gowl') },
+      filetypes = { 'markdown' },
+      root_dir = lspconfig.util.root_pattern('.git'),
+      settings = {},
+    },
+    docs = {
+      description = 'Language server for wiki-style links in Markdown files',
+    },
+  }
+end
 
-    -- daily note command
-    vim.api.nvim_create_user_command(
-      "Daily",
-      function(args)
-        local input = args.args
-
-        vim.lsp.buf.execute_command({ command = "jump", arguments = { input } })
-      end,
-      { desc = 'Open daily note', nargs = "*" }
-    )
-    vim.api.nvim_create_user_command(
-      "Today",
-      function() vim.lsp.buf.execute_command({ command = "jump", arguments = { "today" } }) end,
-      { desc = 'Open today note', nargs = "*" }
-    )
-  end,
+-- Setup gowl for markdown files
+lspconfig.gowl.setup({
+  on_attach = on_attach
 })
