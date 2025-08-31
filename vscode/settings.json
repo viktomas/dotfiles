@@ -5,7 +5,7 @@
 {
   /* GitLab VS Code Extension */
   "gitlab.duoAgenticChat.enabled": true,
-  // "gitlab.debug": true,
+  "gitlab.debug": true,
   // "gitlab.ca": "/Users/tomas/Downloads/gitlab-com-chain.pem",
   "gitlab.webviewTimeoutSeconds": 20,
   // "gitlab.featureFlags.codeSuggestionsClientDirectToGateway": true,
