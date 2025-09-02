@@ -41,7 +41,13 @@ require("mini.icons").setup({})
 MiniIcons.tweak_lsp_kind()
 require("mini.snippets").setup({})
 require("mini.completion").setup({})
-require("mini.pairs").setup({})
+require("mini.pairs").setup({
+  mappings = {
+    -- don't add pair if another backtick preceeds
+    -- suggested in https://github.com/nvim-mini/mini.nvim/issues/31#issuecomment-2151599842
+    ['`'] = { action = 'closeopen', pair = '``', neigh_pattern = '[^\\`].', register = { cr = false } },
+  }
+})
 require("mini.surround").setup({})
 require("plugins.oil")
 require("plugins.lint")
