@@ -15,6 +15,7 @@
 [alias]
   st = status
   ci = commit --verbose
+  cid = !git commit -m "$(date +%Y-%m-%dT%H:%M:%S)"
   co = checkout
   di = diff
   dc = diff --cached
@@ -22,6 +23,7 @@
   pushf = push --force-with-lease
   ds = diff --stat=160,120
   ss = show --stat=160,120
+  nuke = !git checkout . && git clean -fd
 
   # Fancy logging.
   l = log --pretty=format:'%C(yellow)%h%Creset %C(auto)%d%Creset %C(white)%s%Creset %C(dim white)%an (%as)%Creset'  --graph
