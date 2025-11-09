@@ -1,6 +1,5 @@
-source ~/.secrets
+source ~/.secrets/secrets
 if status is-interactive
-    ,countdown
     fish_vi_key_bindings
 
     function fish_user_key_bindings
@@ -24,4 +23,6 @@ end
 /opt/homebrew/bin/mise activate fish | source
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/tomas/google-cloud-sdk/path.fish.inc' ]; . '/Users/tomas/google-cloud-sdk/path.fish.inc'; end
+if [ -f '/Users/tomas/google-cloud-sdk/path.fish.inc' ]
+    . '/Users/tomas/google-cloud-sdk/path.fish.inc'
+end
