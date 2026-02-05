@@ -1,0 +1,6 @@
+{
+  "lastChangelogVersion": "0.51.6",
+  "hideThinkingBlock": true,
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-sonnet-4-5"
+}

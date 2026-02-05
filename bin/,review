@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -e
+
+# Check if URL is provided
+if [ -z "$1" ]; then
+    echo "Usage: ,review <gitlab-merge-request-url>"
+    exit 1
+fi
+
+url="$1"
+
+# Strip everything after the MR number and add .diff
+# Pattern: match up to /merge_requests/NUMBER and strip anything after
+diff_url=$(echo "$url" | sed -E 's|(.*/-/merge_requests/[0-9]+).*|\1.diff|')
+
+echo "Downloading and applying diff from: $diff_url"
+
+# Download and apply the diff
+if curl -fsSL "$diff_url" | git apply; then
+    echo "Diff applied successfully!"
+    echo "Starting review with pi..."
+    pi "Please review the changes I just applied from the merge request."
+else
+    echo "Failed to apply diff"
+    exit 1
+fi

@@ -3,3 +3,5 @@ nvim-old/.config/nvim/undo/
 nvim-old/.config/nvim/.netrwhist
 nvim-old/.config/nvim/doc/tags
 bin/fennel-ls
+pi/.pi/agent/sessions
+karabiner/.config/karabiner/automatic_backups

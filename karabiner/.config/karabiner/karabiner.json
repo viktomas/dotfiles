@@ -18,16 +18,17 @@
                         ]
                     },
                     {
-                        "description": "Space + [ to Cmd+Shift+[, Space + ] to Cmd+Shift+]",
+                        "description": "Space + jk (simultaneous) turns into cmd+shift+brackets",
                         "manipulators": [
                             {
                                 "from": {
                                     "modifiers": { "optional": ["any"] },
                                     "simultaneous": [
                                         { "key_code": "spacebar" },
-                                        { "key_code": "open_bracket" }
+                                        { "key_code": "j" }
                                     ]
                                 },
+                                "parameters": { "basic.simultaneous_threshold_milliseconds": 50 },
                                 "to": [
                                     {
                                         "key_code": "open_bracket",
@@ -41,9 +42,10 @@
                                     "modifiers": { "optional": ["any"] },
                                     "simultaneous": [
                                         { "key_code": "spacebar" },
-                                        { "key_code": "close_bracket" }
+                                        { "key_code": "k" }
                                     ]
                                 },
+                                "parameters": { "basic.simultaneous_threshold_milliseconds": 50 },
                                 "to": [
                                     {
                                         "key_code": "close_bracket",
@@ -58,12 +60,6 @@
             },
             "name": "Default profile",
             "selected": true,
-            "simple_modifications": [
-                {
-                    "from": { "key_code": "left_control" },
-                    "to": [{ "key_code": "vk_none" }]
-                }
-            ],
             "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
         }
     ]
