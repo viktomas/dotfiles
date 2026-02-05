@@ -32,10 +32,10 @@ keybinds clear-defaults=true {
         bind "e" { TogglePaneEmbedOrFloating; }
         bind "f" { ToggleFocusFullscreen; }
         bind "h" { MoveFocus "left"; }
-        bind "Ctrl h" { GoToPreviousTab; }
         bind "j" { MoveFocus "down"; }
         bind "k" { MoveFocus "up"; }
         bind "l" { MoveFocus "right"; }
+        bind "Ctrl h" { GoToPreviousTab; }
         bind "Ctrl l" { GoToNextTab; }
         bind "m" { SwitchToMode "move"; }
         bind "n" { NewTab; }
@@ -212,7 +212,7 @@ load_plugins {
 }
 ui {
     pane_frames {
-        hide_session_name true
+        // hide_session_name true
     }
 }
  

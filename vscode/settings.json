@@ -79,6 +79,10 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
 
   "files.enableTrash": false,
   "editor.fontFamily": "JetBrains Mono",
@@ -221,5 +225,7 @@
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
-  "workbench.secondarySideBar.defaultVisibility": "hidden"
+  "workbench.secondarySideBar.defaultVisibility": "hidden",
+  "git.blame.editorDecoration.enabled": true,
+  "diffEditor.maxComputationTime": 0
 }

@@ -24,6 +24,7 @@ stow fd
 stow helix
 stow yamlfmt
 stow zellij
+stow karabiner
 
 # tiling window manager
 stow yabai

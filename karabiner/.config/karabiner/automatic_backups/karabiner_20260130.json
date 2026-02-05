@@ -21,36 +21,36 @@
                         "description": "Space + [ to Cmd+Shift+[, Space + ] to Cmd+Shift+]",
                         "manipulators": [
                             {
+                                "type": "basic",
                                 "from": {
-                                    "modifiers": { "optional": ["any"] },
                                     "simultaneous": [
                                         { "key_code": "spacebar" },
                                         { "key_code": "open_bracket" }
-                                    ]
+                                    ],
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "open_bracket",
                                         "modifiers": ["left_command", "left_shift"]
                                     }
-                                ],
-                                "type": "basic"
+                                ]
                             },
                             {
+                                "type": "basic",
                                 "from": {
-                                    "modifiers": { "optional": ["any"] },
                                     "simultaneous": [
                                         { "key_code": "spacebar" },
                                         { "key_code": "close_bracket" }
-                                    ]
+                                    ],
+                                    "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "close_bracket",
                                         "modifiers": ["left_command", "left_shift"]
                                     }
-                                ],
-                                "type": "basic"
+                                ]
                             }
                         ]
                     }

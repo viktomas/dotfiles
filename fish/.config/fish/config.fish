@@ -17,6 +17,13 @@ if status is-interactive
     mise activate fish | source
     direnv hook fish | source
 
+    function zellij_tab_name_update --on-event fish_preexec
+        if set -q ZELLIJ
+            set title (string split ' ' $argv)[1]
+            command nohup zellij action rename-tab $title >/dev/null 2>&1
+        end
+    end
+
 end
 
 # Added by GDK bootstrap

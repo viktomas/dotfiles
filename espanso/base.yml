@@ -53,3 +53,10 @@ matches:
         type: date
         params:
           format: "%F"
+  - trigger: "..now"
+    replace: "{{now}}"
+    vars:
+      - name: now
+        type: date
+        params:
+          format: "%H:%M"

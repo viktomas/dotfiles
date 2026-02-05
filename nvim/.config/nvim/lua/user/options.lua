@@ -33,6 +33,9 @@ local options = {
   -- undo
   undofile = true,                               -- persist undo tree for each file
   undodir = vim.fn.stdpath("data") .. "/undo//", -- store undo files in directory
+
+  -- folding
+  foldenable = true,
 }
 
 for k, v in pairs(options) do
