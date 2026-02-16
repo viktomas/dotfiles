@@ -1,0 +1,5 @@
+{
+  "cursorUp": ["up", "ctrl+p"],
+  "cursorDown": ["down", "ctrl+n"],
+  "deleteWordBackward": ["ctrl+w", "alt+backspace"]
+}

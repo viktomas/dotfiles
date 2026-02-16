@@ -9,18 +9,126 @@ fi
 
 url="$1"
 
-# Strip everything after the MR number and add .diff
-# Pattern: match up to /merge_requests/NUMBER and strip anything after
-diff_url=$(echo "$url" | sed -E 's|(.*/-/merge_requests/[0-9]+).*|\1.diff|')
-
-echo "Downloading and applying diff from: $diff_url"
-
-# Download and apply the diff
-if curl -fsSL "$diff_url" | git apply; then
-    echo "Diff applied successfully!"
-    echo "Starting review with pi..."
-    pi "Please review the changes I just applied from the merge request."
-else
-    echo "Failed to apply diff"
+# Extract project path from MR URL (e.g., gitlab.com/group/project)
+mr_project=$(echo "$url" | sed -E 's|https?://([^/]+)/(.*)/-/merge_requests/.*|\2|')
+if [ -z "$mr_project" ]; then
+    echo "Error: Could not parse project from URL: $url"
     exit 1
 fi
+
+# Get git remote origin
+origin_url=$(git remote get-url origin)
+if [ -z "$origin_url" ]; then
+    echo "Error: Could not get git remote origin"
+    exit 1
+fi
+
+# Extract project path from origin URL
+# Handle both SSH (git@gitlab.com:group/project.git) and HTTPS (https://gitlab.com/group/project.git)
+origin_project=$(echo "$origin_url" | sed -E 's|.*[:/](.+)(\.git)?$|\1|' | sed 's|\.git$||')
+if [ -z "$origin_project" ]; then
+    echo "Error: Could not parse project from origin URL: $origin_url"
+    exit 1
+fi
+
+# Normalize both paths by removing .git suffix and compare
+mr_project_normalized=$(echo "$mr_project" | sed 's|\.git$||')
+origin_project_normalized=$(echo "$origin_project" | sed 's|\.git$||')
+
+# Verify MR is from the same project - check if one ends with the other
+if [[ "$mr_project_normalized" != "$origin_project_normalized" ]] && \
+   [[ "$mr_project_normalized" != *"$origin_project_normalized" ]] && \
+   [[ "$origin_project_normalized" != *"$mr_project_normalized" ]]; then
+    echo "Error: MR is from different project!"
+    echo "  MR project: $mr_project_normalized"
+    echo "  Origin project: $origin_project_normalized"
+    exit 1
+fi
+
+echo "✓ Verified MR is from correct project: $origin_project_normalized"
+
+# Extract MR number from URL
+mr_number=$(echo "$url" | sed -E 's|.*/merge_requests/([0-9]+).*|\1|')
+if [ -z "$mr_number" ]; then
+    echo "Error: Could not extract MR number from URL"
+    exit 1
+fi
+
+echo "MR number: $mr_number"
+
+# Use glab to get MR information
+echo "Fetching MR details with glab..."
+mr_info=$(glab mr view "$mr_number" --output json)
+
+branch_name=$(echo "$mr_info" | jq -r '.source_branch')
+target_branch=$(echo "$mr_info" | jq -r '.target_branch')
+
+if [ -z "$branch_name" ]; then
+    echo "Error: Could not get source branch name from glab"
+    exit 1
+fi
+
+if [ -z "$target_branch" ]; then
+    echo "Error: Could not get target branch name from glab"
+    exit 1
+fi
+
+echo "Source branch: $branch_name"
+echo "Target branch: $target_branch"
+
+# Get current git directory
+git_dir=$(git rev-parse --git-dir)
+current_dir=$(pwd)
+
+# Determine the project root by finding the directory that contains .bare
+if [[ "$git_dir" == *".bare"* ]]; then
+    # Extract the path up to and including the directory before .bare
+    # e.g., /path/to/project/.bare/worktrees/main -> /path/to/project
+    project_root=$(echo "$git_dir" | sed -E 's|(.*)/\.bare.*|\1|')
+else
+    # Try to find .bare in parent directories
+    temp_dir="$current_dir"
+    while [ "$temp_dir" != "/" ]; do
+        if [ -d "$temp_dir/.bare" ]; then
+            project_root="$temp_dir"
+            break
+        fi
+        temp_dir=$(dirname "$temp_dir")
+    done
+    
+    if [ -z "$project_root" ]; then
+        echo "Error: Could not find .bare directory in project structure"
+        exit 1
+    fi
+fi
+
+echo "Project root: $project_root"
+
+# Navigate to .bare directory to run git worktree commands
+cd "$project_root/.bare"
+
+# Check if worktree for this branch already exists
+worktree_path="$project_root/$branch_name"
+if [ -d "$worktree_path" ]; then
+    echo "✓ Worktree already exists: $worktree_path"
+else
+    echo "Creating worktree for branch: $branch_name"
+    # Fetch the branch first
+    git fetch origin "$branch_name:$branch_name" || git fetch origin
+    
+    # Use git wta (via the wrapper script)
+    if ~/bin/git-wa.sh "$worktree_path" "$branch_name"; then
+        echo "✓ Created worktree: $worktree_path"
+    else
+        echo "Error: Failed to create worktree"
+        exit 1
+    fi
+fi
+
+# Navigate to the branch directory
+cd "$worktree_path"
+echo "✓ Changed to worktree: $worktree_path"
+
+# Run pi review command
+echo "Starting review with pi..."
+pi "/review branch $target_branch"

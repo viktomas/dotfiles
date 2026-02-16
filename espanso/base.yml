@@ -4,7 +4,9 @@ matches:
   - trigger: "..lex"
     replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::VS Code"'
   - trigger: "..lls"
-    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Language Server"'
+    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Language Server"'
+  - trigger: "..lcl"
+    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Duo CLI"'
   - trigger: '..lteam'
     replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev"'
   - trigger: "..lf"
