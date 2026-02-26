@@ -5,7 +5,7 @@ function git --wraps=git --description 'sets a special behaviour for git wta'
             set -l date_prefix (date +%Y-%m)
             set -l branch "tv/$date_prefix/$name"
             command git fetch origin main
-            and ~/bin/git-wa.sh $name -b $branch origin/main
+            and ~/bin/git-wa.sh $name -b $branch --no-track origin/main
             and cd $name
         else
             ~/bin/git-wa.sh $argv[2..-1]

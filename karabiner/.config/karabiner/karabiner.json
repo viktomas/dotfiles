@@ -8,11 +8,11 @@
                         "manipulators": [
                             {
                                 "from": {
-                                    "key_code": "caps_lock",
+                                    "key_code": "return",
                                     "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [{ "key_code": "left_control" }],
-                                "to_if_alone": [{ "key_code": "escape" }],
+                                "to_if_alone": [{ "key_code": "return" }],
                                 "type": "basic"
                             }
                         ]
@@ -58,8 +58,29 @@
                     }
                 ]
             },
+            "devices": [
+                {
+                    "identifiers": { "is_keyboard": true },
+                    "simple_modifications": [
+                        {
+                            "from": { "key_code": "caps_lock" },
+                            "to": [{ "key_code": "escape" }]
+                        },
+                        {
+                            "from": { "key_code": "right_command" },
+                            "to": [{ "key_code": "left_control" }]
+                        }
+                    ]
+                }
+            ],
             "name": "Default profile",
             "selected": true,
+            "simple_modifications": [
+                {
+                    "from": { "key_code": "caps_lock" },
+                    "to": [{ "key_code": "escape" }]
+                }
+            ],
             "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
         }
     ]

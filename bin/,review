@@ -108,7 +108,9 @@ echo "Project root: $project_root"
 cd "$project_root/.bare"
 
 # Check if worktree for this branch already exists
-worktree_path="$project_root/$branch_name"
+# Replace slashes in branch name with dashes for the folder name
+worktree_folder=$(echo "$branch_name" | tr '/' '-')
+worktree_path="$project_root/$worktree_folder"
 if [ -d "$worktree_path" ]; then
     echo "✓ Worktree already exists: $worktree_path"
 else
