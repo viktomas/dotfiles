@@ -1,6 +1,8 @@
 prefer `fd` and `rg` over `find` and `grep`
 `rg` uses `-t` for file type
 
+
+
 ## **CRITICAL** Planning Rules **CRITICAL**
 
 You are working with a plan if:
@@ -52,3 +54,13 @@ These commands can destroy your's other agents' work
 
 
 You can only use them on direct user request.
+
+### Creating Git Worktrees
+
+Always use the `git wta` fish function instead of raw `git worktree add`:
+
+```bash
+fish -c 'cd /path/to/repo && git wta -n <name>'
+```
+
+This creates a worktree at `<repo>/<name>/` with branch `tv/YYYY-MM/<name>` based on `origin/main`, and runs post-setup (npm ci, mise trust, etc.). The worktree path is always `<name>` relative to the repo root.
