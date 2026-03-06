@@ -208,11 +208,18 @@ export default function (pi: ExtensionAPI) {
           return;
         }
 
-        // Send the step message
+        // Send the step message and wait for the agent to pick it up
         ctx.ui.notify(`▶ Step ${result.step}: ${result.title}`, "info");
-        pi.sendUserMessage(`@plan.md step ${result.step} go`);
 
-        // Wait for the agent to finish this step
+        // Wait for agent_start before calling waitForIdle to avoid a race
+        // where waitForIdle resolves immediately because the turn hasn't begun yet
+        let agentStartedResolve: () => void;
+        const agentStarted = new Promise<void>((resolve) => { agentStartedResolve = resolve; });
+        pi.on("agent_start", () => { agentStartedResolve(); });
+        pi.sendUserMessage(`@plan.md step ${result.step} go`);
+        await agentStarted;
+
+        // Now the agent is running — wait for it to finish
         await ctx.waitForIdle();
 
         // Clear context with a new session for the next iteration
