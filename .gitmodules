@@ -1,0 +1,3 @@
+[submodule "pi/.pi/agent/skills/gitlab-mr-comments"]
+	path = pi/.pi/agent/skills/gitlab-mr-comments
+	url = https://gitlab.com/viktomas/gitlab-mr-comments.git

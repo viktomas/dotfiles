@@ -1,8 +1,6 @@
 prefer `fd` and `rg` over `find` and `grep`
 `rg` uses `-t` for file type
 
-
-
 ## **CRITICAL** Planning Rules **CRITICAL**
 
 You are working with a plan if:
@@ -55,12 +53,12 @@ These commands can destroy your's other agents' work
 
 You can only use them on direct user request.
 
-### Creating Git Worktrees
+## Git Interactive Commands
 
-Always use the `git wta` fish function instead of raw `git worktree add`:
+Commands like `git rebase --continue`, `git merge --continue`, and `git commit` open an editor and hang when run non-interactively. Always prefix with `GIT_EDITOR=true` to auto-accept the default message:
 
 ```bash
-fish -c 'cd /path/to/repo && git wta -n <name>'
+GIT_EDITOR=true git rebase --continue
+GIT_EDITOR=true git merge --continue
 ```
 
-This creates a worktree at `<repo>/<name>/` with branch `tv/YYYY-MM/<name>` based on `origin/main`, and runs post-setup (npm ci, mise trust, etc.). The worktree path is always `<name>` relative to the repo root.

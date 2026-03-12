@@ -5,11 +5,108 @@ description: Interact with GitLab REST API using GITLAB_TOKEN - use for TODOs, p
 
 # GitLab API
 
-Query the GitLab REST API using `GITLAB_TOKEN` (always present in environment).
+Prefer `glab` CLI commands over raw `curl`. Use `glab api` for endpoints without a dedicated subcommand. Fall back to `curl` only when `glab` doesn't work (documented below).
 
-All scripts live in `scripts/` relative to this skill directory.
+**IMPORTANT**: If you encounter a `glab` command that fails, behaves unexpectedly, or is missing functionality, you MUST update this skill file to document the issue — either by adding a curl fallback with an explanation, or by adding a warning note to the relevant section. This keeps the skill accurate for future use.
 
-## To-Do List
+When running from a git worktree of the target project, `glab` auto-detects the repo. Otherwise use `-R OWNER/REPO`.
+
+## glab — Pipelines & Jobs
+
+### View current branch pipeline status
+
+```bash
+glab ci status                     # interactive view
+glab ci status -F json             # JSON output
+glab ci status --compact           # compact text view
+```
+
+### List pipelines
+
+```bash
+glab ci list -F json                          # all pipelines
+glab ci list --status=failed -F json          # only failed
+glab ci list --ref=my-branch -F json          # specific branch
+```
+
+### Get pipeline details (with job info)
+
+```bash
+glab ci get -F json                           # current branch, latest pipeline
+glab ci get -p <pipeline_id> -F json          # specific pipeline
+glab ci get -d -F json                        # with extended job details
+```
+
+### Retry a job
+
+```bash
+glab ci retry <job-id>             # retry by job ID
+glab ci retry <job-name>           # retry by job name
+glab ci retry                      # interactive selection
+```
+
+### View job log
+
+```bash
+glab ci trace <job-id>             # stream job log
+```
+
+## glab — Issues
+
+### Create an issue
+
+```bash
+glab issue create --title "..." --description ":robot: AI-generated
+
+Issue body here..." -R OWNER/REPO
+```
+
+## glab — Merge Requests
+
+### View MR details
+
+```bash
+glab mr view <iid> -F json
+glab mr view <branch> -F json
+```
+
+### List MRs
+
+```bash
+glab mr list -F json
+glab mr list --assignee=@me -F json
+glab mr list --reviewer=@me -F json
+glab mr list --source-branch=my-branch -F json
+```
+
+### Merge an MR
+
+```bash
+glab mr merge <iid> --auto-merge --squash --remove-source-branch -y
+```
+
+**Note**: `glab mr merge --auto-merge` returns 405 for projects with merge trains enabled. Use the merge train curl fallback below instead.
+
+## glab api — Generic API Access
+
+Use `glab api` for any REST endpoint not covered by a dedicated subcommand. It handles auth automatically. Supports `:id` (project ID), `:fullpath`, `:repo` placeholders when run from a project directory.
+
+```bash
+# List MR pipelines (no dedicated glab subcommand for MR-specific pipelines)
+glab api "projects/:id/merge_requests/<mr_iid>/pipelines?per_page=5" | jq '.[] | {id, status, source, ref}'
+
+# List failed jobs in a pipeline
+glab api "projects/:id/pipelines/<pipeline_id>/jobs?per_page=100" | jq '.[] | select(.status == "failed") | {id, name, stage, web_url}'
+
+# Retry an entire pipeline
+glab api -X POST "projects/:id/pipelines/<pipeline_id>/retry" | jq '{id, status, ref}'
+```
+
+Merge train pipelines have `ref: "refs/merge-requests/<iid>/train"`.
+
+## glab — To-Do List
+
+Uses helper scripts in `scripts/` relative to this skill directory.
 
 ### List TODOs
 
@@ -23,17 +120,10 @@ Defaults to `--state pending --per-page 50`.
 
 **Type filter values**: `Issue`, `MergeRequest`, `Commit`, `Epic`, `DesignManagement::Design`, `AlertManagement::Alert`, `Project`, `Namespace`, `Vulnerability`, `WikiPage::Meta`
 
-Examples:
-
 ```bash
-# All pending TODOs
-scripts/list-todos.sh
-
-# Only review requests
-scripts/list-todos.sh --action review_requested
-
-# Only done MergeRequest TODOs
-scripts/list-todos.sh --state done --type MergeRequest
+scripts/list-todos.sh                                    # all pending
+scripts/list-todos.sh --action review_requested          # only review requests
+scripts/list-todos.sh --state done --type MergeRequest   # done MR TODOs
 ```
 
 ### Mark a Single TODO as Done
@@ -44,75 +134,48 @@ scripts/mark-todo-done.sh <todo_id>
 
 The `todo_id` is shown in `list-todos.sh` output as `(id:NNN)`.
 
-## Award Emoji (Reactions)
+---
 
-Add a reaction to a note (comment) on an MR:
+## curl Fallback
+
+Use these only when `glab` / `glab api` doesn't cover the use case.
+
+Common project IDs: `278964` (gitlab-org/gitlab), `46519181` (gitlab-org/editor-extensions/gitlab-lsp), `34675721` (gitlab-org/cli).
+
+### Award Emoji (Reactions)
+
+No `glab` subcommand exists for award emoji.
 
 ```bash
+# React to a note (comment) on an MR
 curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/merge_requests/<mr_iid>/notes/<note_id>/award_emoji" \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"name": "<emoji_name>"}'
-```
 
-Add a reaction to an MR itself:
-
-```bash
+# React to an MR itself
 curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/merge_requests/<mr_iid>/award_emoji" \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"name": "<emoji_name>"}'
 ```
 
-Common project IDs: `278964` (gitlab-org/gitlab), `46519181` (gitlab-org/editor-extensions/gitlab-lsp), `34675721` (gitlab-org/cli).
+### Merge Trains
 
-## Merge Trains
-
-### List active merge train entries
+`glab mr merge --auto-merge` returns 405 for projects with merge trains. Use the API directly.
 
 ```bash
+# List active merge train entries
 curl -s "https://gitlab.com/api/v4/projects/<project_id>/merge_trains?per_page=10" \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" | jq '.[] | {merge_request: .merge_request.iid, status}'
-```
 
-### Add MR to merge train
-
-```bash
+# Add MR to merge train
 curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/merge_trains/merge_requests/<mr_iid>" \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"when_pipeline_succeeds": true}'
 ```
 
-**Note**: `glab mr merge --auto-merge` returns 405 for projects with merge trains enabled. Use this API instead.
-
-## Pipelines
-
-### List MR pipelines
-
-```bash
-curl -s "https://gitlab.com/api/v4/projects/<project_id>/merge_requests/<mr_iid>/pipelines?per_page=5" \
-  --header "PRIVATE-TOKEN: $GITLAB_TOKEN" | jq '.[] | {id, status, source, ref}'
-```
-
-Merge train pipelines have `ref: "refs/merge-requests/<iid>/train"`.
-
-### List failed jobs in a pipeline
-
-```bash
-curl -s "https://gitlab.com/api/v4/projects/<project_id>/pipelines/<pipeline_id>/jobs?per_page=100" \
-  --header "PRIVATE-TOKEN: $GITLAB_TOKEN" | jq '.[] | select(.status == "failed") | {id, name, stage, web_url}'
-```
-
-### Retry a pipeline
-
-```bash
-curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/pipelines/<pipeline_id>/retry" \
-  --header "PRIVATE-TOKEN: $GITLAB_TOKEN" | jq '{id, status, ref}'
-```
-
 ## API Documentation
 
-For exploring GitLab API endpoints and parameters, check the local GDK docs at `/Users/tomas/workspace/gl/gdk/gitlab/doc/api/`. These are the source `.md` files for the official GitLab API docs and are useful for looking up request/response formats, required fields, and edge cases.
-
-
+For exploring GitLab API endpoints and parameters, check the local GDK docs at `/Users/tomas/workspace/gl/gdk/gitlab/doc/api/`. These are the source `.md` files for the official GitLab API docs.

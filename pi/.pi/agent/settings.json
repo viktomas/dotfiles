@@ -3,5 +3,6 @@
   "hideThinkingBlock": true,
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-6",
-  "defaultThinkingLevel": "medium"
+  "defaultThinkingLevel": "medium",
+  "packages": []
 }

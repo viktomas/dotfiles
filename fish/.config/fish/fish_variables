@@ -9,4 +9,4 @@ SETUVAR MAILCHECK:
 SETUVAR __fish_initialized:4300
 SETUVAR fish_greeting:
 SETUVAR fish_prompt_pwd_full_dirs:2
-SETUVAR fish_user_paths:/Users/tomas/bin\x1e/opt/homebrew/opt/icu4c\x4077/sbin\x1e/opt/homebrew/opt/icu4c\x4077/bin\x1e/Users/tomas/\x2edeno/bin\x1e/opt/homebrew/sbin\x1e/opt/homebrew/bin\x1e/Applications/Ghostty\x2eapp/Contents/MacOS
+SETUVAR fish_user_paths:/Users/tomas/\x2ecargo/bin\x1e/Users/tomas/bin\x1e/opt/homebrew/opt/icu4c\x4077/sbin\x1e/opt/homebrew/opt/icu4c\x4077/bin\x1e/Users/tomas/\x2edeno/bin\x1e/opt/homebrew/sbin\x1e/opt/homebrew/bin\x1e/Applications/Ghostty\x2eapp/Contents/MacOS
