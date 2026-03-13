@@ -1,6 +1,10 @@
 prefer `fd` and `rg` over `find` and `grep`
 `rg` uses `-t` for file type
 
+## Shell
+
+The user uses `fish` as their shell. When helping with anything related to the user's environment (aliases, shell config, environment variables, PATH, etc.), use `fish` syntax and test commands with `fish -c '<command>'`. Note that some config (e.g. abbreviations, interactive key bindings) is only loaded in interactive mode — use `fish -ic '<command>'` when testing those.
+
 ## **CRITICAL** Planning Rules **CRITICAL**
 
 You are working with a plan if:

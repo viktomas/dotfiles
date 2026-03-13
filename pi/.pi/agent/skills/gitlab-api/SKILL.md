@@ -85,7 +85,9 @@ glab mr list --source-branch=my-branch -F json
 glab mr merge <iid> --auto-merge --squash --remove-source-branch -y
 ```
 
-**Note**: `glab mr merge --auto-merge` returns 405 for projects with merge trains enabled. Use the merge train curl fallback below instead.
+**⚠️ NEVER use `glab mr merge` on projects with merge trains enabled** (cli, gitlab-lsp). It calls the Accept MR API which bypasses the merge train entirely — if the pipeline is already green, it merges directly to the target branch without a merge-train pipeline. This can break main. Always use the merge train curl fallback below instead.
+
+Projects with merge trains enabled: `gitlab-org/cli` (34675721), `gitlab-org/editor-extensions/gitlab-lsp` (46519181).
 
 ## glab api — Generic API Access
 
@@ -162,19 +164,21 @@ curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/merge_re
 
 ### Merge Trains
 
-`glab mr merge --auto-merge` returns 405 for projects with merge trains. Use the API directly.
+**Always use the merge train API for projects with merge trains enabled.** `glab mr merge` uses the Accept MR API which bypasses the merge train — even with `--auto-merge`, if the pipeline is green it merges directly without a merge-train pipeline.
 
 ```bash
 # List active merge train entries
 curl -s "https://gitlab.com/api/v4/projects/<project_id>/merge_trains?per_page=10" \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" | jq '.[] | {merge_request: .merge_request.iid, status}'
 
-# Add MR to merge train
+# Add MR to merge train (THE correct way to merge on merge-train projects)
 curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/merge_trains/merge_requests/<mr_iid>" \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
-  --data '{"when_pipeline_succeeds": true}'
+  --data '{"when_pipeline_succeeds": true, "squash": true}'
 ```
+
+Projects with merge trains: `gitlab-org/cli` (34675721), `gitlab-org/editor-extensions/gitlab-lsp` (46519181).
 
 ## API Documentation
 
