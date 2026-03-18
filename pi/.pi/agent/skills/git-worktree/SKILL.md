@@ -66,6 +66,37 @@ Some repos have a cleanup script that removes worktrees whose branches were dele
 
 This fetches, prunes remote refs, then removes worktrees for branches that no longer exist on `origin`. Skips `main`/`master`. Use `--dry-run` to preview.
 
+## Fork/Renovate MR Branches
+
+MRs from forks (e.g. renovate bot) have `source_project_id ≠ target_project_id`. Their branches don't exist on `origin`, so `git fetch origin <branch>` will fail. **Don't try to check out the fork branch.** Instead:
+
+1. Create a new branch from `origin/main` (using `git wta`)
+2. Make the fix yourself
+3. Push your branch and create a new MR (close the bot's MR or let it auto-close)
+
+This is common with renovate dependency MRs that fail artifact updates (e.g. Go module path changes that renovate can't handle).
+
+## ⚠️ Pre-push Hooks Can Corrupt Worktree State
+
+**Root cause**: Git sets `GIT_WORK_TREE` during hook execution. This leaks into test subprocesses, causing lefthook hooks from `.bare/hooks/` to fire in test temp repos. Only happens inside hooks (pre-push, pre-commit), not when running `make test-changed` directly.
+
+Symptoms after a failed pre-push hook:
+1. **Wrong branch** — test did `git checkout -b BranchN` and failed before cleanup
+2. **Wrong git config** — test wrote `user.name "glab test bot"` to worktree config
+3. **Test failures** — lefthook rejects test commits, cmdtest binary builds fail
+
+**After a failed pre-push hook**, always verify:
+```bash
+git branch              # should show your branch, not "Branch12" etc.
+git config user.name    # should be your name, not "glab test bot"
+```
+
+To fix: `git checkout <your-branch>`, `git config --unset user.name`, `git config --unset user.email`.
+
+To avoid: push with `--no-verify` when pre-push tests are known-flaky in worktrees, or set `LEFTHOOK=0`.
+
+Tracked in: https://gitlab.com/gitlab-org/cli/-/work_items/8223
+
 ## Important Notes
 
 - **Never `git checkout`** to switch branches — create a new worktree instead, or `cd` to an existing one.

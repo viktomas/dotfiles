@@ -172,11 +172,16 @@ curl -s "https://gitlab.com/api/v4/projects/<project_id>/merge_trains?per_page=1
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" | jq '.[] | {merge_request: .merge_request.iid, status}'
 
 # Add MR to merge train (THE correct way to merge on merge-train projects)
+# Do NOT pass auto_merge:true — it returns 400 when pipeline already succeeded
+# (bug: https://gitlab.com/gitlab-org/gitlab/-/work_items/592889)
+# Omitting auto_merge adds to the train immediately, which is what we want.
 curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/merge_trains/merge_requests/<mr_iid>" \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
-  --data '{"when_pipeline_succeeds": true, "squash": true}'
+  --data '{"squash": true}'
 ```
+
+**Why not the Accept MR API?** `PUT /merge_requests/:iid/merge` with `auto_merge=true` on a merge-train project will merge **directly** when the pipeline is green, completely bypassing the merge train ([#552045](https://gitlab.com/gitlab-org/gitlab/-/work_items/552045)). This is "by design" — the Accept API is the "merge immediately" endpoint.
 
 Projects with merge trains: `gitlab-org/cli` (34675721), `gitlab-org/editor-extensions/gitlab-lsp` (46519181).
 
