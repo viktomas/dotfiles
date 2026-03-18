@@ -1,0 +1,11 @@
+{
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1753956282764
+  },
+  "model": "opus[1m]"
+}

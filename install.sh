@@ -26,6 +26,7 @@ stow yamlfmt
 stow zellij
 stow karabiner
 stow pi
+stow claude
 
 # tiling window manager
 stow yabai
