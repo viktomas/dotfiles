@@ -46,13 +46,26 @@ log_warn() {
 #
 # Start a new tmux test session
 #
-# Usage: start_test COMMAND [ARGS...]
+# Usage: start_test [--cwd DIR] COMMAND [ARGS...]
 # Example: start_test "duo"
 # Example: start_test "node" "cli.js"
+# Example: start_test --cwd /path/to/project "npm" "run" "cli"
 #
 start_test() {
+    local cwd=""
+
+    # Parse optional --cwd flag
+    if [[ "${1:-}" == "--cwd" ]]; then
+        if [[ $# -lt 2 ]]; then
+            log_error "Usage: start_test --cwd DIR COMMAND [ARGS...]"
+            return 1
+        fi
+        cwd="$2"
+        shift 2
+    fi
+
     if [[ $# -lt 1 ]]; then
-        log_error "Usage: start_test COMMAND [ARGS...]"
+        log_error "Usage: start_test [--cwd DIR] COMMAND [ARGS...]"
         return 1
     fi
 
@@ -91,10 +104,25 @@ start_test() {
 
     # Build command with args
     local full_command="$command"
-    for arg in "${args[@]}"; do
-        # Properly escape arguments
-        full_command="$full_command '${arg//\'/\'\\\'\'}'"
-    done
+    if [[ ${#args[@]} -gt 0 ]]; then
+        for arg in "${args[@]}"; do
+            # Properly escape arguments
+            full_command="$full_command '${arg//\'/\'\\\'\'}'"
+        done
+    fi
+
+    # Change directory if --cwd was specified
+    if [[ -n "$cwd" ]]; then
+        if [[ ! -d "$cwd" ]]; then
+            log_error "Directory does not exist: $cwd"
+            tmux kill-session -t "$TMUX_SESSION" 2>/dev/null || true
+            TMUX_SESSION=""
+            return 1
+        fi
+        log_info "Changing directory to: $cwd"
+        tmux send-keys -t "$TMUX_SESSION" "cd '$cwd'" Enter
+        sleep 0.1
+    fi
 
     log_info "Starting: $full_command"
 
@@ -151,6 +179,56 @@ wait_for() {
 
     # Timeout reached
     log_error "Timeout waiting for pattern: '$pattern'"
+    log_error "Current terminal output:"
+    echo "════════════════════════════════════════" >&2
+    get_output >&2
+    echo "════════════════════════════════════════" >&2
+    return 1
+}
+
+#
+# Wait for a pattern to disappear from the terminal output
+#
+# Usage: wait_for_absent PATTERN [TIMEOUT_SECONDS]
+# Example: wait_for_absent "Initializing..." 10
+# Example: wait_for_absent "Loading"
+#
+wait_for_absent() {
+    if [[ $# -lt 1 ]]; then
+        log_error "Usage: wait_for_absent PATTERN [TIMEOUT_SECONDS]"
+        return 1
+    fi
+
+    local pattern="$1"
+    local timeout="${2:-30}"  # Default 30 seconds
+    local elapsed=0
+    local interval=0.1
+
+    log_info "Waiting for pattern to disappear: '$pattern' (timeout: ${timeout}s)"
+
+    while (( $(echo "$elapsed < $timeout" | bc -l) )); do
+        # Check if session is still alive
+        if ! tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
+            log_error "Tmux session died unexpectedly"
+            return 1
+        fi
+
+        # Get current output
+        local output
+        output=$(get_output 2>/dev/null || echo "")
+
+        # Check if pattern is absent
+        if ! echo "$output" | grep -q "$pattern"; then
+            log_success "Pattern disappeared after ${elapsed}s"
+            return 0
+        fi
+
+        sleep "$interval"
+        elapsed=$(echo "$elapsed + $interval" | bc -l)
+    done
+
+    # Timeout reached
+    log_error "Timeout waiting for pattern to disappear: '$pattern'"
     log_error "Current terminal output:"
     echo "════════════════════════════════════════" >&2
     get_output >&2
@@ -273,6 +351,13 @@ send_key() {
             tmux_key="C-a"
             ;;
         *)
+            # Single printable character — send as literal text
+            if [[ ${#key} -eq 1 ]]; then
+                tmux send-keys -t "$TMUX_SESSION" -l "$key"
+                sleep 0.05
+                log_info "Sent key: $key"
+                return 0
+            fi
             log_error "Unknown key: $key"
             return 1
             ;;
@@ -297,6 +382,24 @@ get_output() {
 
     # Capture pane content and strip ANSI codes
     tmux capture-pane -t "$TMUX_SESSION" -p -S 0 | \
+        sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'
+}
+
+#
+# Get full scrollback output (ANSI codes stripped)
+# Unlike get_output which only returns the visible pane,
+# this captures everything including content that scrolled off screen.
+#
+# Usage: output=$(get_full_output)
+#
+get_full_output() {
+    if [[ -z "$TMUX_SESSION" ]]; then
+        log_error "No active test session"
+        return 1
+    fi
+
+    # -S - = start of scrollback, -E - = end of scrollback
+    tmux capture-pane -t "$TMUX_SESSION" -p -S - -E - | \
         sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'
 }
 
@@ -402,10 +505,12 @@ kill_all_test_sessions() {
 # Export functions
 export -f start_test
 export -f wait_for
+export -f wait_for_absent
 export -f send_line
 export -f send_text
 export -f send_key
 export -f get_output
+export -f get_full_output
 export -f get_raw_output
 export -f is_session_alive
 export -f attach_session

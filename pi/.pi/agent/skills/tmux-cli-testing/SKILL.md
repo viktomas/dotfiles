@@ -34,7 +34,7 @@ echo "$output" | grep "expected result"
 ## Core Functions
 
 ### Session Management
-- `start_test COMMAND [ARGS...]` - Start app in tmux session
+- `start_test [--cwd DIR] COMMAND [ARGS...]` - Start app in tmux session (optionally in DIR)
 - `cleanup_test` - Kill session (use with `trap cleanup_test EXIT`)
 - `is_session_alive` - Check if session is running
 - `attach_session` - Debug interactively (Ctrl+B then D to detach)
@@ -42,12 +42,14 @@ echo "$output" | grep "expected result"
 ### Input
 - `send_line TEXT` - Send text + Enter
 - `send_text TEXT` - Send text without Enter
-- `send_key KEY` - Send special key (enter, escape, tab, up, down, left, right, ctrl-c, ctrl-d, etc.)
+- `send_key KEY` - Send special key (enter, escape, tab, up, down, left, right, ctrl-c, ctrl-d, etc.) or any single printable character (?, /, @, etc.)
 
 ### Output
-- `get_output` - Get terminal output (ANSI codes stripped)
+- `get_output` - Get visible terminal output (ANSI codes stripped)
+- `get_full_output` - Get full scrollback output (includes content that scrolled off screen)
 - `get_raw_output` - Get output with ANSI codes (for color testing)
 - `wait_for PATTERN [TIMEOUT]` - Wait for pattern to appear (default 30s timeout)
+- `wait_for_absent PATTERN [TIMEOUT]` - Wait for pattern to disappear (useful for spinners/loading states)
 
 ### Utilities
 - `list_test_sessions` - Show active test sessions
