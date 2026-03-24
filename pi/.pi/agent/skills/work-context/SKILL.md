@@ -64,3 +64,9 @@ Also load this skill when asked to save, create, or look up a **reference** — 
    /Users/tomas/workspace/gl/work/references/
    ```
    List files to find relevant references, or create new ones here when asked to save something for later.
+
+8. **Task sessions** — board items can link to zellij task sessions via `$slug` annotations on headings. Full CLI reference and conventions are in:
+   ```
+   /Users/tomas/workspace/gl/work/.pi/skills/task-management/SKILL.md
+   ```
+   Task CLI source and tests live in `/Users/tomas/workspace/gl/orchestrator/`.

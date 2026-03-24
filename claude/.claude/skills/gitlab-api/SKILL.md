@@ -55,11 +55,29 @@ glab ci trace <job-id>             # stream job log
 
 ### Create an issue
 
-```bash
-glab issue create --title "..." --description ":robot: AI-generated
+Always use this format for issue descriptions:
 
-Issue body here..." -R OWNER/REPO
+```bash
+glab issue create --title "..." --description "$(cat <<'EOF'
+:robot: AI-generated
+
+## Problem
+
+Describe the problem or motivation.
+
+## Solution/Investigation
+
+Proposed solution if known, or investigation steps if not.
+
+## Resources
+
+Optional additional links and facts.
+EOF
+)" -R OWNER/REPO
 ```
+
+- Use "## Solution" when the fix is known, "## Investigation" when it needs exploration
+- Omit "## Resources" if there are no relevant links/facts to include
 
 ## glab — Merge Requests
 

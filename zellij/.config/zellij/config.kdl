@@ -7,6 +7,26 @@ keybinds clear-defaults=true {
         bind "Ctrl y" { TogglePaneFrames; SwitchToMode "pane"; }
     }
     pane {
+// >>> task-keybinds
+        bind "t" {
+            TogglePaneFrames;
+            Run "bash" "-c" "task switch --short" {
+                floating true
+                close_on_exit true
+            };
+            SwitchToMode "normal"
+        }
+// <<< task-keybinds
+        bind "y" {
+            TogglePaneFrames;
+            Run "bash" "-c" "task switch --short" {
+                floating true
+                close_on_exit true
+            };
+            SwitchToMode "normal"
+        }
+        bind "j" { GoToPreviousTab; }
+        bind "k" { GoToNextTab; }
         bind "left" { MoveFocus "left"; }
         bind "down" { MoveFocus "down"; }
         bind "up" { MoveFocus "up"; }
@@ -32,18 +52,17 @@ keybinds clear-defaults=true {
         bind "e" { TogglePaneEmbedOrFloating; }
         bind "f" { ToggleFocusFullscreen; }
         bind "h" { MoveFocus "left"; }
-        bind "j" { MoveFocus "down"; }
-        bind "k" { MoveFocus "up"; }
         bind "l" { MoveFocus "right"; }
         bind "Ctrl h" { GoToPreviousTab; }
         bind "Ctrl l" { GoToNextTab; }
         bind "m" { SwitchToMode "move"; }
-        bind "n" { NewTab; }
+        bind "n" { NewTab; TogglePaneFrames; SwitchToMode "normal"; }
         bind "Ctrl n" { NewTab; TogglePaneFrames; SwitchToMode "normal"; }
         bind "o" { SwitchToMode "session"; }
         bind "r" { SwitchToMode "resize"; }
         bind "s" { SwitchToMode "scroll"; }
         bind "Ctrl s" { ToggleActiveSyncTab; }
+        bind "d" { Detach; }
         bind "w" { ToggleFloatingPanes; }
         bind "z" { TogglePaneFrames; }
         bind "esc" { TogglePaneFrames; SwitchToMode "normal"; }

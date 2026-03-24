@@ -6,6 +6,7 @@ SETUVAR HOMEBREW_CELLAR:/opt/homebrew/Cellar
 SETUVAR HOMEBREW_PREFIX:/opt/homebrew
 SETUVAR HOMEBREW_REPOSITORY:/opt/homebrew
 SETUVAR MAILCHECK:
+SETUVAR --export TASK_DIR:/Users/tomas/workspace/gl/work/tasks
 SETUVAR __fish_initialized:4300
 SETUVAR fish_greeting:
 SETUVAR fish_prompt_pwd_full_dirs:2
