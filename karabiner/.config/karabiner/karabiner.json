@@ -18,6 +18,57 @@
                         ]
                     },
                     {
+                        "description": "Space + jk in Ghostty → Ctrl+Shift+j/k (zellij tab switch)",
+                        "manipulators": [
+                            {
+                                "type": "basic",
+                                "from": {
+                                    "modifiers": { "optional": ["any"] },
+                                    "simultaneous": [
+                                        { "key_code": "spacebar" },
+                                        { "key_code": "j" }
+                                    ]
+                                },
+                                "parameters": { "basic.simultaneous_threshold_milliseconds": 50 },
+                                "to": [
+                                    {
+                                        "key_code": "j",
+                                        "modifiers": ["left_control", "left_shift"]
+                                    }
+                                ],
+                                "conditions": [
+                                    {
+                                        "type": "frontmost_application_if",
+                                        "bundle_identifiers": ["com.mitchellh.ghostty"]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "from": {
+                                    "modifiers": { "optional": ["any"] },
+                                    "simultaneous": [
+                                        { "key_code": "spacebar" },
+                                        { "key_code": "k" }
+                                    ]
+                                },
+                                "parameters": { "basic.simultaneous_threshold_milliseconds": 50 },
+                                "to": [
+                                    {
+                                        "key_code": "k",
+                                        "modifiers": ["left_control", "left_shift"]
+                                    }
+                                ],
+                                "conditions": [
+                                    {
+                                        "type": "frontmost_application_if",
+                                        "bundle_identifiers": ["com.mitchellh.ghostty"]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "description": "Space + jk (simultaneous) turns into cmd+shift+brackets",
                         "manipulators": [
                             {

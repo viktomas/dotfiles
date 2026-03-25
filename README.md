@@ -24,6 +24,15 @@ Edit crontab by running `./bin/edit-crontab.sh`.
 
 - [ ] replacing visually selected text by pressing `p` removes leading spaces. Fix it
 
+## Keyboard shortcuts: Tab switching
+
+Space+j / Space+k switch tabs across apps:
+
+- **In Ghostty (Zellij)**: Karabiner maps Space+j/k → Ctrl+Shift+j/k, which Zellij binds to `GoToPreviousTab`/`GoToNextTab` in normal mode (no leader key needed)
+- **Everywhere else**: Karabiner maps Space+j/k → Cmd+Shift+[ / Cmd+Shift+] (native macOS tab switching)
+
+The Ghostty-specific Karabiner rule must come **before** the generic one (rules are evaluated top-to-bottom, first match wins).
+
 ## Mac-specific setup
 
 ### Resize screenshots and add them to clipboard
