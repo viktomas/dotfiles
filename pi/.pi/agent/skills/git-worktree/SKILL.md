@@ -1,6 +1,8 @@
 ---
 name: git-worktree
 description: Git worktree and branch management using bare-repo layout. Use whenever the user mentions git worktree, creating a branch, or switching branches.
+metadata:
+  autoload-keywords: worktree, git wta, git wtu, bare repo, new branch, create branch
 ---
 
 # Git Worktree Management

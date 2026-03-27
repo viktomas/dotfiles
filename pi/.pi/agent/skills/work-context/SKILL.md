@@ -1,6 +1,8 @@
 ---
 name: work-context
 description: Context about MRs, issues, TODOs, and code reviews the user is working on. Use whenever the question could benefit from knowledge of their active work, projects, or collaborators. Use EVERY time I mention board. Use when asked to save/create a reference or look up a past reference.
+metadata:
+  autoload-keywords: issue, work context
 ---
 
 # Work Context
