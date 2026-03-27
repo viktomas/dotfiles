@@ -1,1 +1,0 @@
-/Users/tomas/workspace/gl/task/main/completions/task.fish

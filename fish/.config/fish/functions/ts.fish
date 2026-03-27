@@ -1,1 +1,0 @@
-/Users/tomas/workspace/gl/task/main/functions/ts.fish

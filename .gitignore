@@ -3,5 +3,12 @@ nvim-old/.config/nvim/undo/
 nvim-old/.config/nvim/.netrwhist
 nvim-old/.config/nvim/doc/tags
 bin/fennel-ls
+bin/task
+fish/.config/fish/completions/task.fish
+fish/.config/fish/completions/ts.fish
+fish/.config/fish/functions/task-ai.fish
+fish/.config/fish/functions/ts.fish
+pi/.pi/agent/extensions/task.ts
+pi/.pi/agent/skills/task-management/SKILL.md
 pi/.pi/agent/sessions
 karabiner/.config/karabiner/automatic_backups
