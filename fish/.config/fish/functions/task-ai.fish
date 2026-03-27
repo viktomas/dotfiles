@@ -1,1 +1,1 @@
-/Users/tomas/workspace/gl/work/task/functions/task-ai.fish
+/Users/tomas/workspace/gl/task/main/functions/task-ai.fish
