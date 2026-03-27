@@ -22,15 +22,19 @@ keybinds clear-defaults=true {
             };
             SwitchToMode "normal"
         }
-// <<< task-keybinds
         bind "y" {
             TogglePaneFrames;
             Run "bash" "-c" "task switch" {
                 floating true
                 close_on_exit true
+                x "10%"
+                y "10%"
+                width "80%"
+                height "80%"
             };
             SwitchToMode "normal"
         }
+// <<< task-keybinds
         bind "j" { GoToPreviousTab; }
         bind "k" { GoToNextTab; }
         bind "left" { MoveFocus "left"; }

@@ -1,5 +1,14 @@
 {
-  "cursorUp": ["up", "ctrl+p"],
-  "cursorDown": ["down", "ctrl+n"],
-  "deleteWordBackward": ["ctrl+w", "alt+backspace"]
+  "tui.editor.cursorUp": [
+    "up",
+    "ctrl+p"
+  ],
+  "tui.editor.cursorDown": [
+    "down",
+    "ctrl+n"
+  ],
+  "tui.editor.deleteWordBackward": [
+    "ctrl+w",
+    "alt+backspace"
+  ]
 }
