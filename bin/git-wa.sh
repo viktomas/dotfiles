@@ -24,7 +24,7 @@ if git worktree add "$@"; then
         echo "Setting up worktree at $worktree_path..."
 
         # Trust mise
-        if [ -f "$worktree_path/.tool-versions" ] || [ -d "$worktree_path/mise" ]; then
+        if [ -f "$worktree_path/.tool-versions" ] || [ -d "$worktree_path/mise" ] || [ -f "$worktree_path/mise.toml" ] || [ -f "$worktree_path/.mise.toml" ]; then
             echo "Found mise configuration, running mise trust..."
             (cd "$worktree_path" && mise trust)
         fi

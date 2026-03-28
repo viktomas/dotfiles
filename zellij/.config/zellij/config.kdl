@@ -10,7 +10,7 @@ keybinds clear-defaults=true {
     }
     pane {
 // >>> task-keybinds
-        bind "t" {
+        bind "Ctrl y" {
             TogglePaneFrames;
             Run "bash" "-c" "task switch" {
                 floating true
@@ -22,15 +22,15 @@ keybinds clear-defaults=true {
             };
             SwitchToMode "normal"
         }
-        bind "y" {
+        bind "a" {
             TogglePaneFrames;
-            Run "bash" "-c" "task switch" {
+            Run "task-ai-prompt" {
                 floating true
                 close_on_exit true
                 x "10%"
-                y "10%"
+                y "40%"
                 width "80%"
-                height "80%"
+                height "20%"
             };
             SwitchToMode "normal"
         }
