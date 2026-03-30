@@ -1,195 +1,115 @@
 -- vim.lsp.log.set_level('debug')
--- LSP
+
 vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end,
   { desc = "previous diagnostics" })
-vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, { desc = "next diagnostics" })
+vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end,
+  { desc = "next diagnostics" })
 
--- This kemap makes it possible to exit the command-window (:h cmdwin)
--- with <ESC>
-vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
+-- Exit command-window with <ESC>
+vim.api.nvim_create_autocmd("CmdwinEnter", {
   callback = function()
     vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
   end,
 })
 
-local on_attach = function(client, bufnr)
-  local function check_codelens_support()
-    local clients = vim.lsp.get_active_clients({ bufnr = 0 })
-    for _, c in ipairs(clients) do
-      if c.server_capabilities.codeLensProvider then
-        return true
-      end
-    end
-    return false
-  end
+-- Keymaps and codelens wired up on every LSP attach
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(ev)
+    local bufnr = ev.buf
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
 
-  vim.api.nvim_create_autocmd({ 'TextChanged', 'InsertLeave', 'CursorHold', 'LspAttach', 'BufEnter' }, {
-    buffer = bufnr,
-    callback = function()
-      if check_codelens_support() then
-        vim.lsp.codelens.refresh({ bufnr = 0 })
-      end
-    end
-  })
-  -- trigger codelens refresh
-  vim.api.nvim_exec_autocmds('User', { pattern = 'LspAttached' })
-
-
-  -- vim.lsp.completion.enable(true, client.id, bufnr, {
-  -- 	autotrigger = true,
-  -- 	convert = function(item)
-  -- 		return { abbr = item.label:gsub("%b()", "") }
-  -- 	end,
-  -- })
-  local fzf = require("fzf-lua")
-
-  vim.keymap.set("n", "<leader>s", fzf.lsp_document_symbols, { desc = "Open symbol picker" })
-  vim.keymap.set("n", "<leader>S", fzf.lsp_live_workspace_symbols, { desc = "Open symbol picker (workspace)" })
-  vim.keymap.set("n", "<leader>dd", fzf.diagnostics_document, { desc = "Open diagnostics picker" })
-  vim.keymap.set("n", "gD", fzf.lsp_declarations, { desc = "Declaration" })
-  vim.keymap.set("n", "gd", fzf.lsp_definitions, { desc = "Definition" })
-  vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP Hover" })
-  vim.keymap.set("n", "gi", fzf.lsp_implementations, { desc = "Implementation" })
-  vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, { desc = "Signature help" })
-  -- vim.keymap.set("i", "<C-space>", vim.lsp.completion.get, { desc = "trigger autocompletion" })
-  vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, { desc = "Type definition" })
-  vim.keymap.set({ "n", "v" }, "<leader>a", vim.lsp.buf.code_action, { desc = "Run code action" })
-  vim.keymap.set("n", "gr", fzf.lsp_references, { desc = "references" })
-  vim.keymap.set("n", "gm", vim.lsp.buf.implementation, { desc = "implementations" })
-  vim.keymap.set("n", "<leader>r", function()
-    -- when rename opens the prompt, this autocommand will trigger
-    -- it will "press" CTRL-F to enter the command-line window `:h cmdwin`
-    -- in this window I can use normal mode keybindings
-    local cmdId
-    cmdId = vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
+    -- CodeLens refresh
+    vim.api.nvim_create_autocmd({ 'TextChanged', 'InsertLeave', 'CursorHold', 'BufEnter' }, {
+      buffer = bufnr,
       callback = function()
-        local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
-        vim.api.nvim_feedkeys(key, "c", false)
-        vim.api.nvim_feedkeys("0", "n", false)
-        -- autocmd was triggered and so we can remove the ID and return true to delete the autocmd
-        cmdId = nil
-        return true
+        for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+          if c.server_capabilities.codeLensProvider then
+            vim.lsp.codelens.refresh({ bufnr = bufnr })
+            break
+          end
+        end
       end,
     })
-    vim.lsp.buf.rename()
-    -- if LPS couldn't trigger rename on the symbol, clear the autocmd
-    vim.defer_fn(function()
-      -- the cmdId is not nil only if the LSP failed to rename
-      if cmdId then
-        vim.api.nvim_del_autocmd(cmdId)
-      end
-    end, 500)
-  end, { desc = "Rename symbol" })
-end
+    vim.api.nvim_exec_autocmds('User', { pattern = 'LspAttached' })
 
--- local capabilities = require("cmp_nvim_lsp").default_capabilities()
--- local capabilities = require("blink.cmp").get_lsp_capabilities()
+    local fzf = require("fzf-lua")
+    local map = function(mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+    end
 
-local lspconfig = require("lspconfig")
-lspconfig["gopls"].setup({
-  -- capabilities = capabilities,
-  on_attach = on_attach,
+    map("n", "<leader>s",  fzf.lsp_document_symbols,      "Open symbol picker")
+    map("n", "<leader>S",  fzf.lsp_live_workspace_symbols, "Open symbol picker (workspace)")
+    map("n", "<leader>dd", fzf.diagnostics_document,       "Open diagnostics picker")
+    map("n", "gD",         fzf.lsp_declarations,           "Declaration")
+    map("n", "gd",         fzf.lsp_definitions,            "Definition")
+    map("n", "K",          vim.lsp.buf.hover,              "LSP Hover")
+    map("n", "gi",         fzf.lsp_implementations,        "Implementation")
+    map("i", "<C-h>",      vim.lsp.buf.signature_help,     "Signature help")
+    map("n", "gy",         vim.lsp.buf.type_definition,    "Type definition")
+    map({ "n", "v" }, "<leader>a", vim.lsp.buf.code_action, "Run code action")
+    map("n", "gr",         fzf.lsp_references,             "references")
+    map("n", "gm",         vim.lsp.buf.implementation,     "implementations")
+    map("n", "<leader>r", function()
+      -- when rename opens the prompt, press CTRL-F to enter the cmdwin
+      -- so normal mode keybindings work there
+      local cmdId
+      cmdId = vim.api.nvim_create_autocmd("CmdlineEnter", {
+        callback = function()
+          local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
+          vim.api.nvim_feedkeys(key, "c", false)
+          vim.api.nvim_feedkeys("0", "n", false)
+          cmdId = nil
+          return true
+        end,
+      })
+      vim.lsp.buf.rename()
+      vim.defer_fn(function()
+        if cmdId then vim.api.nvim_del_autocmd(cmdId) end
+      end, 500)
+    end, "Rename symbol")
+
+    -- ts_ls: buffer-local OrganizeImports command
+    if client and client.name == 'ts_ls' then
+      vim.api.nvim_buf_create_user_command(bufnr, 'OrganizeImports', function()
+        vim.lsp.buf.execute_command({
+          command = '_typescript.organizeImports',
+          arguments = { vim.api.nvim_buf_get_name(0) },
+        })
+      end, {})
+    end
+  end,
+})
+
+-- ── Server configurations ────────────────────────────────────────────────────
+-- nvim-lspconfig ships default configs; vim.lsp.config merges overrides on top.
+
+vim.lsp.config('gopls', {
   settings = {
     gopls = {
-      symbolScope = "workspace",
-    }, -- when I search for symbols, I don't want to see dependencies
+      symbolScope = "workspace", -- don't surface symbols from dependencies
+    },
   },
 })
-lspconfig["ts_ls"].setup({
-  -- capabilities = capabilities,
-  on_attach = function(client, bufnr)
-    on_attach(client, bufnr)
-    -- let TS LS organise the imports
-    vim.api.nvim_create_user_command('OrganizeImports', function()
-      local params = {
-        command = '_typescript.organizeImports',
-        arguments = { vim.api.nvim_buf_get_name(0) },
-      }
-      vim.lsp.buf.execute_command(params)
-    end, {})
-  end
-})
-lspconfig["fennel_ls"].setup({
-  -- capabilities = capabilities,
-  on_attach = on_attach,
-})
--- lspconfig["harper_ls"].setup({
--- 	settings = {
--- 		["harper-ls"] = {
--- 			linters = {
--- 				SentenceCapitalization = false,
--- 				-- SpellCheck = false,
--- 			},
--- 		},
--- 	},
--- })
-lspconfig["lua_ls"].setup({
-  -- capabilities = capabilities,
-  on_attach = on_attach,
+
+vim.lsp.config('lua_ls', {
   settings = {
     Lua = {
-      runtime = {
-        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-        version = "LuaJIT",
-      },
-      diagnostics = {
-        -- Get the language server to recognize the `vim` global
-        globals = { "vim" },
-      },
+      runtime   = { version = "LuaJIT" },
+      diagnostics = { globals = { "vim" } },
       workspace = {
-        -- Make the server aware of Neovim runtime files
         library = vim.api.nvim_get_runtime_file("", true),
-        checkThirdParty = false, -- this line disables messages about adding libraries to work environment
+        checkThirdParty = false,
       },
-      -- Do not send telemetry data containing a randomized but unique identifier
-      telemetry = {
-        enable = false,
-      },
+      telemetry = { enable = false },
     },
   },
 })
 
-
--- lspconfig.markdown_oxide.setup({
---   -- cmd = { vim.fn.expand('~/workspace/tmp/oxide-vim-config/markdown-oxide/target/release/markdown-oxide') }, -- can be removed after https://github.com/Feel-ix-343/markdown-oxide/issues/278 is fixed
---   on_attach = function(client, bufnr)
---     on_attach(client, bufnr)
---
---     -- daily note command
---     vim.api.nvim_create_user_command(
---       "Daily",
---       function(args)
---         local input = args.args
---
---         vim.lsp.buf.execute_command({ command = "jump", arguments = { input } })
---       end,
---       { desc = 'Open daily note', nargs = "*" }
---     )
---     vim.api.nvim_create_user_command(
---       "Today",
---       function() vim.lsp.buf.execute_command({ command = "jump", arguments = { "today" } }) end,
---       { desc = 'Open today note', nargs = "*" }
---     )
---   end,
--- })
---
--- Define gowl LSP server
-local configs = require "lspconfig.configs"
-if not configs.gowl then
-  configs.gowl = {
-    default_config = {
-      cmd = { vim.fn.expand('~/private/gowl/gowl') },
-      filetypes = { 'markdown' },
-      root_dir = lspconfig.util.root_pattern('.git'),
-      settings = {},
-    },
-    docs = {
-      description = 'Language server for wiki-style links in Markdown files',
-    },
-  }
-end
-
--- Setup gowl for markdown files
-lspconfig.gowl.setup({
-  on_attach = on_attach
+-- Custom gowl server (not in nvim-lspconfig — full config required)
+vim.lsp.config('gowl', {
+  cmd          = { vim.fn.expand('~/private/gowl/gowl') },
+  filetypes    = { 'markdown' },
+  root_markers = { '.git' },
 })
+
+vim.lsp.enable({ 'gopls', 'ts_ls', 'fennel_ls', 'lua_ls', 'gowl' })
