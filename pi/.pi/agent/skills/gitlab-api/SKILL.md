@@ -211,3 +211,11 @@ Projects with merge trains: `gitlab-org/cli` (34675721), `gitlab-org/editor-exte
 ## API Documentation
 
 For exploring GitLab API endpoints and parameters, check the local GDK docs at `/Users/tomas/workspace/gl/gdk/gitlab/doc/api/`. These are the source `.md` files for the official GitLab API docs.
+
+## References
+
+Detailed docs for niche APIs live in `references/` next to this file. Read them when the topic comes up.
+
+| File | Topic |
+|------|-------|
+| `references/duo-workflows-api.md` | Duo Workflows checkpoint API — creating workflows, posting checkpoints, `ui_chat_log` shape, direct-access tokens |

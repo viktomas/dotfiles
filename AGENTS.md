@@ -15,3 +15,13 @@ Examples:
 - `claude/.claude/settings.json` → `~/.claude/settings.json`
 
 To add a new package: create a directory named after the tool, place files inside it mirroring their path relative to `~`, then add `stow <name>` to `install.sh`.
+
+## Karabiner-Elements
+
+Home row mods (HRM) are configured via `karabiner/.config/karabiner/generate-hrm.js`. This script generates Karabiner complex modification rules based on [gregorias's approach](https://gregorias.github.io/posts/home-row-mods-karabiner-elements/) and writes them into `karabiner.json`.
+
+Run `node ~/.config/karabiner/generate-hrm.js --apply` to regenerate and apply. Running without `--apply` prints the rules to stdout.
+
+Mappings: `a`=alt, `s`=cmd, `d`=shift, `f`=ctrl | `j`=ctrl, `k`=shift, `l`=cmd, `;`=alt
+
+**Do not edit HRM rules in `karabiner.json` directly** — they are overwritten by the script. Edit `generate-hrm.js` instead.

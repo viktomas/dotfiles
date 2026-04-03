@@ -112,6 +112,10 @@ curl -s --request POST \
 
 The `start_workflow: true` flag makes Rails also create a CI workload (job) that will run the CLI.
 
+**Gotcha**: When running the CLI locally, use `start_workflow: false`. Using `start_workflow: true` triggers a CI job that tries to acquire the runner lock. If the runner is already busy or you then run the CLI locally too, you get **error 1013** (runner lock conflict). Set `start_workflow: false` to create the workflow without spawning a CI job, then run the CLI manually.
+
+**Gotcha**: The `developer/experimental` flow uses an `issue_parser` entry point. The `goal` must be a **GitLab issue URL** (e.g. `http://gdk.test:8080/gitlab-duo/test/-/issues/1`), not a plain text string — otherwise the flow fails to parse the goal.
+
 ## Running CLI Locally Against a Workflow
 
 Instead of waiting for the CI job, you can run the CLI directly:
@@ -272,9 +276,11 @@ RUBY
 The `developer/experimental` flow definition on DWS branch `ss/spike-hitl` includes a `human_input` node. When the agent reaches plan creation, the workflow transitions to `INPUT_REQUIRED` status and the WebSocket stream ends cleanly.
 
 Key observations:
-- The DWS sends `workflowStatus: "INPUT_REQUIRED"` in a checkpoint event
-- The released CLI (v8.77.0) treats stream-end as success (exit 0)
-- Elwyn's branch adds detection: if an `approval_request` tool event is seen → exit code 75
+- The DWS sends `workflowStatus: "INPUT_REQUIRED"` in the final checkpoint event before closing the stream
+- The CLI detects this via a `StreamEnd` event that carries the `workflowStatus` — `INPUT_REQUIRED` maps to `AgentStatus.InputRequired` → **exit code 75**
+- Resume with `--existing-session-id <id> --approval true/false [--rejection-reason "..."]` — no `--goal` needed
+- On the spike branch DWS re-pauses after every interaction (both approve and reject), so all resume runs also exit 75
+- The `developer/experimental` flow requires goal to be an issue URL (see "Creating a Workflow" gotchas above)
 
 ## Policy Chain for `create_duo_workflow_for_ci`
 

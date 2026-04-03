@@ -35,7 +35,7 @@ After alias is restored (agent can do this): `gdk restart gitlab-workhorse sshd`
 ## Admin Credentials
 
 - **Username**: `root`
-- **Password**: `5iveL!fe`
+- **Password**: `stromek23`
 
 ## Configuration
 
@@ -151,6 +151,24 @@ docker start gitlab-runner-hitl           # Start existing runner container
 docker logs -f gitlab-runner-hitl         # Watch runner pick up jobs
 ```
 
+## SaaS Simulation Mode
+
+The file `/Users/tomas/workspace/gl/gdk/env.runit` contains environment variables for all GDK runit services (rails-web, sidekiq, etc.). Key variable:
+
+```
+export GITLAB_SIMULATE_SAAS=1   # Web process acts as GitLab.com (SaaS)
+export GITLAB_SIMULATE_SAAS=0   # Web process acts as self-managed
+```
+
+**This only affects web processes** — `gdk rails console` doesn't load `env.runit`, so `Gitlab.com?` and `Gitlab::Saas.feature_available?` return different values in console vs web. Always verify behavior through actual HTTP requests, not just the console.
+
+When `GITLAB_SIMULATE_SAAS=1`:
+- Controllers marked `# EE:Self Managed` (e.g. admin Duo settings at `/admin/gitlab_duo/*`) return 404
+- SaaS-only features become available
+- License behavior changes (Cloud Connector, CustomersDot integration)
+
+Toggle it by editing `env.runit` and restarting rails: `gdk restart rails-web rails-background-jobs`
+
 ## Troubleshooting
 
 1. **Services won't bind** → Missing loopback alias (see Network Setup above)
@@ -160,6 +178,7 @@ docker logs -f gitlab-runner-hitl         # Watch runner pick up jobs
 5. **Config changes not taking effect** → `gdk reconfigure` after editing `gdk.yml`
 6. **WebSocket 403 on duo workflows** → Workhorse origin check. See [resources/duo-workflows.md](resources/duo-workflows.md) "WebSocket Origin Gotcha"
 7. **Vite asset errors in DWS flows** → Start vite: `fish -c 'cd /Users/tomas/workspace/gl/gdk && gdk start vite'`
+8. **Admin pages return 404 but console says settings exist** → Check `GITLAB_SIMULATE_SAAS` in `env.runit`. Many admin pages (Duo settings, self-managed features) are gated by `!Gitlab::Saas.feature_available?(:gitlab_com_subscriptions)` and will 404 when SaaS mode is on. Console doesn't load `env.runit` so it won't reproduce the issue.
 
 ## GitLab Source
 
