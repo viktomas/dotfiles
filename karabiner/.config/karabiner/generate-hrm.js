@@ -143,8 +143,8 @@ function generateHRMRules() {
 // Parameters to set
 const HRM_PARAMETERS = {
   "basic.to_if_alone_timeout_milliseconds": 400,
-  "basic.to_if_held_down_threshold_milliseconds": 110,
-  "basic.simultaneous_threshold_milliseconds": 90,
+  "basic.to_if_held_down_threshold_milliseconds": 300,
+  "basic.simultaneous_threshold_milliseconds": 50,
 };
 
 const RULE_PREFIX = "HRM ";
