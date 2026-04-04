@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // Generate Home Row Mods for Karabiner-Elements
-// Based on: https://gregorias.github.io/posts/home-row-mods-karabiner-elements/
 //
 // Usage: node generate-hrm.js [--apply]
 //
 // Mappings:
 //   Left hand:  a=alt, s=cmd, d=shift, f=ctrl
 //   Right hand: j=ctrl, k=shift, l=cmd, ;=alt
+//
+// Multi-modifier: hold first key until modifier activates, then hold second key.
+// See karabiner.md for detailed explanation.
 
 const fs = require("fs");
 const path = require("path");
@@ -31,8 +33,6 @@ const RIGHT_MODS = [
   { key: "semicolon", modifier: "right_option", label: "option" },
 ];
 
-const ALL_MODS = [...LEFT_MODS, ...RIGHT_MODS];
-
 // For display in key_code (semicolon needs special handling)
 function keyDisplay(key) {
   return key === "semicolon" ? ";" : key;
@@ -55,65 +55,10 @@ function singleKeyManipulator(entry) {
   };
 }
 
-// Generate simultaneous pair manipulators (for two home row keys pressed together)
-function simultaneousPairManipulators(a, b) {
-  const manipulators = [];
-
-  // Both orders: a→b and b→a
-  for (const [first, second] of [
-    [a, b],
-    [b, a],
-  ]) {
-    // Determine combined modifiers
-    // One key is the base, the other goes in modifiers array
-    const heldDown = { halt: true, key_code: first.modifier };
-    // Add the second modifier
-    heldDown.modifiers = [second.modifier];
-
-    manipulators.push({
-      type: "basic",
-      from: {
-        modifiers: { optional: ["any"] },
-        simultaneous: [
-          { key_code: first.key },
-          { key_code: second.key },
-        ],
-        simultaneous_options: { key_down_order: "strict" },
-      },
-      to_if_alone: [
-        { halt: true, key_code: first.key },
-        { key_code: second.key },
-      ],
-      to_if_held_down: [heldDown],
-      to_delayed_action: {
-        to_if_canceled: [
-          { key_code: first.key },
-          { key_code: second.key },
-        ],
-        to_if_invoked: [{ key_code: "vk_none" }],
-      },
-    });
-  }
-
-  return manipulators;
-}
-
-// Generate all pair combinations within a hand
-function generatePairsForHand(mods) {
-  const manipulators = [];
-  for (let i = 0; i < mods.length; i++) {
-    for (let j = i + 1; j < mods.length; j++) {
-      manipulators.push(...simultaneousPairManipulators(mods[i], mods[j]));
-    }
-  }
-  return manipulators;
-}
-
 // Build the complete rule
 function generateHRMRules() {
   const rules = [];
 
-  // One rule per hand for simultaneous combos + single keys
   for (const [hand, mods] of [
     ["left", LEFT_MODS],
     ["right", RIGHT_MODS],
@@ -121,15 +66,7 @@ function generateHRMRules() {
     const keys = mods.map((m) => keyDisplay(m.key)).join(",");
     const modLabels = mods.map((m) => m.label).join(",");
 
-    const manipulators = [];
-
-    // Simultaneous pairs first (they must come before single-key rules)
-    manipulators.push(...generatePairsForHand(mods));
-
-    // Single key manipulators
-    for (const entry of mods) {
-      manipulators.push(singleKeyManipulator(entry));
-    }
+    const manipulators = mods.map((entry) => singleKeyManipulator(entry));
 
     rules.push({
       description: `HRM ${hand} (${keys}) - ${modLabels}`,
@@ -143,7 +80,7 @@ function generateHRMRules() {
 // Parameters to set
 const HRM_PARAMETERS = {
   "basic.to_if_alone_timeout_milliseconds": 400,
-  "basic.to_if_held_down_threshold_milliseconds": 300,
+  "basic.to_if_held_down_threshold_milliseconds": 150,
   "basic.simultaneous_threshold_milliseconds": 50,
 };
 
@@ -173,10 +110,6 @@ function applyToConfig() {
   profile.complex_modifications.rules.push(...hrmRules);
 
   // Set parameters
-  Object.assign(
-    profile.complex_modifications.parameters || {},
-    HRM_PARAMETERS
-  );
   profile.complex_modifications.parameters = {
     ...profile.complex_modifications.parameters,
     ...HRM_PARAMETERS,
