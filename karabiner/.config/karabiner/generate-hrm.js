@@ -57,12 +57,12 @@ const LAYER_LEFT = [
   { from: "e", to: plain("open_bracket") },
   { from: "r", to: plain("close_bracket") },
   { from: "t", to: shift("backslash") },
-  // Home row:   #        $        (                )
-  // (g is layer trigger — backtick position unreachable)
+  // Home row:   #        $        (                )                `
   { from: "a", to: shift("3") },
   { from: "s", to: shift("4") },
   { from: "d", to: shift("9") },
   { from: "f", to: shift("0") },
+  { from: "g", to: plain("grave_accent_and_tilde") },
   // Bottom row: %        ^        {                }                ~
   { from: "z", to: shift("5") },
   { from: "x", to: shift("6") },
@@ -79,7 +79,8 @@ const LAYER_RIGHT = [
   { from: "i", to: plain("8") },
   { from: "o", to: plain("9") },
   { from: "p", to: shift("8") },
-  // Home row:   ↓(unreachable—h is trigger)  4  5  6  +
+  // Home row:   ↓        4        5        6        +
+  { from: "h", to: plain("down_arrow") },
   { from: "j", to: plain("4") },
   { from: "k", to: plain("5") },
   { from: "l", to: plain("6") },
