@@ -554,7 +554,10 @@
                 },
                 "to": [
                   {
-                    "key_code": "up_arrow"
+                    "key_code": "hyphen",
+                    "modifiers": [
+                      "left_shift"
+                    ]
                   }
                 ]
               },
@@ -652,7 +655,7 @@
                 },
                 "to": [
                   {
-                    "key_code": "down_arrow"
+                    "key_code": "hyphen"
                   }
                 ]
               },

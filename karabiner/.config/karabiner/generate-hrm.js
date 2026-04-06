@@ -73,14 +73,14 @@ const LAYER_LEFT = [
 
 // Right hand
 const LAYER_RIGHT = [
-  // Top row:    ↑        7        8        9        *
-  { from: "y", to: plain("up_arrow") },
+  // Top row:    _        7        8        9        *
+  { from: "y", to: shift("hyphen") },
   { from: "u", to: plain("7") },
   { from: "i", to: plain("8") },
   { from: "o", to: plain("9") },
   { from: "p", to: shift("8") },
-  // Home row:   ↓        4        5        6        +
-  { from: "h", to: plain("down_arrow") },
+  // Home row:   -        4        5        6        +
+  { from: "h", to: plain("hyphen") },
   { from: "j", to: plain("4") },
   { from: "k", to: plain("5") },
   { from: "l", to: plain("6") },
