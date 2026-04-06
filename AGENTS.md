@@ -18,10 +18,11 @@ To add a new package: create a directory named after the tool, place files insid
 
 ## Karabiner-Elements
 
-Home row mods (HRM) are configured via `karabiner/.config/karabiner/generate-hrm.js`. This script generates Karabiner complex modification rules based on [gregorias's approach](https://gregorias.github.io/posts/home-row-mods-karabiner-elements/) and writes them into `karabiner.json`.
+Home row mods (HRM) and symbol layer are configured via `karabiner/.config/karabiner/generate-hrm.js`. This script generates Karabiner complex modification rules based on [gregorias's approach](https://gregorias.github.io/posts/home-row-mods-karabiner-elements/) and writes them into `karabiner.json`.
 
 Run `node ~/.config/karabiner/generate-hrm.js --apply` to regenerate and apply. Running without `--apply` prints the rules to stdout.
 
-Mappings: `a`=alt, `s`=cmd, `d`=shift, `f`=ctrl | `j`=ctrl, `k`=shift, `l`=cmd, `;`=alt
+HRM: `a`=alt, `s`=cmd, `d`=shift, `f`=ctrl | `j`=ctrl, `k`=shift, `l`=cmd, `;`=alt
+Symbol layer: hold `g` or `h` to activate (symbols left, numpad right). See `karabiner.md` for full layout.
 
 **Do not edit HRM rules in `karabiner.json` directly** — they are overwritten by the script. Edit `generate-hrm.js` instead.
