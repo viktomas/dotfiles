@@ -8,6 +8,8 @@ license: Stolen from Mario
 
 Minimal CDP tools for collaborative site exploration.
 
+DON'T USE THIS FOR GITLAB.COM, use the gitlab-api skill.
+
 ## Start Chrome
 
 ```bash

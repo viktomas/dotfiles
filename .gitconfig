@@ -17,8 +17,8 @@
   ci = commit --verbose
   cid = !git commit -m "$(date +%Y-%m-%dT%H:%M:%S)"
   co = checkout
-  di = diff
-  dc = diff --cached
+  di =  -c diff.external=difft diff
+  dc = -c diff.external=difft diff --cached
   amend = commit --amend
   pushf = push --force-with-lease
   ds = diff --stat=160,120
