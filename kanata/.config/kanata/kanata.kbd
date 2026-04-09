@@ -1,6 +1,94 @@
 (defcfg
   process-unmapped-keys yes
+  concurrent-tap-hold yes
 )
 
-(defsrc caps)
-(deflayer base a)
+(defsrc
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft      up
+  fn   lctl lalt lmet           spc            rmet ralt     left down rght
+)
+
+(defvar
+  tap-time  200
+  hold-time 150
+
+  left-hand-keys (
+    q w e r t
+    a s d f g
+    z x c v b
+  )
+  right-hand-keys (
+    y u i o p
+    h j k l ;
+    n m , . /
+  )
+)
+
+;; ── Layers ─────────────────────────────────────────────────────
+
+(deflayer base
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  esc  @a   @s   @d   @f   @g   @h   @j   @k   @l   @;   '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    @rs       up
+  fn   lctl lalt lmet           spc            rmet ralt     left down rght
+)
+
+(deflayer nomods
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  esc  a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft      up
+  fn   lctl lalt lmet           spc            rmet ralt     left down rght
+)
+
+;; Symbol layer: hold g or h to activate
+(deflayer sym
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    S-1  S-2  [    ]    S-\  S--  7    8    9    S-8  _    _    _
+  _    S-3  S-4  S-9  S-0  grv  -    4    5    6    S-=  _    _
+  _    S-5  S-6  S-[  S-]  S-grv S-7 1    2    3    /    _         _
+  _    _    _    _              _              _    _         _  _  _
+)
+
+;; ── Typing streak suppression ──────────────────────────────────
+;; After a tap, switch to nomods to prevent accidental modifier
+;; activation during fast typing. Return to base after 20ms idle.
+
+(deffakekeys
+  to-base (layer-switch base)
+)
+
+(defalias
+  tap (multi
+    (layer-switch nomods)
+    (on-idle-fakekey to-base tap 20)
+  )
+
+  ;; Home row mods — left hand
+  a (tap-hold-release-keys $tap-time $hold-time (multi a @tap) lalt $left-hand-keys)
+  s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lmet $left-hand-keys)
+  d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lsft $left-hand-keys)
+  f (tap-hold-release-keys $tap-time $hold-time (multi f @tap) lctl $left-hand-keys)
+
+  ;; Home row mods — right hand
+  j (tap-hold-release-keys $tap-time $hold-time (multi j @tap) rctl $right-hand-keys)
+  k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) rsft $right-hand-keys)
+  l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) rmet $right-hand-keys)
+  ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) ralt $right-hand-keys)
+
+  ;; Symbol layer triggers — same bilateral tap-hold, hold activates layer
+  g (tap-hold-release-keys $tap-time $hold-time (multi g @tap) (layer-while-held sym) $left-hand-keys)
+  h (tap-hold-release-keys $tap-time $hold-time (multi h @tap) (layer-while-held sym) $right-hand-keys)
+
+  ;; Right Shift: tap → Ctrl+Y (zellij pane mode), hold → Shift
+  rs (tap-hold 200 200 C-y rsft)
+
+)
