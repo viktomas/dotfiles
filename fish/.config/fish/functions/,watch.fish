@@ -47,8 +47,7 @@ function ,watch
 }" >$layout_file
 
     # Start Zellij session
-    set session_name "worktree-watch-"(date +%s)
-    zellij --new-session-with-layout $layout_file --session $session_name
+    zellij --new-session-with-layout $layout_file
 
     # Clean up
     rm -f $layout_file

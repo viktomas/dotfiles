@@ -25,6 +25,7 @@ stow helix
 stow yamlfmt
 stow zellij
 stow karabiner
+stow kanata
 stow pi
 stow claude
 

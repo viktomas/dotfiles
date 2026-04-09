@@ -1,5 +1,37 @@
 # Karabiner Home Row Mods & Symbol Layer — Investigation Notes
 
+## Installation State
+
+Karabiner-Elements was **fully uninstalled** (2026-04-09) to make way for Kanata.
+Only the DriverKit VirtualHIDDevice driver was kept — Kanata depends on it.
+
+### What was removed
+
+1. Killed user processes: `Karabiner-Elements`, `Karabiner-EventViewer`, `Karabiner-Menu`, `Karabiner-NotificationWindow`, `karabiner_console_user_server`
+2. Killed root processes: `Karabiner-Core-Service`, `karabiner_session_monitor`
+3. Removed launchd services (dynamically registered, no plist files):
+   - `launchctl remove org.pqrs.service.agent.Karabiner-Menu`
+   - `launchctl remove org.pqrs.service.agent.Karabiner-NotificationWindow`
+   - `launchctl remove org.pqrs.service.agent.karabiner_console_user_server`
+   - `launchctl remove org.pqrs.service.agent.Karabiner-Core-Service`
+   - `sudo launchctl remove org.pqrs.service.agent.karabiner_session_monitor`
+4. Removed apps: `sudo rm -rf /Applications/Karabiner-Elements.app /Applications/Karabiner-EventViewer.app`
+5. Removed app support: `sudo rm -rf '/Library/Application Support/org.pqrs/Karabiner-Elements'`
+6. Unstowed config: `cd ~/.dotfiles && stow -D karabiner`
+7. Removed Homebrew record: `rm -rf "$(brew --prefix)/Caskroom/karabiner-elements"`
+   - **Do NOT use `brew uninstall --cask karabiner-elements`** — it runs the DriverKit `remove_files.sh` script which deletes the driver that Kanata needs.
+
+### What was kept (Kanata depends on these)
+
+- `/Applications/.Karabiner-VirtualHIDDevice-Manager.app` (hidden app, note the dot)
+- `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/`
+- System extension `org.pqrs.Karabiner-DriverKit-VirtualHIDDevice` [activated enabled]
+
+### Config source
+
+Preserved at `~/.dotfiles/karabiner/.config/karabiner/` (unstowed, not deleted).
+To re-stow if needed: `cd ~/.dotfiles && stow karabiner`
+
 ## Setup
 
 Home row mods (HRM) map home row keys to modifiers when held:

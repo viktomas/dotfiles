@@ -10,6 +10,7 @@
                 "rules": [
                     {
                         "description": "Change capslock to left_ctrl. (Post escape if pressed alone)",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
@@ -137,6 +138,7 @@
                     },
                     {
                         "description": "SYM layer left (!@[]| #$()` %^{}~)",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
@@ -367,6 +369,7 @@
                     },
                     {
                         "description": "SYM layer right (↑789* ↓456+ &123/ 0)",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
@@ -557,6 +560,7 @@
                     },
                     {
                         "description": "SYM layer triggers (g,h)",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
@@ -608,6 +612,7 @@
                     },
                     {
                         "description": "HRM left (a,s,d,f) - option,command,shift,control",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
@@ -705,6 +710,7 @@
                     },
                     {
                         "description": "HRM right (j,k,l,;) - control,shift,command,option",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
@@ -809,10 +815,6 @@
                         {
                             "from": { "key_code": "caps_lock" },
                             "to": [{ "key_code": "escape" }]
-                        },
-                        {
-                            "from": { "key_code": "left_control" },
-                            "to": [{ "key_code": "vk_none" }]
                         }
                     ]
                 },
