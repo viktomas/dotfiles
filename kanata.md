@@ -157,6 +157,21 @@ LEFT HAND                          RIGHT HAND
   z=%    x=^    c={    v=}    b=~    n=&    m=1    ,=2    .=3    /=/
 ```
 
+**Media key row** (F1–F12 mapped to macOS media actions):
+
+Kanata intercepts the keyboard HID device, so macOS's default media key behavior (brightness, volume, etc.) is lost. The config explicitly maps F1–F12 to their media equivalents:
+
+| Key | Action | Key | Action |
+|-----|--------|-----|--------|
+| F1 | `brdn` (Brightness Down) | F7 | `prev` (Previous Track) |
+| F2 | `brup` (Brightness Up) | F8 | `pp` (Play/Pause) |
+| F3 | `_` (passthrough) | F9 | `next` (Next Track) |
+| F4 | `_` (passthrough) | F10 | `mute` |
+| F5 | `bldn` (Kbd Backlight Down) | F11 | `vold` (Volume Down) |
+| F6 | `blup` (Kbd Backlight Up) | F12 | `volu` (Volume Up) |
+
+F3 and F4 are passthrough (`_`) — Mission Control and Spotlight are macOS system shortcuts that fire on the F3/F4 keycodes directly.
+
 **Extra rules**:
 | Rule | Implementation |
 |------|---------------|
