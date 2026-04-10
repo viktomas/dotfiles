@@ -122,8 +122,9 @@ All HRM and layer-trigger keys use `tap-hold-opposite-hand-release` with `defhan
    - **Same hand** (e.g., `d`, `g`) → `(same-hand tap)` → immediately resolve `f` as tap. No misfire possible.
    - **Opposite hand** (e.g., `j`) → wait for `j` to be **released** (press+release). Once `j↑` arrives, resolve `f` as hold (Ctrl). Buffered `j` is output as `Ctrl+j`.
    - **Neutral key** (space, tab, ret) → `(neutral ignore)` → skip, wait for the next key or timeout.
-   - **Unknown key** (not in `defhands`) → `(unknown-hand ignore)` → skip, wait.
 4. If 500ms pass with no qualifying key → `(timeout tap)` → output `f` as tap. This is a safety net, not the normal path.
+
+**Important:** Every key that should trigger hold resolution must be in `defhands`. The number row (`1-0`), symbols (`- = [ ] \ '`), and grave are all assigned — left hand gets `grv 1 2 3 4 5`, right hand gets `6 7 8 9 0 - = [ ] \ '`. Without this, combos like `cmd+1` (hold `l`, tap `1`) wouldn't work because unassigned keys can't resolve the tap-hold.
 
 **Why `-release` matters:** Without it (`tap-hold-opposite-hand`), hold triggers the moment an opposite-hand key is *pressed*. With `-release`, it waits for press+release. This prevents misfires on fast cross-hand overlaps like `f↓ j↓ f↑ j↑` where you release `f` before `j` — should be `fj`, not `Ctrl+j`.
 
