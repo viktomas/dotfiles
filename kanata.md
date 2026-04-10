@@ -1,8 +1,11 @@
 # Kanata — Installation & Migration from Karabiner
 
+- kanata live in /Users/tomas/workspace/tmp/kanata, if not, clone it there from git@github.com:jtroo/kanata.git
+- hrm app lives in  /Users/tomas/workspace/tmp/hrm, if not, clone it there from git@github.com:wontaeyang/hrm.git
+
 ## Why Kanata
 
-Karabiner-Elements can't implement timeless home row mods (see `karabiner.md` for the full analysis). Kanata provides `tap-hold-release-keys` which resolves hold on opposite-hand key release — the missing primitive. It uses the same Karabiner DriverKit virtual keyboard driver under the hood.
+Karabiner-Elements can't implement timeless home row mods (see `karabiner.md` for the full analysis). Kanata provides `tap-hold-opposite-hand-release` — bilateral filtering via `defhands` with release-based resolution, the closest match to the HRM app's timeless behavior. It uses the same Karabiner DriverKit virtual keyboard driver under the hood.
 
 ## Prerequisites
 
@@ -107,9 +110,28 @@ Force-quit kanata (physical keys, before remapping): `lctl+spc+esc`
 
 Config file: `kanata/.config/kanata/kanata.kbd` (stowed to `~/.config/kanata/kanata.kbd`).
 
+### How it works
+
+All HRM and layer-trigger keys use `tap-hold-opposite-hand-release` with `defhands` bilateral filtering. This is the closest Kanata gets to the HRM Swift app's timeless tap-hold behavior.
+
+**Decision flow for an HRM key (e.g., `f` → Ctrl):**
+
+1. You press `f`. Kanata checks `require-prior-idle` (150ms global): if another key was pressed within 150ms, immediately output `f` as tap — no waiting state. This handles fast typing streaks.
+2. Otherwise, `f` enters the waiting state. All subsequent keys are buffered.
+3. Another key is pressed:
+   - **Same hand** (e.g., `d`, `g`) → `(same-hand tap)` → immediately resolve `f` as tap. No misfire possible.
+   - **Opposite hand** (e.g., `j`) → wait for `j` to be **released** (press+release). Once `j↑` arrives, resolve `f` as hold (Ctrl). Buffered `j` is output as `Ctrl+j`.
+   - **Neutral key** (space, tab, ret) → `(neutral ignore)` → skip, wait for the next key or timeout.
+   - **Unknown key** (not in `defhands`) → `(unknown-hand ignore)` → skip, wait.
+4. If 500ms pass with no qualifying key → `(timeout tap)` → output `f` as tap. This is a safety net, not the normal path.
+
+**Why `-release` matters:** Without it (`tap-hold-opposite-hand`), hold triggers the moment an opposite-hand key is *pressed*. With `-release`, it waits for press+release. This prevents misfires on fast cross-hand overlaps like `f↓ j↓ f↑ j↑` where you release `f` before `j` — should be `fj`, not `Ctrl+j`.
+
+**Bug fix (PR [#2017](https://github.com/jtroo/kanata/pull/2017)):** The `-release` variant had a bug where same-hand keys that were still held (no release in the queue) were skipped entirely. A subsequent opposite-hand key with its release in the queue would then incorrectly trigger Hold. Example: `f↓ d↓ j↓ j↑` — `d` had no release yet so it was skipped, then `j`'s release triggered `f` as Hold(ctrl). The fix applies the release requirement only to opposite-hand/neutral/unknown keys; same-hand keys resolve immediately on press. This fix is in kanata `main` (commit `5e894a0`), not yet in a release — the `/usr/local/bin/kanata` binary is built from this branch.
+
 ### What's implemented
 
-**Home row mods** (8 keys, bilateral `tap-hold-release-keys`):
+**Home row mods** (8 keys, `tap-hold-opposite-hand-release` with `defhands`):
 | Key | Tap | Hold |
 |-----|-----|------|
 | `a` | a | left_option |
@@ -121,7 +143,7 @@ Config file: `kanata/.config/kanata/kanata.kbd` (stowed to `~/.config/kanata/kan
 | `l` | l | right_command |
 | `;` | ; | right_option |
 
-**Symbol layer triggers** (2 keys, same bilateral tap-hold):
+**Symbol layer triggers** (2 keys, same `tap-hold-opposite-hand-release`):
 | Key | Tap | Hold |
 |-----|-----|------|
 | `g` | g | activate sym layer |
@@ -141,7 +163,7 @@ LEFT HAND                          RIGHT HAND
 | Caps Lock → Escape | `esc` at caps position in `deflayer base` |
 | Right Shift: tap → Ctrl+Y, hold → Shift | `(tap-hold 200 200 C-y rsft)` |
 
-**Typing streak suppression**: After a tap, switches to `nomods` layer (no HRM aliases) then returns to `base` after 20ms idle via `on-idle-fakekey`.
+**Typing streak suppression**: `tap-hold-require-prior-idle 150` in `defcfg`. If any key was pressed within 150ms before an HRM key, it immediately outputs the letter — no waiting state, zero latency. This replaces the previous `nomods` layer + `on-idle-fakekey` workaround.
 
 ### What's not implemented
 
@@ -156,30 +178,43 @@ LEFT HAND                          RIGHT HAND
 
 ## Tuning timings
 
-Start with conservative values and tighten:
+| Parameter | Value | What it does |
+|-----------|-------|--------------|
+| `hold-time` | 500 | Safety-net timeout. With `(timeout tap)`, expiry outputs the letter — no accidental mods. Set high so it never interferes with real modifier use. |
+| `require-prior-idle` | 150 | If another key was pressed within 150ms before the HRM key, skip waiting entirely → instant tap. Handles fast typing streaks. |
 
-| Parameter | Start | Aggressive | What it does |
-|-----------|-------|------------|--------------|
-| `tap-time` | 200 | 150 | Max ms after press where release still counts as tap |
-| `hold-time` | 150 | 120 | Min ms before hold can activate (with `tap-hold-release-keys`, other-key-release is the main trigger, not this timer) |
+These are the only two timing parameters. The primary decision mechanism is structural (bilateral filtering + release-order), not timer-based. Adjust `require-prior-idle` down (e.g., 100ms) if mods feel sluggish during intentional use, or up (e.g., 200ms) if typing still triggers accidental mods.
 
 Use `sudo kanata --cfg ... --debug` to see event timings and tune. The Kanata simulator at https://jtroo.github.io/kanata-sim/ is also useful.
 
-Consider per-finger timings (pinkies are slower):
-```lisp
-(defvar
-  pinky-tap  250
-  pinky-hold 180
-  finger-tap 200
-  finger-hold 150
-)
-```
+## Multi-modifier combos
+
+Same-hand multi-mod combos (e.g. `f`+`d` for ctrl+shift) are **not supported** — same-hand keys resolve immediately as tap via `(same-hand tap)`. This matches the HRM app's default behavior (`holdTriggerOnRelease: false`).
+
+The HRM app has a `holdTriggerOnRelease` option (default: off) that when enabled makes same-hand keys stay undecided instead of resolving as tap. Both undecided keys then resolve as hold when an opposite-hand key completes a press+release cycle. Kanata's `tap-hold-opposite-hand-release` has no equivalent — `(same-hand tap)` is the only same-hand option.
+
+Cross-hand multi-mod combos (e.g. `s`+`j` for cmd+ctrl) work in the HRM app: pressing `s↓ j↓` then a non-mod-tap key that gets released resolves whichever mod-tap key is on the opposite hand. In practice this requires two separate trigger keys (one per hand) to resolve both mods. In kanata, cross-hand mod-tap keys pressed together would deadlock — each waits for the other's release, and self-release resolves as tap.
+
+## Compared to the HRM Swift app
+
+`tap-hold-opposite-hand-release` is ~95% of the HRM app's default behavior:
+
+| Feature | HRM app (default) | Kanata config |
+|---------|---------|---------------|
+| Bilateral filtering | ✅ per-hand key sets | ✅ `defhands` |
+| Hold on opposite-hand key release | ✅ key completes press+release cycle | ✅ `-release` variant waits for press+release |
+| Same-hand → always tap | ✅ structural (`holdTriggerOnRelease: false`) | ✅ `(same-hand tap)` structural |
+| Same-hand multi-mod combos | ⚠️ opt-in via `holdTriggerOnRelease: true` | ❌ not supported |
+| No timeout (truly timeless) | ✅ no timer, waits forever | ⚠️ 500ms timeout exists, but `(timeout tap)` makes it harmless |
+| Typing streak detection | ✅ prior-idle check | ✅ `require-prior-idle 150` |
+| Solo hold (hold key alone, no other key) | Stays undecided forever | Resolves as tap after 500ms |
+
+The only behavioral gap: holding an HRM key alone for 500ms then pressing another key. HRM app would still resolve as modifier; Kanata already resolved as tap. In practice this doesn't happen — you don't hold `f` for half a second thinking, then decide to use it as Ctrl.
 
 ## Open questions
 
-- **`tap-hold-release-order`** (urob's timeless mods) — pure release-order resolution with no timeout. Available in Kanata 1.10+. May be better than `tap-hold-release-keys` for HRM. Try both and compare feel.
-- **Chord interaction with HRM** — the Space+j/k chords involve `j` which is also an HRM key. Need to test whether `defchords` and `tap-hold-release-keys` interact cleanly, or if `j` needs to be handled differently in the chord context.
 - **Symbol layer + HRM interaction** — when symbol layer is active via `g`/`h` hold, pressing an HRM key (e.g., `a`) should output the symbol (`#`), not enter tap-hold. The `sym` deflayer maps `a` directly to `S-3`, bypassing the alias. Verify this works as expected.
+- **Chord interaction with HRM** — the Space+j/k chords involve `j` which is also an HRM key. Need to test whether `defchords` and `tap-hold-opposite-hand-release` interact cleanly.
 
 ## Reference
 

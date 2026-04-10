@@ -1,6 +1,7 @@
 (defcfg
   process-unmapped-keys yes
   concurrent-tap-hold yes
+  tap-hold-require-prior-idle 150
 )
 
 (defsrc
@@ -12,20 +13,18 @@
   fn   lctl lalt lmet           spc            rmet ralt     left down rght
 )
 
-(defvar
-  tap-time  200
-  hold-time 150
+;; ── Hand assignment for bilateral filtering ────────────────────
 
-  left-hand-keys (
-    q w e r t
-    a s d f g
-    z x c v b
-  )
-  right-hand-keys (
-    y u i o p
-    h j k l ;
-    n m , . /
-  )
+(defhands
+  (left  q w e r t a s d f g z x c v b)
+  (right y u i o p h j k l ; n m , . /))
+
+;; ── Variables ──────────────────────────────────────────────────
+
+(defvar
+  ;; Hold timeout: safety net, not the primary decision mechanism.
+  ;; With (timeout tap), expiry just outputs the letter — no accidental mods.
+  hold-time 500
 )
 
 ;; ── Layers ─────────────────────────────────────────────────────
@@ -39,15 +38,6 @@
   fn   lctl lalt lmet           spc            rmet ralt     left down rght
 )
 
-(deflayer nomods
-  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
-  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
-  esc  a    s    d    f    g    h    j    k    l    ;    '    ret
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft      up
-  fn   lctl lalt lmet           spc            rmet ralt     left down rght
-)
-
 ;; Symbol layer: hold g or h to activate
 (deflayer sym
   _    _    _    _    _    _    _    _    _    _    _    _    _
@@ -58,37 +48,50 @@
   _    _    _    _              _              _    _         _  _  _
 )
 
-;; ── Typing streak suppression ──────────────────────────────────
-;; After a tap, switch to nomods to prevent accidental modifier
-;; activation during fast typing. Return to base after 20ms idle.
-
-(deffakekeys
-  to-base (layer-switch base)
-)
+;; ── Aliases ────────────────────────────────────────────────────
 
 (defalias
-  tap (multi
-    (layer-switch nomods)
-    (on-idle-fakekey to-base tap 20)
-  )
-
   ;; Home row mods — left hand
-  a (tap-hold-release-keys $tap-time $hold-time (multi a @tap) lalt $left-hand-keys)
-  s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lmet $left-hand-keys)
-  d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lsft $left-hand-keys)
-  f (tap-hold-release-keys $tap-time $hold-time (multi f @tap) lctl $left-hand-keys)
+  ;; tap-hold-opposite-hand-release: bilateral filtering via defhands,
+  ;; resolves hold on opposite-hand key press+release (not just press).
+  ;; (same-hand tap)    — same-hand key immediately resolves as tap
+  ;; (timeout tap)      — if timeout expires with no other key, output the letter
+  ;; (neutral-keys ...) — space/tab/ret are neutral (ignored, wait for next key)
+  a (tap-hold-opposite-hand-release $hold-time a lalt
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
+  s (tap-hold-opposite-hand-release $hold-time s lmet
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
+  d (tap-hold-opposite-hand-release $hold-time d lsft
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
+  f (tap-hold-opposite-hand-release $hold-time f lctl
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
 
   ;; Home row mods — right hand
-  j (tap-hold-release-keys $tap-time $hold-time (multi j @tap) rctl $right-hand-keys)
-  k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) rsft $right-hand-keys)
-  l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) rmet $right-hand-keys)
-  ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) ralt $right-hand-keys)
+  j (tap-hold-opposite-hand-release $hold-time j rctl
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
+  k (tap-hold-opposite-hand-release $hold-time k rsft
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
+  l (tap-hold-opposite-hand-release $hold-time l rmet
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
+  ; (tap-hold-opposite-hand-release $hold-time ; ralt
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
 
-  ;; Symbol layer triggers — same bilateral tap-hold, hold activates layer
-  g (tap-hold-release-keys $tap-time $hold-time (multi g @tap) (layer-while-held sym) $left-hand-keys)
-  h (tap-hold-release-keys $tap-time $hold-time (multi h @tap) (layer-while-held sym) $right-hand-keys)
+  ;; Symbol layer triggers — same bilateral approach, hold activates layer
+  g (tap-hold-opposite-hand-release $hold-time g (layer-while-held sym)
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
+  h (tap-hold-opposite-hand-release $hold-time h (layer-while-held sym)
+    (same-hand tap) (timeout tap)
+    (neutral-keys spc tab ret) (neutral ignore))
 
   ;; Right Shift: tap → Ctrl+Y (zellij pane mode), hold → Shift
   rs (tap-hold 200 200 C-y rsft)
-
 )
