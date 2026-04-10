@@ -180,14 +180,17 @@ F3 and F4 are passthrough (`_`) — Mission Control and Spotlight are macOS syst
 
 **Typing streak suppression**: `tap-hold-require-prior-idle 150` in `defcfg`. If any key was pressed within 150ms before an HRM key, it immediately outputs the letter — no waiting state, zero latency. This replaces the previous `nomods` layer + `on-idle-fakekey` workaround.
 
+**Space+j/k chords** (tab switching via `defchordsv2`):
+| Chord | Action | Output |
+|-------|--------|--------|
+| Space+j | Previous tab | `Cmd+Shift+[` |
+| Space+k | Next tab | `Cmd+Shift+]` |
+
+`defchordsv2` processes keys **before** layer/tap-hold actions, so when `spc+j` are pressed within 50ms, the chord fires directly — the HRM tap-hold on `j`/`k` is never entered. `chords-v2-min-idle 150` in `defcfg` disables chord detection for 150ms after any non-chord keypress, preventing misfires when rolling `spc→j` during normal typing (e.g., " just").
+
+The Karabiner config had Ghostty-specific rules that sent `Ctrl+Shift+j/k` (zellij tab switch) instead of `Cmd+Shift+[/]`. Kanata has no per-app rules (`frontmost_application_if`), so Ghostty-specific behavior must be configured in Ghostty's keybinds.
+
 ### What's not implemented
-
-**Space+j/k chords** — `defchords` requires all participating keys to be bound to the chord, but `j` and `k` are already HRM aliases. These two mechanisms conflict. Options:
-1. Move tab switching to a dedicated key combo (e.g., use symbol layer: hold `g` + press a key)
-2. Use `fork` or `switch` to route `j`/`k` differently when space is held
-3. Accept the limitation and use Cmd+Shift+[ / Cmd+Shift+] directly
-
-**Per-app rules** — Kanata has no `frontmost_application_if`. Ghostty-specific Space+j/k rules must move to Ghostty's keybind config.
 
 **right_command → 0 in symbol layer** — Modifier keys behave differently in macOS (flagsChanged vs keyDown). Test whether placing `0` at the `rmet` position in the `sym` layer works.
 
@@ -197,8 +200,10 @@ F3 and F4 are passthrough (`_`) — Mission Control and Spotlight are macOS syst
 |-----------|-------|--------------|
 | `hold-time` | 500 | Safety-net timeout. With `(timeout tap)`, expiry outputs the letter — no accidental mods. Set high so it never interferes with real modifier use. |
 | `require-prior-idle` | 150 | If another key was pressed within 150ms before the HRM key, skip waiting entirely → instant tap. Handles fast typing streaks. |
+| `chords-v2-min-idle` | 150 | After any non-chord keypress, chord detection is disabled for this duration. Prevents misfires during fast typing rolls. |
+| chord timeout | 50 | Time window (per chord) within which both keys must be pressed for the chord to fire. |
 
-These are the only two timing parameters. The primary decision mechanism is structural (bilateral filtering + release-order), not timer-based. Adjust `require-prior-idle` down (e.g., 100ms) if mods feel sluggish during intentional use, or up (e.g., 200ms) if typing still triggers accidental mods.
+The primary decision mechanism is structural (bilateral filtering + release-order), not timer-based. Adjust `require-prior-idle` down (e.g., 100ms) if mods feel sluggish during intentional use, or up (e.g., 200ms) if typing still triggers accidental mods.
 
 Use `sudo kanata --cfg ... --debug` to see event timings and tune. The Kanata simulator at https://jtroo.github.io/kanata-sim/ is also useful.
 
@@ -229,7 +234,6 @@ The only behavioral gap: holding an HRM key alone for 500ms then pressing anothe
 ## Open questions
 
 - **Symbol layer + HRM interaction** — when symbol layer is active via `g`/`h` hold, pressing an HRM key (e.g., `a`) should output the symbol (`#`), not enter tap-hold. The `sym` deflayer maps `a` directly to `S-3`, bypassing the alias. Verify this works as expected.
-- **Chord interaction with HRM** — the Space+j/k chords involve `j` which is also an HRM key. Need to test whether `defchords` and `tap-hold-opposite-hand-release` interact cleanly.
 
 ## Reference
 

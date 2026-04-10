@@ -2,6 +2,7 @@
   process-unmapped-keys yes
   concurrent-tap-hold yes
   tap-hold-require-prior-idle 150
+  chords-v2-min-idle 150
 )
 
 (defsrc
@@ -94,4 +95,15 @@
 
   ;; Right Shift: tap → Ctrl+Y (zellij pane mode), hold → Shift
   rs (tap-hold 200 200 C-y rsft)
+)
+
+;; ── Chords ─────────────────────────────────────────────────────
+;; Space+j/k: tab switching (Cmd+Shift+[/])
+;; chordsv2 fires BEFORE layer/tap-hold processing, so j/k HRM aliases
+;; are bypassed when the chord matches. chords-v2-min-idle 150 in defcfg
+;; disables chords during fast typing to prevent misfires on rolls.
+
+(defchordsv2
+  (spc j) M-S-[ 50 first-release ()
+  (spc k) M-S-] 50 first-release ()
 )
