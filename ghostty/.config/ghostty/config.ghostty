@@ -1,0 +1,8 @@
+scrollback-limit = 50000000
+macos-option-as-alt = true
+
+# Forward Cmd+Shift+[/] to zellij as Ctrl+Shift+j/k (kitty keyboard protocol)
+# instead of Ghostty's default previous_tab/next_tab.
+# Triggered by kanata Space+j/k chords → Cmd+Shift+[/].
+keybind = super+shift+left_bracket=text:\x1b[106;6u
+keybind = super+shift+right_bracket=text:\x1b[107;6u

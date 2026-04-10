@@ -26,6 +26,7 @@ stow yamlfmt
 stow zellij
 stow karabiner
 stow kanata
+stow ghostty
 stow pi
 stow claude
 

@@ -28,10 +28,13 @@ Edit crontab by running `./bin/edit-crontab.sh`.
 
 Space+j / Space+k switch tabs across apps:
 
-- **In Ghostty (Zellij)**: Karabiner maps Space+j/k → Ctrl+Shift+j/k, which Zellij binds to `GoToPreviousTab`/`GoToNextTab` in normal mode (no leader key needed)
-- **Everywhere else**: Karabiner maps Space+j/k → Cmd+Shift+[ / Cmd+Shift+] (native macOS tab switching)
+- **Kanata** (`defchordsv2`): Space+j → Cmd+Shift+[, Space+k → Cmd+Shift+]
+- **Browsers / other apps**: Cmd+Shift+[/] is the native macOS tab switching shortcut — works out of the box
+- **Ghostty → Zellij**: Ghostty intercepts Cmd+Shift+[/] and forwards as Ctrl+Shift+j/k (kitty keyboard protocol), which Zellij binds to `GoToPreviousTab`/`GoToNextTab` in normal mode
 
-The Ghostty-specific Karabiner rule must come **before** the generic one (rules are evaluated top-to-bottom, first match wins).
+## Ghostty
+
+Config is stow-managed at `ghostty/.config/ghostty/config.ghostty`. Ghostty auto-loads it from the XDG path (`~/.config/ghostty/config.ghostty`) — no manual setup needed after `stow ghostty`.
 
 ## Mac-specific setup
 
