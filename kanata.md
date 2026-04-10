@@ -150,22 +150,7 @@ All HRM and layer-trigger keys use `tap-hold-opposite-hand-release` with `defhan
 | `g` | g | activate sym layer |
 | `h` | h | activate sym layer |
 
-**Symbol layer mappings** (when g or h held):
-```
-         LEFT HAND                  ┊          RIGHT HAND
-  !   @   [   ]   |                 ┊  —   7   8   9   *
-  #   _   (   )  [g`]              ┊ [h-]  4   5   6   +   =
-  —   —   {   }   ~                 ┊  0   1   2   3   /
-  q   w   e   r   t                 ┊  y   u   i   o   p
-  a   s   d   f   g                 ┊  h   j   k   l   ;   '
-  z   x   c   v   b                 ┊  n   m   ,   .   /
-```
-- `g` and `h` are layer triggers — hold one, type with the other hand
-- `[g`]` means: when `h` is held, pressing `g` types `` ` `` (backtick)
-- `[h-]` means: when `g` is held, pressing `h` types `-` (minus)
-- `$%^&` omitted — easy to reach on Kinesis Advantage 360 base layer (shift+4567)
-- `\` omitted — convenient position next to `p` on Kinesis Advantage 360
-- `z`, `x`, `y` are passthrough (—) in the symbol layer
+**Symbol layer mappings** (when g or h held): see `kanata/.config/kanata/symbol-layer.txt` for the full layout. This file doubles as a cheat sheet — accessible in zellij via `Ctrl+y g` (opens a floating overlay).
 
 **Media key row** (F1–F12 mapped to macOS media actions):
 
