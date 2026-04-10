@@ -99,6 +99,10 @@ To avoid: push with `--no-verify` when pre-push tests are known-flaky in worktre
 
 Tracked in: https://gitlab.com/gitlab-org/cli/-/work_items/8223
 
+## ⚠️ `core.bare` Must Be `true` in `.bare/config`
+
+If `git checkout main` fails with `fatal: 'main' is already used by worktree at '/path/to/.bare'` and `git worktree list` shows `.bare` as `[main]` instead of `(bare)`, see [core-bare-fix.md](./core-bare-fix.md).
+
 ## Important Notes
 
 - **Never `git checkout`** to switch branches — create a new worktree instead, or `cd` to an existing one.
