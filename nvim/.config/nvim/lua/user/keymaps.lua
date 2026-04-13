@@ -32,6 +32,12 @@ vim.keymap.set({ "n" }, "<leader>yp", function()
   print("copied: " .. rel_path)
 end, { desc = "yank relative path to clipboard" })
 
+vim.keymap.set({ "n" }, "<leader>ya", function()
+  local abs_path = vim.fn.expand("%:p")
+  vim.fn.setreg("+", abs_path)
+  print("copied: " .. abs_path)
+end, { desc = "yank absolute path to clipboard" })
+
 -- allows to search for visually selected text with * and #
 -- Copied from https://github.com/nelstrom/vim-visual-star-search
 function v_set_search(cmdtype)
