@@ -1,10 +1,9 @@
 #!/bin/bash
-# Called from zellij keybinding to create a task via task-ai
+# Called from zellij keybinding to create and start a task (no AI)
 # Runs in a floating pane that closes on exit
 printf "New task: "
 read -r input
 if [ -n "$input" ]; then
-    # Escape single quotes for fish
     escaped=$(printf '%s' "$input" | sed "s/'/\\\\'/g")
-    fish -c "task-ai '$escaped'"
+    fish -c "task new '$escaped' && task start --last"
 fi

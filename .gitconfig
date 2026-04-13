@@ -32,6 +32,7 @@
   la = !git l --all
   wtclone = !~/bin/git-wclone.sh
   wt = worktree
+	sh = -c diff.external=difft show
 
 
 [push]

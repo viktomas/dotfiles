@@ -24,7 +24,7 @@ keybinds clear-defaults=true {
         }
         bind "a" {
             TogglePaneFrames;
-            Run "task-ai-prompt" {
+            Run "task-new-prompt" {
                 floating true
                 close_on_exit true
                 x "10%"
