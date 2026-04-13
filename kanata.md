@@ -1,5 +1,7 @@
 # Kanata — Installation & Migration from Karabiner
 
+> **⚠️ Experimental (2026-04-13):** No neutral keys remain. `tab` is left-hand, `spc` and `ret` are right-hand. This enables combos like Cmd+Space, Cmd+Return, and Cmd+Tab with the appropriate opposite-hand HRM keys, but may cause misfires on fast rolls (e.g. `s→space` after a 150ms+ pause = Cmd+Space). Monitoring — may need to re-introduce neutral keys if misfires are problematic.
+
 - kanata live in /Users/tomas/workspace/tmp/kanata, if not, clone it there from git@github.com:jtroo/kanata.git
 - hrm app lives in  /Users/tomas/workspace/tmp/hrm, if not, clone it there from git@github.com:wontaeyang/hrm.git
 
@@ -121,10 +123,10 @@ All HRM and layer-trigger keys use `tap-hold-opposite-hand-release` with `defhan
 3. Another key is pressed:
    - **Same hand** (e.g., `d`, `g`) → `(same-hand tap)` → immediately resolve `f` as tap. No misfire possible.
    - **Opposite hand** (e.g., `j`) → wait for `j` to be **released** (press+release). Once `j↑` arrives, resolve `f` as hold (Ctrl). Buffered `j` is output as `Ctrl+j`.
-   - **Neutral key** (space, tab, ret) → `(neutral ignore)` → skip, wait for the next key or timeout.
+   - **No neutral keys** — all keys are assigned to a hand. Tab is left-hand, Space and Return are right-hand. This means every key participates in bilateral filtering. Trade-off: fast cross-hand rolls involving these keys could misfire (mitigated by `require-prior-idle 150`).
 4. If 500ms pass with no qualifying key → `(timeout tap)` → output `f` as tap. This is a safety net, not the normal path.
 
-**Important:** Every key that should trigger hold resolution must be in `defhands`. The number row (`1-0`), symbols (`- = [ ] \ '`), and grave are all assigned — left hand gets `grv 1 2 3 4 5`, right hand gets `6 7 8 9 0 - = [ ] \ '`. Without this, combos like `cmd+1` (hold `l`, tap `1`) wouldn't work because unassigned keys can't resolve the tap-hold.
+**Important:** Every key that should trigger hold resolution must be in `defhands`. The number row (`1-0`), symbols (`- = [ ] \ '`), grave, and `tab` are all assigned — left hand gets `grv 1 2 3 4 5 tab`, right hand gets `6 7 8 9 0 - = [ ] \ ' spc ret`. Without this, combos like `cmd+1` (hold `l`, tap `1`) or `cmd+tab` (hold `l`, tap `tab`) wouldn't work because unassigned keys can't resolve the tap-hold.
 
 **Why `-release` matters:** Without it (`tap-hold-opposite-hand`), hold triggers the moment an opposite-hand key is *pressed*. With `-release`, it waits for press+release. This prevents misfires on fast cross-hand overlaps like `f↓ j↓ f↑ j↑` where you release `f` before `j` — should be `fj`, not `Ctrl+j`.
 
