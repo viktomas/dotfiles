@@ -21,6 +21,7 @@ cd ~/.dotfiles || exit 100
 stow kitty
 stow fish
 stow fd
+stow ripgrep
 stow helix
 stow yamlfmt
 stow zellij

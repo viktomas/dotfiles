@@ -1,5 +1,6 @@
 source ~/.secrets/secrets
 source ~/.secrets/gdk
+set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
 if status is-interactive
     fish_vi_key_bindings
 
