@@ -35,6 +35,15 @@ require("mini.icons").setup({})
 MiniIcons.tweak_lsp_kind()
 require("mini.snippets").setup({})
 require("mini.completion").setup({})
+
+-- Disable mini.completion fallback in markdown — without this, every word
+-- triggers <C-n> buffer completion when render-markdown LSP returns nothing
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function()
+    vim.b.minicompletion_config = { fallback_action = function() end }
+  end,
+})
 require("mini.pairs").setup({
   mappings = {
     -- don't add pair if another backtick preceeds
