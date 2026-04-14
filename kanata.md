@@ -11,12 +11,16 @@ Karabiner-Elements can't implement timeless home row mods (see `karabiner.md` fo
 
 ## Prerequisites
 
-The Karabiner DriverKit VirtualHIDDevice driver must be installed and active (kept during Karabiner-Elements uninstall — see `karabiner.md` Installation State section).
+The Karabiner DriverKit VirtualHIDDevice system must be installed and running. This includes the system extension (dext) and the userspace daemon. See `karabiner.md` "DriverKit VirtualHIDDevice" section for full details and install instructions.
 
 Verify:
 ```bash
+# System extension is active
 systemextensionsctl list | grep pqrs
 # Should show: org.pqrs.Karabiner-DriverKit-VirtualHIDDevice [activated enabled]
+
+# Userspace daemon is running (required for kanata to output keys)
+ps aux | grep '[K]arabiner-VirtualHIDDevice-Daemon'
 ```
 
 ## Installation
@@ -58,9 +62,7 @@ Without this, kanata logs `IOHIDDeviceOpen error: (iokit/common) not permitted` 
 
 ### 4. LaunchDaemon (auto-start at boot)
 
-The VHIDDevice daemon is already running from the Karabiner DriverKit install (persists across reboots via its own LaunchDaemon at `/Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice-Daemon.plist`).
-
-Kanata runs as a system LaunchDaemon:
+The VHIDDevice daemon must already be running (see Prerequisites). Kanata runs as a system LaunchDaemon:
 
 ```bash
 sudo tee /Library/LaunchDaemons/com.kanata.daemon.plist << 'EOF'
