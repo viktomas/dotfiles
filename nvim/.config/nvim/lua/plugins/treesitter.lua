@@ -11,18 +11,7 @@ require("nvim-treesitter").setup({
 })
 
 -- Incremental selection via built-in treesitter (nvim 0.12+)
-vim.keymap.set("n", "<Enter>", function()
-  -- don't activate in command window
-  if vim.api.nvim_get_mode().mode == "c" then
-    return "<Enter>"
-  end
-  vim.treesitter.select_node({ mode = "v" })
-end, { expr = false })
-
-vim.keymap.set("x", "<Enter>", function()
-  vim.treesitter.select_node({ mode = "v" })
-end)
-
-vim.keymap.set("x", "<BS>", function()
-  vim.treesitter.select_node({ mode = "v", prev = true })
-end)
+-- `an` selects parent node, `in` selects child node
+vim.keymap.set("n", "<Enter>", "van", { remap = true, desc = "Select treesitter node" })
+vim.keymap.set("x", "<Enter>", "an", { remap = true, desc = "Expand to parent treesitter node" })
+vim.keymap.set("x", "<BS>", "in", { remap = true, desc = "Shrink to child treesitter node" })
