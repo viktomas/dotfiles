@@ -18,18 +18,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local bufnr = ev.buf
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
 
-    -- CodeLens refresh
-    vim.api.nvim_create_autocmd({ 'TextChanged', 'InsertLeave', 'CursorHold', 'BufEnter' }, {
-      buffer = bufnr,
-      callback = function()
-        for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
-          if c.server_capabilities.codeLensProvider then
-            vim.lsp.codelens.refresh({ bufnr = bufnr })
-            break
-          end
-        end
-      end,
-    })
+    -- CodeLens: enable automatic refresh for this buffer
+    if client and client.server_capabilities.codeLensProvider then
+      vim.lsp.codelens.enable(true, { bufnr = bufnr })
+    end
     vim.api.nvim_exec_autocmds('User', { pattern = 'LspAttached' })
 
     local fzf = require("fzf-lua")
