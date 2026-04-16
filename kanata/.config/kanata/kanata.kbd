@@ -17,8 +17,8 @@
 ;; ── Hand assignment for bilateral filtering ────────────────────
 
 (defhands
-  (left  grv 1 2 3 4 5 tab q w e r t a s d f g z x c v b)
-  (right 6 7 8 9 0 - = y u i o p h j k l ; n m , . / [ ] \ ' spc ret))
+  (left  grv 1 2 3 4 5 tab q w e r t a s d f g z x c v b left rght)
+  (right 6 7 8 9 0 - = y u i o p h j k l ; n m , . / [ ] \ ' spc ret up down))
   ;; NOTE: tab is left-hand, spc and ret are right-hand. None are neutral.
   ;; This means they all participate in bilateral filtering and trigger
   ;; hold resolution for opposite-hand HRM keys. Trade-off: fast rolls like

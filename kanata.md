@@ -128,7 +128,9 @@ All HRM and layer-trigger keys use `tap-hold-opposite-hand-release` with `defhan
    - **No neutral keys** — all keys are assigned to a hand. Tab is left-hand, Space and Return are right-hand. This means every key participates in bilateral filtering. Trade-off: fast cross-hand rolls involving these keys could misfire (mitigated by `require-prior-idle 150`).
 4. If 500ms pass with no qualifying key → `(timeout tap)` → output `f` as tap. This is a safety net, not the normal path.
 
-**Important:** Every key that should trigger hold resolution must be in `defhands`. The number row (`1-0`), symbols (`- = [ ] \ '`), grave, and `tab` are all assigned — left hand gets `grv 1 2 3 4 5 tab`, right hand gets `6 7 8 9 0 - = [ ] \ ' spc ret`. Without this, combos like `cmd+1` (hold `l`, tap `1`) or `cmd+tab` (hold `l`, tap `tab`) wouldn't work because unassigned keys can't resolve the tap-hold.
+**Important:** Every key that should trigger hold resolution must be in `defhands`. The number row (`1-0`), symbols (`- = [ ] \ '`), grave, `tab`, and arrow keys are all assigned — left hand gets `grv 1 2 3 4 5 tab left rght`, right hand gets `6 7 8 9 0 - = [ ] \ ' spc ret up down`. Without this, combos like `cmd+1` (hold `l`, tap `1`) or `cmd+tab` (hold `l`, tap `tab`) wouldn't work because unassigned keys can't resolve the tap-hold.
+
+**Arrow key hand assignment** follows the Kinesis layout: `left`/`rght` are left-hand, `up`/`down` are right-hand. On a normal keyboard (all arrows right-hand), this means right-hand HRM + `left`/`rght` won't resolve as hold — use left-hand HRM instead (e.g., `s`=Cmd + `left`).
 
 **Why `-release` matters:** Without it (`tap-hold-opposite-hand`), hold triggers the moment an opposite-hand key is *pressed*. With `-release`, it waits for press+release. This prevents misfires on fast cross-hand overlaps like `f↓ j↓ f↑ j↑` where you release `f` before `j` — should be `fj`, not `Ctrl+j`.
 
