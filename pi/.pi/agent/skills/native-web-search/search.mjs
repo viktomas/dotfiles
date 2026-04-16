@@ -254,10 +254,21 @@ function pickFastModel(provider, requestedModel, piAi) {
 	return heuristic || models[0];
 }
 
+const ENV_KEY_NAMES = {
+	anthropic: ["ANTHROPIC_API_KEY"],
+	"openai-codex": ["OPENAI_API_KEY", "CODEX_API_KEY"],
+};
+
 async function resolveApiKey(provider, auth, authPath, piAi) {
 	const entry = auth?.[provider];
 	if (!entry) {
-		throw new Error(`No credentials for provider '${provider}' in ${authPath}`);
+		// Fall back to well-known environment variables
+		const envNames = ENV_KEY_NAMES[provider] || [];
+		for (const name of envNames) {
+			const val = process.env[name];
+			if (val) return { apiKey: val, accountId: undefined };
+		}
+		throw new Error(`No credentials for provider '${provider}' in ${authPath} and no env var (${envNames.join(", ") || "none known"}) set.`);
 	}
 
 	const inferredType = entry.type || (entry.access && entry.refresh ? "oauth" : entry.key ? "api_key" : undefined);
