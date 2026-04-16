@@ -1,6 +1,13 @@
 function git --wraps=git --description 'sets a special behaviour for git wta and wtu'
     if test "$argv[1]" = wta
-        if test "$argv[2]" = -n
+        if string match -q '*gitlab.com*' -- "$argv[2]"
+            # MR URL mode: create/find worktree for the MR branch
+            set -l output (~/bin/git-mr-worktree.sh "$argv[2]")
+            or return 1
+            set -l worktree_path $output[1]
+            cd $worktree_path
+            echo "✓ Changed to worktree: $worktree_path"
+        else if test "$argv[2]" = -n
             set -l name $argv[3]
             set -l date_prefix (date +%Y-%m)
             set -l branch "tv/$date_prefix/$name"
