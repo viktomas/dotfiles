@@ -15,7 +15,7 @@
 # (cd "$worktree_path" && npm run prepare)
 # # Execute git worktree with all passed arguments and
 # # Check if git worktree command was successful
-if git worktree add "$@"; then
+if git worktree add "$@" 1>&2; then
 # The first argument is always the worktree path for git worktree add
     worktree_path=$(cd "$1" && pwd)
 
