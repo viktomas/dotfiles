@@ -1,4 +1,19 @@
 #!/bin/bash
+#
+# Wrapper around `git worktree add` that also runs post-create setup
+# (mise trust, npm ci, go mod download) and cd's into the new worktree.
+#
+# ─── I/O NOTE FOR CALLERS ───────────────────────────────────────────────────
+# This script writes human-facing progress messages to STDOUT (and forwards
+# `git worktree add` output to stderr). It is NOT a machine-readable
+# producer — there is no stdout contract.
+#
+# If you invoke it from another script that DOES have a stdout contract
+# (e.g. git-mr-worktree.sh), redirect this script's stdout to stderr:
+#     ~/bin/git-wa.sh <path> <branch> >&2
+# Otherwise its progress lines will pollute your captured output.
+# ──────────────────────────────────────────────────────────────────────────
+
 # Debug environment differences
 # echo "=== DEBUG INFO ===" >&2
 # echo "Script path: $0" >&2

@@ -2,10 +2,18 @@
 set -e
 
 # Creates (or finds) a worktree for a GitLab MR URL.
-# Outputs two lines to stdout:
-#   1. worktree path
-#   2. target branch
-# All progress/status messages go to stderr.
+#
+# ─── I/O CONTRACT (do not break) ──────────────────────────────────────────
+# STDOUT is a MACHINE-READABLE data channel. It MUST contain exactly:
+#   line 1: worktree path
+#   line 2: target branch
+# STDERR carries ALL human-facing progress / status / error messages.
+#
+# Callers capture stdout (e.g. fish `set output (...)`). Any stray stdout
+# write — including from helper scripts we invoke — will be mis-parsed as
+# the worktree path. When shelling out to other scripts (e.g. git-wa.sh)
+# that print progress on stdout, redirect their stdout to stderr with `>&2`.
+# ──────────────────────────────────────────────────────────────────────────
 
 if [ -z "$1" ]; then
     echo "Usage: git-mr-worktree.sh <gitlab-merge-request-url>" >&2
@@ -164,7 +172,9 @@ else
         fi
 
         echo "Creating worktree for fork branch: $local_branch" >&2
-        if ~/bin/git-wa.sh "$worktree_path" "$local_branch"; then
+        # git-wa.sh prints progress on stdout; redirect to stderr so it
+        # doesn't pollute our machine-readable stdout channel.
+        if ~/bin/git-wa.sh "$worktree_path" "$local_branch" >&2; then
             echo "✓ Created worktree: $worktree_path" >&2
         else
             echo "Error: Failed to create worktree" >&2
@@ -174,7 +184,9 @@ else
         echo "Creating worktree for branch: $branch_name" >&2
         git fetch origin "$branch_name:$branch_name" 2>/dev/null || git fetch origin
 
-        if ~/bin/git-wa.sh "$worktree_path" "$branch_name"; then
+        # git-wa.sh prints progress on stdout; redirect to stderr so it
+        # doesn't pollute our machine-readable stdout channel.
+        if ~/bin/git-wa.sh "$worktree_path" "$branch_name" >&2; then
             echo "✓ Created worktree: $worktree_path" >&2
         else
             echo "Error: Failed to create worktree" >&2
@@ -183,6 +195,6 @@ else
     fi
 fi
 
-# Output for callers (stdout)
+# Output for callers (stdout) — see I/O CONTRACT at top of file.
 echo "$worktree_path"
 echo "$target_branch"
