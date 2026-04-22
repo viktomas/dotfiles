@@ -2,6 +2,7 @@ source ~/.secrets/secrets
 source ~/.secrets/gdk
 set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
 if status is-interactive
+    abbr --add fd fd --hidden
     fish_vi_key_bindings
 
     function fish_user_key_bindings
