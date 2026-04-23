@@ -188,6 +188,8 @@ else
         # doesn't pollute our machine-readable stdout channel.
         if ~/bin/git-wa.sh "$worktree_path" "$branch_name" >&2; then
             echo "✓ Created worktree: $worktree_path" >&2
+            # Set up tracking so push/pull work against the MR branch
+            git -C "$worktree_path" branch --set-upstream-to="origin/$branch_name" "$branch_name" >&2 2>&1 || true
         else
             echo "Error: Failed to create worktree" >&2
             exit 1
