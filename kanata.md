@@ -181,6 +181,8 @@ F3 and F4 are passthrough (`_`) — Mission Control and Spotlight are macOS syst
 
 **Typing streak suppression**: `tap-hold-require-prior-idle 150` in `defcfg`. If any key was pressed within 150ms before an HRM key, it immediately outputs the letter — no waiting state, zero latency. This replaces the previous `nomods` layer + `on-idle-fakekey` workaround.
 
+**Per-key override on `g`/`h`**: the symbol-layer triggers override the global threshold with `(require-prior-idle 75)`. Reason: when you make a symbol mistake, press `bspc`, then try to enter the symbol again, the 150ms global threshold would suppress the layer and type `g`/`h` as literals. Kanata has no way to exclude specific prior keys (like `bspc`) from idle tracking, so the workaround is a smaller threshold for these keys only. This is safe because bilateral filtering (`defhands`) + `-release` + `(same-hand tap)` already block misfires during normal typing of `g`/`h` — `require-prior-idle` is secondary defense here, unlike HRM keys where it's primary.
+
 **Space+j/k chords** (tab switching via `defchordsv2`):
 | Chord | Action | Output |
 |-------|--------|--------|
@@ -200,7 +202,8 @@ The Karabiner config had Ghostty-specific rules that sent `Ctrl+Shift+j/k` (zell
 | Parameter | Value | What it does |
 |-----------|-------|--------------|
 | `hold-time` | 500 | Safety-net timeout. With `(timeout tap)`, expiry outputs the letter — no accidental mods. Set high so it never interferes with real modifier use. |
-| `require-prior-idle` | 150 | If another key was pressed within 150ms before the HRM key, skip waiting entirely → instant tap. Handles fast typing streaks. |
+| `require-prior-idle` (global) | 150 | If another key was pressed within 150ms before an HRM key, skip waiting entirely → instant tap. Handles fast typing streaks. |
+| `require-prior-idle` (g/h override) | 75 | Lower threshold on the symbol-layer triggers so that `bspc → g/h` when correcting a symbol doesn't suppress the layer. Bilateral filtering + `-release` are the primary defenses for these keys. |
 | `chords-v2-min-idle` | 150 | After any non-chord keypress, chord detection is disabled for this duration. Prevents misfires during fast typing rolls. |
 | chord timeout | 50 | Time window (per chord) within which both keys must be pressed for the chord to fire. |
 

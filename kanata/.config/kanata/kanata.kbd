@@ -80,11 +80,15 @@
   ; (tap-hold-opposite-hand-release $hold-time ; ralt
     (same-hand tap) (timeout tap))
 
-  ;; Symbol layer triggers — same bilateral approach, hold activates layer
+  ;; Symbol layer triggers — same bilateral approach, hold activates layer.
+  ;; (require-prior-idle 75) overrides the global 150ms so that correcting a
+  ;; symbol with bspc and immediately re-entering the layer works without a
+  ;; perceptible pause. Safe because (same-hand tap) + opposite-hand-release
+  ;; already prevent misfires during normal typing of g/h.
   g (tap-hold-opposite-hand-release $hold-time g (layer-while-held sym)
-    (same-hand tap) (timeout tap))
+    (same-hand tap) (timeout tap) (require-prior-idle 75))
   h (tap-hold-opposite-hand-release $hold-time h (layer-while-held sym)
-    (same-hand tap) (timeout tap))
+    (same-hand tap) (timeout tap) (require-prior-idle 75))
 
   ;; Right Shift: tap → Ctrl+Y (zellij pane mode), hold → Shift
   rs (tap-hold 200 200 C-y rsft)
