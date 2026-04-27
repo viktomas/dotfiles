@@ -44,10 +44,15 @@ if git worktree add "$@" 1>&2; then
             (cd "$worktree_path" && mise trust)
         fi
 
-        # Install npm dependencies if package.json exists
+        # Install JS dependencies if package.json exists
         if [ -f "$worktree_path/package.json" ]; then
-            echo "Found package.json, running npm install..."
-            (cd "$worktree_path" && npm ci) || echo "npm ci failed, continuing..."
+            if [ -f "$worktree_path/bun.lockb" ] || [ -f "$worktree_path/bun.lock" ]; then
+                echo "Found bun lock file, running bun install..."
+                (cd "$worktree_path" && bun install) || echo "bun install failed, continuing..."
+            else
+                echo "Found package.json, running npm ci..."
+                (cd "$worktree_path" && npm ci) || echo "npm ci failed, continuing..."
+            fi
         fi
 
         if [ -f "$worktree_path/go.mod" ]; then
