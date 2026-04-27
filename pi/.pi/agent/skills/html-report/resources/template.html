@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REPORT_TITLE</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #1a1b26;
+    --surface: #24283b;
+    --surface2: #2f3347;
+    --text: #c0caf5;
+    --text-dim: #8b95c9;
+    --accent: #7aa2f7;
+    --accent2: #bb9af7;
+    --green: #9ece6a;
+    --orange: #ff9e64;
+    --red: #f7768e;
+    --border: #3b4261;
+    --code-bg: #1e2030;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero .subtitle { color: var(--text-dim); margin-top: 0.5rem; }
+
+  /* ── Layout ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+
+  h2 {
+    font-size: 1.6rem; color: var(--accent);
+    margin: 3rem 0 1rem; padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--border);
+  }
+  h3 { font-size: 1.2rem; color: var(--accent2); margin: 2rem 0 0.75rem; }
+  h4 { font-size: 1.05rem; color: var(--green); margin: 1.5rem 0 0.5rem; }
+
+  p, li { margin-bottom: 0.7rem; }
+  ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+  a { color: var(--accent); }
+
+  /* ── Code ── */
+  code {
+    background: var(--code-bg); padding: 0.15em 0.4em;
+    border-radius: 4px; font-size: 0.9em; color: var(--orange);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.2rem; overflow-x: auto;
+    margin: 1rem 0; font-size: 0.85rem; line-height: 1.6;
+  }
+  pre code { background: none; padding: 0; color: var(--text); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem; margin: 1.25rem 0;
+  }
+  .card h4 { margin-top: 0; }
+  .card.highlight { border-left: 4px solid var(--accent); }
+  .card.warn { border-left: 4px solid var(--orange); }
+  .card.success { border-left: 4px solid var(--green); }
+
+  /* ── Callouts ── */
+  .callout {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 1rem 1.25rem; border-radius: 8px; margin: 1rem 0;
+  }
+  .callout-info { background: #1a2a4a; border: 1px solid var(--accent); }
+  .callout-warn { background: #3a2a1a; border: 1px solid var(--orange); }
+  .callout-icon { font-size: 1.3em; flex-shrink: 0; }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block; padding: 0.1em 0.55em;
+    border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+  }
+  .tag-green  { background: #1a3a2a; color: var(--green);   border: 1px solid var(--green); }
+  .tag-blue   { background: #1a2a4a; color: var(--accent);  border: 1px solid var(--accent); }
+  .tag-orange { background: #3a2a1a; color: var(--orange);  border: 1px solid var(--orange); }
+  .tag-red    { background: #3a1a1a; color: var(--red);     border: 1px solid var(--red); }
+  .tag-purple { background: #2a1a3a; color: var(--accent2); border: 1px solid var(--accent2); }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { padding: 0.65rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface2); color: var(--accent); font-weight: 600; }
+  tr:hover td { background: var(--surface); }
+
+  /* ── Mermaid ── */
+  .mermaid-wrapper {
+    background: #fff; border-radius: 10px;
+    padding: 1.5rem; margin: 1.25rem 0; overflow-x: auto;
+  }
+  .mermaid { display: flex; justify-content: center; }
+  .diagram-caption {
+    text-align: center; color: var(--text-dim);
+    font-size: 0.85rem; margin-top: 0.4rem; font-style: italic;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem 1.75rem; margin: 2rem 0;
+  }
+  .toc h3 { margin-top: 0; color: var(--text); }
+  .toc ol { margin-bottom: 0; }
+  .toc li { margin-bottom: 0.35rem; }
+
+  /* ── Grid (for side-by-side cards) ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>REPORT_TITLE</h1>
+  <p class="subtitle">Brief description of what this report covers</p>
+</div>
+
+<div class="container">
+
+<!-- ── Table of Contents ── -->
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#section-1">First Section</a></li>
+    <li><a href="#section-2">Second Section</a></li>
+  </ol>
+</div>
+
+<!-- ── Section 1 ── -->
+<h2 id="section-1">1. First Section</h2>
+
+<p>Regular paragraph with <code>inline code</code> and a <a href="#">link</a>.</p>
+
+<pre><code>// Code block
+const example = "hello world";</code></pre>
+
+<!-- Card variants -->
+<div class="card highlight">
+  <h4>Highlighted Card</h4>
+  <p>Blue left border — use for key information.</p>
+</div>
+
+<div class="card success">
+  <h4>Success Card</h4>
+  <p>Green left border — use for recommendations or positive outcomes.</p>
+</div>
+
+<div class="card warn">
+  <h4>Warning Card</h4>
+  <p>Orange left border — use for caveats or warnings.</p>
+</div>
+
+<!-- Callouts -->
+<div class="callout callout-info">
+  <span class="callout-icon">💡</span>
+  <div>Info callout — use for tips and additional context.</div>
+</div>
+
+<div class="callout callout-warn">
+  <span class="callout-icon">⚠️</span>
+  <div>Warning callout — use for important caveats.</div>
+</div>
+
+<!-- Tags -->
+<p>
+  <span class="tag tag-green">Green</span>
+  <span class="tag tag-blue">Blue</span>
+  <span class="tag tag-orange">Orange</span>
+  <span class="tag tag-red">Red</span>
+  <span class="tag tag-purple">Purple</span>
+</p>
+
+<!-- Table -->
+<table>
+  <thead><tr><th>Column A</th><th>Column B</th><th>Column C</th></tr></thead>
+  <tbody>
+    <tr><td>Row 1</td><td>Data</td><td>More data</td></tr>
+    <tr><td>Row 2</td><td>Data</td><td>More data</td></tr>
+  </tbody>
+</table>
+
+<!-- Side-by-side cards -->
+<div class="grid-2">
+  <div class="card"><h4>Left</h4><p>Side-by-side comparison.</p></div>
+  <div class="card"><h4>Right</h4><p>Use <code>.grid-2</code> wrapper.</p></div>
+</div>
+
+<!-- ── Section 2: Mermaid ── -->
+<h2 id="section-2">2. Mermaid Diagram</h2>
+
+<div class="mermaid-wrapper">
+<pre class="mermaid">
+graph LR
+    A["Step 1"] --> B["Step 2"]
+    B --> C["Step 3"]
+</pre>
+</div>
+<p class="diagram-caption">Caption below diagram</p>
+
+</div><!-- /container -->
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+  });
+</script>
+</body>
+</html>
