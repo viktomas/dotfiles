@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>REPORT_TITLE</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<!-- highlight.js for syntax-highlighted code blocks -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<!-- Add language packs as needed, e.g.: -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script> -->
 <style>
   :root {
     --bg: #1a1b26;
@@ -70,7 +75,10 @@
     border-radius: 8px; padding: 1.2rem; overflow-x: auto;
     margin: 1rem 0; font-size: 0.85rem; line-height: 1.6;
   }
-  pre code { background: none; padding: 0; color: var(--text); }
+  pre code { background: none; padding: 0; color: var(--text); font-size: inherit; }
+
+  /* highlight.js override to match theme */
+  .hljs { background: var(--code-bg) !important; }
 
   /* ── Cards ── */
   .card {
@@ -156,7 +164,7 @@
 
 <p>Regular paragraph with <code>inline code</code> and a <a href="#">link</a>.</p>
 
-<pre><code>// Code block
+<pre><code class="language-javascript">// Syntax-highlighted code block — add language class for highlighting
 const example = "hello world";</code></pre>
 
 <!-- Card variants -->
@@ -230,6 +238,7 @@ graph LR
     theme: 'default',
     securityLevel: 'loose',
   });
+  hljs.highlightAll();
 </script>
 </body>
 </html>

@@ -12,7 +12,10 @@ Generate self-contained HTML reports. Reports go in `/tmp/` (never pollute the p
 1. Create a temp directory: `/tmp/<descriptive-name>/`
 2. If using Mermaid diagrams, draft `.mmd` files and validate with the mermaid skill before embedding
 3. Write `report.html` using the template in `resources/template.html` as a starting point
-4. Open: `open /tmp/<descriptive-name>/report.html`
+4. **Finalize**: `./tools/inject-annotations.sh /tmp/<descriptive-name>/report.html` — this is mandatory, every report must be finalized before opening
+5. Open: `open /tmp/<descriptive-name>/report.html`
+
+**Never skip step 4.** Never open a report without running the inject script first.
 
 ## Template
 
@@ -27,6 +30,7 @@ The template gives you:
 - Tags/badges (`.tag-green`, `.tag-blue`, `.tag-orange`, `.tag-red`, `.tag-purple`)
 - Table of contents structure
 - Mermaid rendering setup
+- Syntax highlighting via highlight.js (Tokyo Night Dark theme)
 
 Don't limit yourself to what's in the template. Add custom styles, new component types, different layouts — whatever makes the report clear and visually effective for the content at hand.
 
@@ -48,6 +52,27 @@ The template includes the Mermaid JS CDN and `mermaid.initialize()` at the botto
 
 **Important**: The `<pre class="mermaid">` content must be raw Mermaid syntax — no HTML escaping needed. The `.mermaid-wrapper` div provides a white background so diagrams are readable against the dark page.
 
+## Syntax Highlighting
+
+highlight.js is loaded from CDN with the Tokyo Night Dark theme (matches the report palette). The template includes the core library but **not** language packs — add the ones you need:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+```
+
+Use `language-*` classes on code blocks:
+
+```html
+<pre><code class="language-go">func main() {
+    fmt.Println("hello")
+}</code></pre>
+```
+
+`hljs.highlightAll()` is called at the bottom of the template alongside Mermaid init.
+
+Common language packs: `go`, `python`, `javascript`, `typescript`, `bash`, `json`, `yaml`, `sql`, `ruby`, `rust`, `java`, `diff`.
+
 ### Validating diagrams before embedding
 
 Use the **mermaid** skill to validate complex diagrams before putting them in the report. Draft them as `.mmd` files, validate, then paste the content into `<pre class="mermaid">` blocks.
@@ -55,6 +80,6 @@ Use the **mermaid** skill to validate complex diagrams before putting them in th
 ## Rules
 
 - **Always use `/tmp/`** — reports are ephemeral artifacts, not project files
-- **Always `open` at the end** — the user expects to see the report in their browser
+- **Always finalize before opening** — `./tools/inject-annotations.sh` must run on every report before `open`. No exceptions.
 - **Self-contained** — no local asset references; use CDN for libraries
 - **Read the template** before generating — don't recreate styles from memory

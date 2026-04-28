@@ -1,0 +1,507 @@
+<!-- ══ Annotation System ══ injected by tools/inject-annotations.sh ══ -->
+<style>
+  body.panel-open .container { margin-right: 380px; }
+  body.panel-open .hero { margin-right: 380px; }
+
+  .ann-highlight {
+    background: rgba(187, 154, 247, 0.25);
+    border-bottom: 2px solid var(--accent2);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .ann-highlight:hover, .ann-highlight.ann-active {
+    background: rgba(187, 154, 247, 0.45);
+  }
+  .ann-highlight .ann-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--accent2);
+    color: var(--bg);
+    border-radius: 999px;
+    width: 1.2em; height: 1.2em;
+    line-height: 1.2em;
+    text-align: center;
+    margin-left: 2px;
+    vertical-align: super;
+  }
+
+  #ann-popover {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background: var(--accent2);
+    color: var(--bg);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.3em 0.75em;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    user-select: none;
+    white-space: nowrap;
+  }
+  #ann-popover:hover { filter: brightness(1.15); }
+
+  #ann-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: 370px;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 2px solid var(--border);
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.3);
+  }
+  #ann-panel.open { transform: translateX(0); }
+
+  #ann-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #ann-panel-header h3 { margin: 0; color: var(--accent2); font-size: 1rem; }
+  #ann-panel-header .ann-header-actions { display: flex; gap: 0.5rem; }
+  #ann-panel-header button {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.3em 0.7em;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.15s;
+  }
+  #ann-panel-header button:hover { background: var(--border); }
+
+  #ann-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+  }
+
+  .ann-entry {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.15s;
+  }
+  .ann-entry.ann-entry-active {
+    border-color: var(--accent2);
+  }
+  .ann-entry-num {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--accent2);
+    color: var(--bg);
+    border-radius: 999px;
+    width: 1.4em; height: 1.4em;
+    line-height: 1.4em;
+    text-align: center;
+    margin-right: 0.4em;
+  }
+  .ann-entry-quote {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    border-left: 3px solid var(--border);
+    padding: 0.3em 0.6em;
+    margin: 0.4rem 0 0.6rem;
+    font-style: italic;
+    max-height: 4.5em;
+    overflow: hidden;
+    line-height: 1.5;
+  }
+  .ann-entry-section {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 0.3rem;
+  }
+  .ann-entry textarea {
+    width: 100%;
+    min-height: 50px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5em;
+    font-family: inherit;
+    font-size: 0.85rem;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .ann-entry textarea:focus { outline: none; border-color: var(--accent2); }
+  .ann-entry-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.4rem;
+  }
+  .ann-entry-actions button {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0.2em 0.5em;
+  }
+  .ann-entry-actions button:hover { color: var(--red); }
+
+  #ann-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 950;
+    background: var(--accent2);
+    color: var(--bg);
+    border: none;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  #ann-toggle:hover { filter: brightness(1.15); }
+  #ann-toggle .ann-count {
+    position: absolute;
+    top: -5px; right: -5px;
+    background: var(--red);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    width: 1.4em; height: 1.4em;
+    line-height: 1.4em;
+    border-radius: 999px;
+    text-align: center;
+    display: none;
+  }
+
+  #ann-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--green);
+    color: var(--bg);
+    padding: 0.6em 1.5em;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    z-index: 9999;
+  }
+  #ann-toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+
+<div id="ann-popover">📝 Annotate</div>
+<button id="ann-toggle" title="Toggle annotations panel">📝<span class="ann-count"></span></button>
+<div id="ann-panel">
+  <div id="ann-panel-header">
+    <h3>📝 Notes <span id="ann-panel-count"></span></h3>
+    <div class="ann-header-actions">
+      <button onclick="annExport()" title="Copy all notes to clipboard">📋 Export</button>
+      <button onclick="annTogglePanel()" title="Close panel">✕</button>
+    </div>
+  </div>
+  <div id="ann-list"></div>
+</div>
+<div id="ann-toast">Notes copied to clipboard!</div>
+
+<script>
+(function() {
+  'use strict';
+
+  let annotations = [];
+  let nextId = 1;
+  const popover = document.getElementById('ann-popover');
+  const panel = document.getElementById('ann-panel');
+  const annList = document.getElementById('ann-list');
+  const toggleBtn = document.getElementById('ann-toggle');
+  const countBadge = toggleBtn.querySelector('.ann-count');
+  const panelCount = document.getElementById('ann-panel-count');
+  const toast = document.getElementById('ann-toast');
+  let pendingRange = null;
+
+  function findSection(node) {
+    let el = node.nodeType === 3 ? node.parentElement : node;
+    while (el && el !== document.body) {
+      let prev = el;
+      while (prev) {
+        if (prev.tagName && prev.tagName.match(/^H[23]$/) && prev.id) {
+          return { id: prev.id, title: prev.textContent.trim() };
+        }
+        prev = prev.previousElementSibling;
+      }
+      el = el.parentElement;
+    }
+    return { id: '', title: 'Top' };
+  }
+
+  document.addEventListener('mouseup', (e) => {
+    if (panel.contains(e.target) || popover.contains(e.target)) return;
+
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      popover.style.display = 'none';
+      return;
+    }
+
+    const text = sel.toString().trim();
+    if (!text || text.length < 2) {
+      popover.style.display = 'none';
+      return;
+    }
+
+    const range = sel.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    const parentEl = container.nodeType === 3 ? container.parentElement : container;
+    if (parentEl.closest('.mermaid-wrapper') || parentEl.closest('#ann-panel')) {
+      popover.style.display = 'none';
+      return;
+    }
+
+    pendingRange = range.cloneRange();
+    const rect = range.getBoundingClientRect();
+    popover.style.display = 'block';
+    popover.style.left = (rect.left + rect.width / 2 - popover.offsetWidth / 2 + window.scrollX) + 'px';
+    popover.style.top = (rect.top - popover.offsetHeight - 8 + window.scrollY) + 'px';
+  });
+
+  document.addEventListener('mousedown', (e) => {
+    if (!popover.contains(e.target)) {
+      popover.style.display = 'none';
+    }
+  });
+
+  function getTextNodesInRange(range) {
+    const nodes = [];
+    const walker = document.createTreeWalker(
+      range.commonAncestorContainer.nodeType === 3
+        ? range.commonAncestorContainer.parentElement
+        : range.commonAncestorContainer,
+      NodeFilter.SHOW_TEXT,
+      null,
+    );
+    let node;
+    while ((node = walker.nextNode())) {
+      if (range.intersectsNode(node) && node.textContent.trim()) {
+        nodes.push(node);
+      }
+    }
+    return nodes;
+  }
+
+  function highlightRange(range, id) {
+    const textNodes = getTextNodesInRange(range);
+    if (textNodes.length === 0) return;
+
+    textNodes.forEach((textNode, i) => {
+      let startOffset = 0;
+      let endOffset = textNode.length;
+
+      if (textNode === range.startContainer) startOffset = range.startOffset;
+      if (textNode === range.endContainer) endOffset = range.endOffset;
+
+      if (startOffset >= endOffset) return;
+
+      const selectedNode = textNode.splitText(startOffset);
+      selectedNode.splitText(endOffset - startOffset);
+
+      const mark = document.createElement('span');
+      mark.className = 'ann-highlight';
+      mark.dataset.annId = id;
+      selectedNode.parentNode.insertBefore(mark, selectedNode);
+      mark.appendChild(selectedNode);
+
+      if (i === textNodes.length - 1) {
+        const badge = document.createElement('span');
+        badge.className = 'ann-badge';
+        badge.textContent = id;
+        mark.appendChild(badge);
+      }
+    });
+  }
+
+  popover.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!pendingRange) return;
+
+    const quote = pendingRange.toString().trim();
+    if (!quote) return;
+
+    const section = findSection(pendingRange.startContainer);
+    const id = nextId++;
+
+    highlightRange(pendingRange, id);
+
+    annotations.push({
+      id,
+      quote: quote.length > 300 ? quote.slice(0, 300) + '\u2026' : quote,
+      note: '',
+      sectionId: section.id,
+      sectionTitle: section.title,
+    });
+
+    popover.style.display = 'none';
+    pendingRange = null;
+    window.getSelection().removeAllRanges();
+
+    renderPanel();
+    openPanel();
+
+    setTimeout(() => {
+      const ta = annList.querySelector(`[data-ann-entry="${id}"] textarea`);
+      if (ta) ta.focus();
+    }, 100);
+  });
+
+  document.addEventListener('click', (e) => {
+    const hl = e.target.closest('.ann-highlight');
+    if (!hl) return;
+    const id = parseInt(hl.dataset.annId, 10);
+    openPanel();
+    const entry = annList.querySelector(`[data-ann-entry="${id}"]`);
+    if (entry) {
+      entry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      entry.classList.add('ann-entry-active');
+      setTimeout(() => entry.classList.remove('ann-entry-active'), 1500);
+    }
+  });
+
+  function renderPanel() {
+    updateCounts();
+    annList.innerHTML = '';
+    if (annotations.length === 0) {
+      annList.innerHTML = '<p style="color:var(--text-dim);padding:1rem;font-size:0.85rem;">Select text in the report and click <strong>\ud83d\udcdd Annotate</strong> to add notes.</p>';
+      return;
+    }
+    annotations.forEach((ann) => {
+      const div = document.createElement('div');
+      div.className = 'ann-entry';
+      div.dataset.annEntry = ann.id;
+      div.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span><span class="ann-entry-num">${ann.id}</span>
+          <span class="ann-entry-section">\u00a7 ${ann.sectionTitle || 'Top'}</span></span>
+        </div>
+        <div class="ann-entry-quote">${escapeHtml(ann.quote)}</div>
+        <textarea placeholder="Your note\u2026" data-ann-textarea="${ann.id}">${escapeHtml(ann.note)}</textarea>
+        <div class="ann-entry-actions">
+          <button data-ann-goto="${ann.id}" title="Jump to highlight">\u2197 go to</button>
+          <button data-ann-delete="${ann.id}" title="Delete this note">\ud83d\uddd1 delete</button>
+        </div>
+      `;
+      annList.appendChild(div);
+    });
+
+    annList.querySelectorAll('textarea').forEach((ta) => {
+      ta.addEventListener('input', (e) => {
+        const id = parseInt(e.target.dataset.annTextarea, 10);
+        const ann = annotations.find(a => a.id === id);
+        if (ann) ann.note = e.target.value;
+      });
+    });
+    annList.querySelectorAll('[data-ann-delete]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.dataset.annDelete, 10);
+        deleteAnnotation(id);
+      });
+    });
+    annList.querySelectorAll('[data-ann-goto]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.dataset.annGoto, 10);
+        const hls = document.querySelectorAll(`.ann-highlight[data-ann-id="${id}"]`);
+        if (hls.length) {
+          hls[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          hls.forEach(h => h.classList.add('ann-active'));
+          setTimeout(() => hls.forEach(h => h.classList.remove('ann-active')), 1500);
+        }
+      });
+    });
+  }
+
+  function deleteAnnotation(id) {
+    annotations = annotations.filter(a => a.id !== id);
+    document.querySelectorAll(`.ann-highlight[data-ann-id="${id}"]`).forEach((hl) => {
+      const badge = hl.querySelector('.ann-badge');
+      if (badge) badge.remove();
+      const parent = hl.parentNode;
+      while (hl.firstChild) parent.insertBefore(hl.firstChild, hl);
+      parent.removeChild(hl);
+      parent.normalize();
+    });
+    renderPanel();
+  }
+
+  function updateCounts() {
+    const n = annotations.length;
+    countBadge.textContent = n;
+    countBadge.style.display = n > 0 ? 'block' : 'none';
+    panelCount.textContent = n > 0 ? `(${n})` : '';
+  }
+
+  function openPanel() {
+    panel.classList.add('open');
+    document.body.classList.add('panel-open');
+  }
+
+  window.annTogglePanel = function() {
+    panel.classList.toggle('open');
+    document.body.classList.toggle('panel-open');
+  };
+
+  toggleBtn.addEventListener('click', window.annTogglePanel);
+
+  window.annExport = function() {
+    if (annotations.length === 0) return;
+
+    const lines = ['# Report Annotations', ''];
+    annotations.forEach((ann) => {
+      lines.push(`## Note ${ann.id} \u2014 ${ann.sectionTitle || 'Top'}`);
+      lines.push('');
+      lines.push('> ' + ann.quote.split('\n').join('\n> '));
+      lines.push('');
+      if (ann.note.trim()) {
+        lines.push(ann.note.trim());
+      } else {
+        lines.push('_(no comment)_');
+      }
+      lines.push('');
+      lines.push('---');
+      lines.push('');
+    });
+
+    const text = lines.join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }).catch(() => {
+      const w = window.open('', '_blank');
+      w.document.write('<pre>' + escapeHtml(text) + '</pre>');
+    });
+  };
+
+  function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  renderPanel();
+})();
+</script>
