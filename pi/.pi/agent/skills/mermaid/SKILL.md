@@ -25,6 +25,27 @@ Use this skill to quickly validate Mermaid diagrams by parsing + rendering them 
 - Prints an ASCII preview using `beautiful-mermaid` (best-effort; not all diagram types are supported).
 - If `output.svg` is omitted, the SVG is rendered to a temp file and discarded.
 
+## Escaping Special Characters
+
+Mermaid has its own entity syntax using `#` (NOT `&`-prefixed HTML entities). Backslash escaping does NOT work.
+
+| Character | Mermaid escape | Example |
+|-----------|---------------|----------|
+| `#` | `#35;` | `Issue #35;42` → Issue #42 |
+| `"` | `#quot;` | `#quot;hello#quot;` → "hello" |
+| `;` | `#59;` | `a #59; b` → a ; b |
+| Line break in node | `#lt;br/#gt;` | `Node#lt;br/#gt;subtitle` |
+
+**When to use escapes**: Always use `#quot;` instead of raw `"` inside node labels and subgraph titles. Use `#35;` for literal hash/pound signs. This is especially critical when embedding in HTML `<pre class="mermaid">` blocks, where raw `"` terminates the HTML attribute and `#` starts an entity.
+
+**Node labels with special chars**: Use `[#quot;label text#quot;]` syntax:
+```
+A[#quot;PluginHost#lt;br/#gt;interface#quot;]
+subgraph S[#quot;my subgraph (with parens)#quot;]
+```
+
+**Edge labels**: Simple text without special chars can be unquoted: `A -->|receives| B`. If the label contains special chars, use entity escapes.
+
 ## Workflow (short)
 
 1. **If the diagram will live in Markdown**: draft it in a standalone `diagram.mmd` first (the tool only validates plain Mermaid files).

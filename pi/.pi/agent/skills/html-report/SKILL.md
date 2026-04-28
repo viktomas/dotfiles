@@ -42,15 +42,30 @@ Mermaid renders client-side via CDN. Embed diagrams directly in HTML:
 <div class="mermaid-wrapper">
 <pre class="mermaid">
 graph LR
-    A["Step 1"] --> B["Step 2"]
-    B --> C["Step 3"]
+    A[#quot;Step 1#quot;] --> B[#quot;Step 2#quot;]
+    B --> C[#quot;Step 3#quot;]
 </pre>
 </div>
 ```
 
 The template includes the Mermaid JS CDN and `mermaid.initialize()` at the bottom.
 
-**Important**: The `<pre class="mermaid">` content must be raw Mermaid syntax — no HTML escaping needed. The `.mermaid-wrapper` div provides a white background so diagrams are readable against the dark page.
+**Important**: The `<pre class="mermaid">` content is parsed as HTML first, then by Mermaid. This means:
+- Raw `"` inside the `<pre>` will break the HTML — the browser sees it as closing an attribute
+- Raw `#` is interpreted by Mermaid as the start of an entity (e.g., `#123;` becomes a character code)
+
+You **must** use Mermaid's own entity escapes (NOT `&`-prefixed HTML entities):
+
+| Character | Mermaid escape |
+|-----------|---------------|
+| `#` | `#35;` |
+| `"` | `#quot;` |
+| `;` | `#59;` |
+| Line break | `#lt;br/#gt;` |
+
+Use `#quot;` for quoted labels: `A[#quot;My Node#quot;]`, `subgraph S[#quot;Title#quot;]`. See the **mermaid** skill for the full escaping reference.
+
+The `.mermaid-wrapper` div provides a white background so diagrams are readable against the dark page.
 
 ## Syntax Highlighting
 
