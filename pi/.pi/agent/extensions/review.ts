@@ -29,7 +29,7 @@
 
 import type { ExtensionAPI, ExtensionContext, ExtensionCommandContext } from "@mariozechner/pi-coding-agent";
 import { DynamicBorder, BorderedLoader } from "@mariozechner/pi-coding-agent";
-import { Container, type SelectItem, SelectList, Text, Key } from "@mariozechner/pi-tui";
+import { Container, fuzzyFilter, getKeybindings, Input, type SelectItem, SelectList, Text } from "@mariozechner/pi-tui";
 import path from "node:path";
 import { promises as fs } from "node:fs";
 
@@ -613,6 +613,99 @@ export default function reviewExtension(pi: ExtensionAPI) {
 	}
 
 	/**
+	 * Show a filterable list selector (uses Input + fuzzyFilter like the model selector)
+	 */
+	async function showFilterableSelector<T>(
+		ctx: ExtensionContext,
+		title: string,
+		allItems: Array<{ value: T; label: string; description?: string }>,
+	): Promise<T | null> {
+		return ctx.ui.custom<T | null>((tui, theme, _kb, done) => {
+			const kb = getKeybindings();
+			const container = new Container();
+			container.addChild(new DynamicBorder((str) => theme.fg("accent", str)));
+			container.addChild(new Text(theme.fg("accent", theme.bold(title))));
+
+			const searchInput = new Input();
+			container.addChild(searchInput);
+
+			const listText = new Text("");
+			container.addChild(listText);
+
+			container.addChild(new Text(theme.fg("dim", "Type to filter • enter to select • esc to cancel")));
+			container.addChild(new DynamicBorder((str) => theme.fg("accent", str)));
+
+			let filteredItems = allItems;
+			let selectedIndex = 0;
+			const maxVisible = Math.min(allItems.length, 10);
+
+			function updateList() {
+				const lines: string[] = [];
+				if (filteredItems.length === 0) {
+					lines.push(theme.fg("warning", "  No matches"));
+				} else {
+					const startIndex = Math.max(0, Math.min(selectedIndex - Math.floor(maxVisible / 2), filteredItems.length - maxVisible));
+					const endIndex = Math.min(startIndex + maxVisible, filteredItems.length);
+					for (let i = startIndex; i < endIndex; i++) {
+						const item = filteredItems[i];
+						const isSelected = i === selectedIndex;
+						const prefix = isSelected ? theme.fg("accent", "› ") : "  ";
+						const label = isSelected ? theme.fg("accent", item.label) : item.label;
+						const desc = item.description ? " " + theme.fg("muted", item.description) : "";
+						lines.push(prefix + label + desc);
+					}
+					if (startIndex > 0 || endIndex < filteredItems.length) {
+						lines.push(theme.fg("muted", `  (${selectedIndex + 1}/${filteredItems.length})`));
+					}
+				}
+				listText.setText(lines.join("\n"));
+			}
+
+			function filterItems(query: string) {
+				filteredItems = query
+					? fuzzyFilter(allItems, query, (item) => item.label)
+					: allItems;
+				selectedIndex = Math.min(selectedIndex, Math.max(0, filteredItems.length - 1));
+				updateList();
+			}
+
+			updateList();
+
+			return {
+				render(width: number) {
+					return container.render(width);
+				},
+				invalidate() {
+					container.invalidate();
+				},
+				handleInput(data: string) {
+					if (kb.matches(data, "tui.select.up")) {
+						if (filteredItems.length > 0) {
+							selectedIndex = selectedIndex === 0 ? filteredItems.length - 1 : selectedIndex - 1;
+							updateList();
+						}
+					} else if (kb.matches(data, "tui.select.down")) {
+						if (filteredItems.length > 0) {
+							selectedIndex = selectedIndex === filteredItems.length - 1 ? 0 : selectedIndex + 1;
+							updateList();
+						}
+					} else if (kb.matches(data, "tui.select.confirm")) {
+						if (filteredItems[selectedIndex]) {
+							done(filteredItems[selectedIndex].value);
+						}
+					} else if (kb.matches(data, "tui.select.cancel")) {
+						done(null);
+					} else {
+						searchInput.handleInput(data);
+						filterItems(searchInput.getValue());
+					}
+					tui.requestRender();
+				},
+			};
+		});
+	}
+
+	/**
 	 * Show branch selector for base branch review
 	 */
 	async function showBranchSelector(ctx: ExtensionContext): Promise<ReviewTarget | null> {
@@ -638,49 +731,13 @@ export default function reviewExtension(pi: ExtensionAPI) {
 			return a.localeCompare(b);
 		});
 
-		const items: SelectItem[] = sortedBranches.map((branch) => ({
+		const items = sortedBranches.map((branch) => ({
 			value: branch,
 			label: branch,
-			description: branch === defaultBranch ? "(default)" : "",
+			description: branch === defaultBranch ? "(default)" : undefined,
 		}));
 
-		const result = await ctx.ui.custom<string | null>((tui, theme, _kb, done) => {
-			const container = new Container();
-			container.addChild(new DynamicBorder((str) => theme.fg("accent", str)));
-			container.addChild(new Text(theme.fg("accent", theme.bold("Select base branch"))));
-
-			const selectList = new SelectList(items, Math.min(items.length, 10), {
-				selectedPrefix: (text) => theme.fg("accent", text),
-				selectedText: (text) => theme.fg("accent", text),
-				description: (text) => theme.fg("muted", text),
-				scrollInfo: (text) => theme.fg("dim", text),
-				noMatch: (text) => theme.fg("warning", text),
-			});
-
-			// Enable search
-			selectList.searchable = true;
-
-			selectList.onSelect = (item) => done(item.value);
-			selectList.onCancel = () => done(null);
-
-			container.addChild(selectList);
-			container.addChild(new Text(theme.fg("dim", "Type to filter • enter to select • esc to cancel")));
-			container.addChild(new DynamicBorder((str) => theme.fg("accent", str)));
-
-			return {
-				render(width: number) {
-					return container.render(width);
-				},
-				invalidate() {
-					container.invalidate();
-				},
-				handleInput(data: string) {
-					selectList.handleInput(data);
-					tui.requestRender();
-				},
-			};
-		});
-
+		const result = await showFilterableSelector(ctx, "Select base branch", items);
 		if (!result) return null;
 		return { type: "baseBranch", branch: result };
 	}
@@ -696,56 +753,12 @@ export default function reviewExtension(pi: ExtensionAPI) {
 			return null;
 		}
 
-		const items: SelectItem[] = commits.map((commit) => ({
-			value: commit.sha,
+		const items = commits.map((commit) => ({
+			value: commit,
 			label: `${commit.sha.slice(0, 7)} ${commit.title}`,
-			description: "",
 		}));
 
-		const result = await ctx.ui.custom<{ sha: string; title: string } | null>((tui, theme, _kb, done) => {
-			const container = new Container();
-			container.addChild(new DynamicBorder((str) => theme.fg("accent", str)));
-			container.addChild(new Text(theme.fg("accent", theme.bold("Select commit to review"))));
-
-			const selectList = new SelectList(items, Math.min(items.length, 10), {
-				selectedPrefix: (text) => theme.fg("accent", text),
-				selectedText: (text) => theme.fg("accent", text),
-				description: (text) => theme.fg("muted", text),
-				scrollInfo: (text) => theme.fg("dim", text),
-				noMatch: (text) => theme.fg("warning", text),
-			});
-
-			// Enable search
-			selectList.searchable = true;
-
-			selectList.onSelect = (item) => {
-				const commit = commits.find((c) => c.sha === item.value);
-				if (commit) {
-					done(commit);
-				} else {
-					done(null);
-				}
-			};
-			selectList.onCancel = () => done(null);
-
-			container.addChild(selectList);
-			container.addChild(new Text(theme.fg("dim", "Type to filter • enter to select • esc to cancel")));
-			container.addChild(new DynamicBorder((str) => theme.fg("accent", str)));
-
-			return {
-				render(width: number) {
-					return container.render(width);
-				},
-				invalidate() {
-					container.invalidate();
-				},
-				handleInput(data: string) {
-					selectList.handleInput(data);
-					tui.requestRender();
-				},
-			};
-		});
-
+		const result = await showFilterableSelector(ctx, "Select commit to review", items);
 		if (!result) return null;
 		return { type: "commit", sha: result.sha, title: result.title };
 	}
