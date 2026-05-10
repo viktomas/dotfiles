@@ -15,6 +15,9 @@ function parseArgs(argv) {
 		json: false,
 		help: false,
 		query: "",
+		allowedDomains: undefined,
+		blockedDomains: undefined,
+		location: undefined,
 	};
 
 	const positional = [];
@@ -60,6 +63,30 @@ function parseArgs(argv) {
 			out.timeoutMs = Math.max(1000, Number(arg.slice("--timeout=".length) || out.timeoutMs));
 			continue;
 		}
+		if (arg === "--allowed-domains") {
+			out.allowedDomains = (argv[++i] || "").split(",").map(d => d.trim()).filter(Boolean);
+			continue;
+		}
+		if (arg.startsWith("--allowed-domains=")) {
+			out.allowedDomains = arg.slice("--allowed-domains=".length).split(",").map(d => d.trim()).filter(Boolean);
+			continue;
+		}
+		if (arg === "--blocked-domains") {
+			out.blockedDomains = (argv[++i] || "").split(",").map(d => d.trim()).filter(Boolean);
+			continue;
+		}
+		if (arg.startsWith("--blocked-domains=")) {
+			out.blockedDomains = arg.slice("--blocked-domains=".length).split(",").map(d => d.trim()).filter(Boolean);
+			continue;
+		}
+		if (arg === "--location") {
+			out.location = argv[++i] || undefined;
+			continue;
+		}
+		if (arg.startsWith("--location=")) {
+			out.location = arg.slice("--location=".length) || undefined;
+			continue;
+		}
 		positional.push(arg);
 	}
 
@@ -70,6 +97,7 @@ function parseArgs(argv) {
 function usage() {
 	return `Usage:
   node search.mjs "<query>" [--purpose "<why>"] [--provider openai-codex|anthropic] [--model <id>] [--json]
+  [--allowed-domains d1,d2] [--blocked-domains d1,d2] [--location "City, Region, Country"]
 
 Examples:
   node search.mjs "latest python release" --purpose "update dependency notes"
@@ -231,7 +259,7 @@ function pickFastModel(provider, requestedModel, piAi) {
 	if (!Array.isArray(models) || models.length === 0) {
 		if (requestedModel) return { id: requestedModel, baseUrl: undefined };
 		if (provider === "openai-codex") return { id: "gpt-5.1-codex-mini", baseUrl: "https://chatgpt.com/backend-api" };
-		return { id: "claude-haiku-4-5", baseUrl: "https://api.anthropic.com" };
+		return { id: "claude-sonnet-4-6", baseUrl: "https://api.anthropic.com" };
 	}
 
 	if (requestedModel) {
@@ -243,7 +271,7 @@ function pickFastModel(provider, requestedModel, piAi) {
 	const preferredIds =
 		provider === "openai-codex"
 			? ["gpt-5.1-codex-mini", "gpt-5.3-codex-spark", "gpt-5.1"]
-			: ["claude-haiku-4-5", "claude-3-5-haiku-latest", "claude-3-5-haiku-20241022"];
+			: ["claude-sonnet-4-6", "claude-haiku-4-5", "claude-3-5-haiku-latest"];
 
 	for (const id of preferredIds) {
 		const found = models.find((m) => m.id === id);
@@ -455,13 +483,29 @@ function buildAnthropicHeaders(apiKey) {
 	};
 }
 
-async function runAnthropicSearch({ model, apiKey, query, purpose, timeoutMs }) {
+function parseLocation(locationStr) {
+	if (!locationStr) return undefined;
+	const parts = locationStr.split(",").map(s => s.trim()).filter(Boolean);
+	const loc = { type: "approximate" };
+	if (parts.length >= 1) loc.city = parts[0];
+	if (parts.length >= 2) loc.region = parts[1];
+	if (parts.length >= 3) loc.country = parts[2];
+	return loc;
+}
+
+async function runAnthropicSearch({ model, apiKey, query, purpose, timeoutMs, allowedDomains, blockedDomains, location }) {
+	const toolDef = { type: "web_search_20250305", name: "web_search", max_uses: 5 };
+	if (allowedDomains?.length) toolDef.allowed_domains = allowedDomains;
+	if (blockedDomains?.length) toolDef.blocked_domains = blockedDomains;
+	const userLocation = parseLocation(location);
+	if (userLocation) toolDef.user_location = userLocation;
+
 	const body = {
 		model,
 		max_tokens: 1800,
 		temperature: 0,
 		system: buildSystemPrompt(),
-		tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }],
+		tools: [toolDef],
 		messages: [{ role: "user", content: buildUserPrompt(query, purpose) }],
 	};
 
@@ -534,6 +578,9 @@ async function main() {
 					query: args.query,
 					purpose: args.purpose,
 					timeoutMs: args.timeoutMs,
+					allowedDomains: args.allowedDomains,
+					blockedDomains: args.blockedDomains,
+					location: args.location,
 			  });
 
 	if (args.json) {

@@ -29,16 +29,27 @@ Each worktree's `.git` file points back to `.bare/worktrees/<name>`.
 **Always use `git wta`** (fish function) — never raw `git worktree add`:
 
 ```bash
+# New branch for your own work
 fish -c 'cd /path/to/repo && git wta -n <name>'
+
+# Review an existing MR (checks out the MR's branch)
+fish -c 'cd /path/to/repo && git wta <MR URL>'
 ```
 
-This:
+With `-n <name>`:
 1. Fetches `origin/main`
 2. Creates worktree at `<repo>/<name>/` with branch `tv/YYYY-MM/<name>` based on `origin/main`
 3. Runs post-setup: `mise trust`, `npm ci`, `go mod download` (as applicable)
 4. Changes into the new worktree directory
 
-The branch naming convention is `tv/YYYY-MM/<name>` (e.g., `tv/2026-03/my-feature`).
+With an MR URL:
+1. Fetches the MR's source branch
+2. Creates a worktree checked out to that branch
+3. Runs the same post-setup steps
+
+Use `git wta <MR URL>` when reviewing MRs — it gets you the actual MR code, not an empty branch off main.
+
+The branch naming convention for `-n` is `tv/YYYY-MM/<name>` (e.g., `tv/2026-03/my-feature`).
 
 ## Updating Main Branch
 
