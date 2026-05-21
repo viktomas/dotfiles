@@ -29,6 +29,9 @@ vim.pack.add({
 })
 
 vim.cmd.colorscheme("tokyonight")
+-- Make unused code more readable (keep it dimmed but legible)
+vim.api.nvim_set_hl(0, 'DiagnosticUnnecessary', { fg = '#7982a9', italic = true })
+vim.api.nvim_set_hl(0, 'DiagnosticUnderlineHint', { undercurl = false })
 
 require("mini.icons").setup({})
 -- add LSP kind icons to autocompletion
