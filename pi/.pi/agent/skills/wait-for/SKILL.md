@@ -10,7 +10,7 @@ Poll a shell command until it exits 0 or a timeout is reached. Uses the `bash` t
 ## Usage
 
 ```bash
-scripts/wait-for.sh <command> [timeout_seconds] [poll_interval_seconds]
+./scripts/wait-for.sh <command> [timeout_seconds] [poll_interval_seconds]
 ```
 
 - **command** — shell command/expression to evaluate (quoted). Succeeds when exit code is 0.
@@ -25,7 +25,7 @@ Always set the `bash` tool's `timeout` parameter ~30s higher than the script tim
 
 ```
 bash tool call:
-  command: /path/to/scripts/wait-for.sh "<check_command>" <timeout> <interval>
+  command: ./scripts/wait-for.sh "<check_command>" <timeout> <interval>
   timeout: <timeout + 30>
 ```
 
@@ -38,7 +38,7 @@ Use the dedicated `wait-for-pipeline.sh` script. It returns 0 on success and exi
 Must be run from a git repo directory so `glab` can resolve `:id`.
 
 ```bash
-scripts/wait-for-pipeline.sh [pipeline_id] [timeout_seconds] [poll_interval_seconds]
+./scripts/wait-for-pipeline.sh [pipeline_id] [timeout_seconds] [poll_interval_seconds]
 ```
 
 If `pipeline_id` is omitted, auto-detects the latest pipeline for the current git branch.
@@ -47,19 +47,19 @@ Exit codes: `0` = success, `1` = failed, `2` = usage/detection error, `3` = time
 
 ```bash
 # Auto-detect pipeline from current branch (default: 10 min, poll every 30s)
-scripts/wait-for-pipeline.sh
+./scripts/wait-for-pipeline.sh
 
 # Explicit pipeline ID
-scripts/wait-for-pipeline.sh 1234567
+./scripts/wait-for-pipeline.sh 1234567
 
 # Custom timeout and interval
-scripts/wait-for-pipeline.sh 1234567 900 60
+./scripts/wait-for-pipeline.sh 1234567 900 60
 ```
 
 How to call from the agent:
 ```
 bash tool call:
-  command: /path/to/scripts/wait-for-pipeline.sh [pipeline_id] <timeout> <interval>
+  command: ./scripts/wait-for-pipeline.sh [pipeline_id] <timeout> <interval>
   timeout: <timeout + 30>
 ```
 
@@ -68,7 +68,7 @@ bash tool call:
 Uses current branch name to look up the MR. Run from within the git repo.
 
 ```bash
-scripts/wait-for.sh "glab mr view \$(git branch --show-current) -F json | jq -e '.state == \"merged\"'" 600 30
+./scripts/wait-for.sh "glab mr view \$(git branch --show-current) -F json | jq -e '.state == \"merged\"'" 600 30
 ```
 
 ### Wait for a merge train pipeline (10 min, poll every 60s)
@@ -76,19 +76,19 @@ scripts/wait-for.sh "glab mr view \$(git branch --show-current) -F json | jq -e 
 Get the MR iid first: `glab mr view $(git branch --show-current) -F json | jq .iid`
 
 ```bash
-scripts/wait-for.sh "glab api 'projects/:id/merge_requests/<mr_iid>/pipelines?per_page=1' | jq -e '.[0].status == \"success\"'" 600 60
+./scripts/wait-for.sh "glab api 'projects/:id/merge_requests/<mr_iid>/pipelines?per_page=1' | jq -e '.[0].status == \"success\"'" 600 60
 ```
 
 ### Wait for a file to appear
 
 ```bash
-scripts/wait-for.sh "test -f /tmp/build-done.flag" 120 5
+./scripts/wait-for.sh "test -f /tmp/build-done.flag" 120 5
 ```
 
 ### Wait for HTTP endpoint to be healthy
 
 ```bash
-scripts/wait-for.sh "curl -sf https://example.com/health" 60 5
+./scripts/wait-for.sh "curl -sf https://example.com/health" 60 5
 ```
 
 ## Tips

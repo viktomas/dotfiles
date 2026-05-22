@@ -58,11 +58,11 @@ glab ci trace <job-id>             # stream job log
 Use the `wait-for` skill's `wait-for-pipeline.sh` script — it auto-detects the current branch's pipeline, polls with early failure detection, and outputs structured JSON on failure. See the wait-for skill for full docs.
 
 ```bash
-# Auto-detect pipeline from current branch
-wait-for-pipeline.sh
+# Auto-detect pipeline from current branch (run from wait-for skill dir)
+./scripts/wait-for-pipeline.sh
 
 # Explicit pipeline ID
-wait-for-pipeline.sh <pipeline_id>
+./scripts/wait-for-pipeline.sh <pipeline_id>
 ```
 
 For manual one-off checks without the script:
@@ -130,12 +130,12 @@ Merge train pipelines have `ref: "refs/merge-requests/<iid>/train"`.
 
 ## glab — To-Do List
 
-Uses helper scripts in `scripts/` relative to this skill directory.
+Uses helper scripts in `./scripts/`.
 
 ### List TODOs
 
 ```bash
-scripts/list-todos.sh [--state pending|done] [--action ACTION] [--type TYPE] [--per-page N]
+./scripts/list-todos.sh [--state pending|done] [--action ACTION] [--type TYPE] [--per-page N]
 ```
 
 Defaults to `--state pending --per-page 50`.
@@ -145,15 +145,15 @@ Defaults to `--state pending --per-page 50`.
 **Type filter values**: `Issue`, `MergeRequest`, `Commit`, `Epic`, `DesignManagement::Design`, `AlertManagement::Alert`, `Project`, `Namespace`, `Vulnerability`, `WikiPage::Meta`
 
 ```bash
-scripts/list-todos.sh                                    # all pending
-scripts/list-todos.sh --action review_requested          # only review requests
-scripts/list-todos.sh --state done --type MergeRequest   # done MR TODOs
+./scripts/list-todos.sh                                    # all pending
+./scripts/list-todos.sh --action review_requested          # only review requests
+./scripts/list-todos.sh --state done --type MergeRequest   # done MR TODOs
 ```
 
 ### Mark a Single TODO as Done
 
 ```bash
-scripts/mark-todo-done.sh <todo_id>
+./scripts/mark-todo-done.sh <todo_id>
 ```
 
 The `todo_id` is shown in `list-todos.sh` output as `(id:NNN)`.

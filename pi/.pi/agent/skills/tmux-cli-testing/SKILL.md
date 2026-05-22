@@ -11,7 +11,7 @@ Test any interactive CLI app using tmux sessions and shell scripts.
 
 ```bash
 #!/usr/bin/env bash
-source scripts/tmux_test_helper.sh
+source ./scripts/tmux_test_helper.sh
 trap cleanup_test EXIT
 
 # Start app
@@ -60,7 +60,7 @@ echo "$output" | grep "expected result"
 
 ```bash
 #!/usr/bin/env bash
-source scripts/tmux_test_helper.sh
+source ./scripts/tmux_test_helper.sh
 trap cleanup_test EXIT
 
 start_test "duo"
@@ -88,4 +88,4 @@ Timeout errors automatically show current terminal output for debugging.
 ## See Also
 
 - **references/REFERENCE.md** - Add additional insights and findings here
-- **scripts/tmux_test_helper.sh** - Helper script implementation
+- **./scripts/tmux_test_helper.sh** - Helper script implementation
