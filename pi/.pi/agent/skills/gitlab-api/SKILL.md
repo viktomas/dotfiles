@@ -55,24 +55,23 @@ glab ci trace <job-id>             # stream job log
 
 **⚠️ Don't wait for `pipeline.status` alone.** A pipeline stays `running` even when jobs have already failed (other jobs are still executing). This wastes minutes waiting for a result you could detect immediately.
 
-Instead, check for non-allowable failed jobs to detect failure early while the pipeline is still running:
+Use the `wait-for` skill's `wait-for-pipeline.sh` script — it auto-detects the current branch's pipeline, polls with early failure detection, and outputs structured JSON on failure. See the wait-for skill for full docs.
 
 ```bash
-# Early failure: exits 0 if any non-allow_failure job has failed (pipeline will inevitably fail)
-glab api "projects/:id/pipelines/<pipeline_id>/jobs?per_page=100" \
-  | jq -e '[.[] | select(.status == "failed" and .allow_failure == false)] | length > 0'
+# Auto-detect pipeline from current branch
+wait-for-pipeline.sh
 
-# Full condition: pipeline finished OR has a non-recoverable failure
-# Use this as your wait-for command:
-PIPELINE_ID=<id>; \
-glab mr view <iid> -F json | jq -e '.pipeline.status == "success" or .pipeline.status == "failed"' 2>/dev/null \
-|| glab api "projects/:id/pipelines/$PIPELINE_ID/jobs?per_page=100" \
-  | jq -e '[.[] | select(.status == "failed" and .allow_failure == false)] | length > 0'
+# Explicit pipeline ID
+wait-for-pipeline.sh <pipeline_id>
 ```
 
-The combined check exits 0 when either:
-1. The pipeline has fully completed (success or failed), OR
-2. A required job has already failed (pipeline is doomed even though it's still "running")
+For manual one-off checks without the script:
+
+```bash
+# Check if any required job has already failed (pipeline is doomed)
+glab api "projects/:id/pipelines/<pipeline_id>/jobs?per_page=100" \
+  | jq -e '[.[] | select(.status == "failed" and .allow_failure == false)] | length > 0'
+```
 
 ## glab — Issues
 

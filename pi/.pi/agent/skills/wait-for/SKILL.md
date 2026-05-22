@@ -31,34 +31,52 @@ bash tool call:
 
 ## Examples
 
-### Wait for MR pipeline to finish (5 min, poll every 30s)
+### Wait for a pipeline with early failure detection (recommended)
 
-**⚠️ Prefer the early-failure variant below** — a pipeline stays `running` even when required jobs have already failed.
+Use the dedicated `wait-for-pipeline.sh` script. It returns 0 on success and exits immediately with 1 when any required (non-allow_failure) job fails — no need to wait for the full pipeline. It also prints the failed job names and URLs.
+
+Must be run from a git repo directory so `glab` can resolve `:id`.
 
 ```bash
-scripts/wait-for.sh "glab mr view 2941 -R gitlab-org/editor-extensions/gitlab-lsp -F json | jq -e '.pipeline.status == \"success\" or .pipeline.status == \"failed\"'" 300 30
+scripts/wait-for-pipeline.sh [pipeline_id] [timeout_seconds] [poll_interval_seconds]
 ```
 
-### Wait for MR pipeline with early failure detection (recommended)
+If `pipeline_id` is omitted, auto-detects the latest pipeline for the current git branch.
 
-Detects failure as soon as any non-allow_failure job fails, instead of waiting for the whole pipeline to finish. Requires the pipeline ID — get it from `glab mr view <iid> -F json | jq .pipeline.id`.
+Exit codes: `0` = success, `1` = failed, `2` = usage/detection error, `3` = timed out.
 
 ```bash
-scripts/wait-for.sh "glab mr view 2941 -F json | jq -e '.pipeline.status == \"success\" or .pipeline.status == \"failed\"' 2>/dev/null || glab api 'projects/:id/pipelines/<PIPELINE_ID>/jobs?per_page=100' | jq -e '[.[] | select(.status == \"failed\" and .allow_failure == false)] | length > 0'" 600 30
+# Auto-detect pipeline from current branch (default: 10 min, poll every 30s)
+scripts/wait-for-pipeline.sh
+
+# Explicit pipeline ID
+scripts/wait-for-pipeline.sh 1234567
+
+# Custom timeout and interval
+scripts/wait-for-pipeline.sh 1234567 900 60
 ```
 
-After this returns, check `glab mr view <iid> -F json | jq .pipeline.status` — if it's not `success`, inspect failed jobs.
+How to call from the agent:
+```
+bash tool call:
+  command: /path/to/scripts/wait-for-pipeline.sh [pipeline_id] <timeout> <interval>
+  timeout: <timeout + 30>
+```
 
-### Wait for MR to be merged (10 min, poll every 30s)
+### Wait for current branch's MR to be merged (10 min, poll every 30s)
+
+Uses current branch name to look up the MR. Run from within the git repo.
 
 ```bash
-scripts/wait-for.sh "glab mr view 2941 -R gitlab-org/editor-extensions/gitlab-lsp -F json | jq -e '.state == \"merged\"'" 600 30
+scripts/wait-for.sh "glab mr view \$(git branch --show-current) -F json | jq -e '.state == \"merged\"'" 600 30
 ```
 
 ### Wait for a merge train pipeline (10 min, poll every 60s)
 
+Get the MR iid first: `glab mr view $(git branch --show-current) -F json | jq .iid`
+
 ```bash
-scripts/wait-for.sh "glab api 'projects/46519181/merge_requests/2941/pipelines?per_page=1' | jq -e '.[0].status == \"success\"'" 600 60
+scripts/wait-for.sh "glab api 'projects/:id/merge_requests/<mr_iid>/pipelines?per_page=1' | jq -e '.[0].status == \"success\"'" 600 60
 ```
 
 ### Wait for a file to appear
