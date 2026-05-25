@@ -403,6 +403,7 @@ export default function htmlReportExtension(pi: ExtensionAPI) {
       // Send the LLM-translated feedback as a user message on the main branch
       pi.sendUserMessage(
         `I reviewed a report of our discussion and have the following feedback:\n\n${translatedFeedback}`,
+        { deliverAs: "followUp" },
       );
 
       ctx.ui.notify(
