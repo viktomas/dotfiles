@@ -62,6 +62,7 @@ require("plugins.fuzzy")
 require("plugins.lsp")
 require("plugins.treesitter")
 require("plugins.formatter")
+require("plugins.love2d")
 -- require("plugins.gitlab")
 require("permalink")
 

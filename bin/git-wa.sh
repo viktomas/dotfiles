@@ -81,6 +81,18 @@ if git worktree add "$@" 1>&2; then
         #     fi
         # done
 
+        # Set up remote tracking if not already configured
+        branch=$(cd "$worktree_path" && git branch --show-current)
+        if [ -n "$branch" ]; then
+            upstream=$(cd "$worktree_path" && git config "branch.$branch.remote" 2>/dev/null)
+            if [ -z "$upstream" ]; then
+                if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+                    (cd "$worktree_path" && git branch --set-upstream-to="origin/$branch" "$branch")
+                    echo "Set upstream to origin/$branch"
+                fi
+            fi
+        fi
+
         ## change dir to the new worktree
         cd "$worktree_path" || exit 1
         echo "Worktree setup complete!"

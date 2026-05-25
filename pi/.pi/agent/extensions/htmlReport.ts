@@ -16,6 +16,7 @@
 
 import type {
   ExtensionAPI,
+  ExtensionCommandContext,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import { BorderedLoader, Text } from "@earendil-works/pi-tui";
@@ -150,6 +151,34 @@ highlight.js is loaded from CDN. Add language packs you need:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
 \`\`\`
 
+## Inline SVG for Spatial / 2D Concepts
+
+When explaining spatial relationships, layouts, coordinate systems, tilemaps, sprite sheets, collision boxes, screen regions, or any 2D concept — **use inline SVG** instead of describing it in text or using Mermaid.
+
+SVG is embedded directly in the HTML (no external files). Use it for:
+- Coordinate system diagrams (axes, origins, directions)
+- Tile/grid layouts and sprite sheet slicing
+- Collision box overlaps and hitbox visualization
+- Screen layout / camera viewport illustrations
+- Movement vectors, trajectories, physics diagrams
+- Any "here's how things are positioned" explanation
+
+Keep SVGs clean: use \`viewBox\` for scaling, label with \`<text>\`, use semi-transparent fills to show overlaps, and add a subtle grid when coordinates matter. Style them to match the report's dark theme (light strokes, dark backgrounds).
+
+Example pattern:
+\`\`\`html
+<svg viewBox="0 0 200 200" style="width:100%;max-width:400px;background:#1a1a2e;border-radius:8px;">
+  <!-- grid -->
+  <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#333" stroke-width="0.5"/>
+  </pattern></defs>
+  <rect width="200" height="200" fill="url(#grid)"/>
+  <!-- content -->
+  <rect x="40" y="40" width="32" height="32" fill="rgba(99,102,241,0.4)" stroke="#6366f1"/>
+  <text x="56" y="90" text-anchor="middle" fill="#e2e8f0" font-size="10">player</text>
+</svg>
+\`\`\`
+
 ## Rules
 
 - **Always use \`/tmp/\`** — reports are ephemeral artifacts, not project files
@@ -257,136 +286,143 @@ export default function htmlReportExtension(pi: ExtensionAPI) {
     },
   });
 
+  // ── Shared annotations handler ──
+
+  async function handleAnnotations(
+    args: string | undefined,
+    ctx: ExtensionCommandContext,
+  ): Promise<void> {
+    if (!ctx.hasUI) {
+      ctx.ui.notify("annotations requires interactive mode", "error");
+      return;
+    }
+
+    // Check if we're in a report branch
+    if (!reportOriginId) {
+      const state = getReportState(ctx);
+      if (state?.active && state.originId) {
+        reportOriginId = state.originId;
+      } else {
+        ctx.ui.notify(
+          "Not in a report branch. Use /report first.",
+          "info",
+        );
+        return;
+      }
+    }
+
+    // Get annotations: from args (pasted inline) or from editor
+    let rawAnnotations = args?.trim() || undefined;
+
+    if (!rawAnnotations) {
+      rawAnnotations =
+        (
+          await ctx.ui.editor(
+            "Paste exported annotations (from the 📋 Export button in the report):",
+            "",
+          )
+        )?.trim() || undefined;
+    }
+
+    if (!rawAnnotations) {
+      ctx.ui.notify(
+        "No annotations provided. Staying on report branch.",
+        "info",
+      );
+      return;
+    }
+
+    // Send annotations to LLM on the report branch for translation
+    // The LLM has full context of both the discussion AND the report
+    const translationPrompt =
+      ANNOTATION_TRANSLATE_PROMPT + rawAnnotations;
+
+    pi.sendUserMessage(translationPrompt);
+
+    // Wait for the LLM to finish translating
+    await ctx.waitForIdle();
+
+    // Extract the LLM's translation from the last assistant message
+    const branch = ctx.sessionManager.getBranch();
+    let translatedFeedback: string | undefined;
+
+    for (let i = branch.length - 1; i >= 0; i--) {
+      const entry = branch[i];
+      if (
+        entry.type === "message" &&
+        entry.message.role === "assistant"
+      ) {
+        // Extract text content from the assistant message
+        const content = entry.message.content;
+        if (typeof content === "string") {
+          translatedFeedback = content;
+        } else if (Array.isArray(content)) {
+          translatedFeedback = content
+            .filter(
+              (c): c is { type: "text"; text: string } =>
+                c.type === "text",
+            )
+            .map((c) => c.text)
+            .join("\n");
+        }
+        break;
+      }
+    }
+
+    if (!translatedFeedback?.trim()) {
+      ctx.ui.notify(
+        "Could not extract translated feedback. Staying on report branch.",
+        "warning",
+      );
+      return;
+    }
+
+    ctx.ui.notify("Feedback translated. Returning to main branch...", "info");
+
+    const originId = reportOriginId;
+
+    // Navigate back to origin without summary — we have our own translated feedback
+    try {
+      const result = await ctx.navigateTree(originId!, {
+        summarize: false,
+      });
+
+      if (result.cancelled) {
+        ctx.ui.notify(
+          "Navigation cancelled. Use /annotations to try again.",
+          "info",
+        );
+        return;
+      }
+
+      // Clear state
+      setReportWidget(ctx, false);
+      reportOriginId = undefined;
+      pi.appendEntry(REPORT_STATE_TYPE, { active: false });
+
+      // Send the LLM-translated feedback as a user message on the main branch
+      pi.sendUserMessage(
+        `I reviewed a report of our discussion and have the following feedback:\n\n${translatedFeedback}`,
+      );
+
+      ctx.ui.notify(
+        "Back on main branch with your feedback injected.",
+        "info",
+      );
+    } catch (error) {
+      ctx.ui.notify(
+        `Failed to return: ${error instanceof Error ? error.message : String(error)}`,
+        "error",
+      );
+    }
+  }
+
   // ── /annotations ──
 
   pi.registerCommand("annotations", {
     description:
       "Send annotations to LLM for translation, then return to main branch with feedback",
-    handler: async (args, ctx) => {
-      if (!ctx.hasUI) {
-        ctx.ui.notify("annotations requires interactive mode", "error");
-        return;
-      }
-
-      // Check if we're in a report branch
-      if (!reportOriginId) {
-        const state = getReportState(ctx);
-        if (state?.active && state.originId) {
-          reportOriginId = state.originId;
-        } else {
-          ctx.ui.notify(
-            "Not in a report branch. Use /report first.",
-            "info",
-          );
-          return;
-        }
-      }
-
-      // Get annotations: from args (pasted inline) or from editor
-      let rawAnnotations = args?.trim() || undefined;
-
-      if (!rawAnnotations) {
-        rawAnnotations =
-          (
-            await ctx.ui.editor(
-              "Paste exported annotations (from the 📋 Export button in the report):",
-              "",
-            )
-          )?.trim() || undefined;
-      }
-
-      if (!rawAnnotations) {
-        ctx.ui.notify(
-          "No annotations provided. Staying on report branch.",
-          "info",
-        );
-        return;
-      }
-
-      // Send annotations to LLM on the report branch for translation
-      // The LLM has full context of both the discussion AND the report
-      const translationPrompt =
-        ANNOTATION_TRANSLATE_PROMPT + rawAnnotations;
-
-      pi.sendUserMessage(translationPrompt);
-
-      // Wait for the LLM to finish translating
-      await ctx.waitForIdle();
-
-      // Extract the LLM's translation from the last assistant message
-      const branch = ctx.sessionManager.getBranch();
-      let translatedFeedback: string | undefined;
-
-      for (let i = branch.length - 1; i >= 0; i--) {
-        const entry = branch[i];
-        if (
-          entry.type === "message" &&
-          entry.message.role === "assistant"
-        ) {
-          // Extract text content from the assistant message
-          const content = entry.message.content;
-          if (typeof content === "string") {
-            translatedFeedback = content;
-          } else if (Array.isArray(content)) {
-            translatedFeedback = content
-              .filter(
-                (c): c is { type: "text"; text: string } =>
-                  c.type === "text",
-              )
-              .map((c) => c.text)
-              .join("\n");
-          }
-          break;
-        }
-      }
-
-      if (!translatedFeedback?.trim()) {
-        ctx.ui.notify(
-          "Could not extract translated feedback. Staying on report branch.",
-          "warning",
-        );
-        return;
-      }
-
-      ctx.ui.notify("Feedback translated. Returning to main branch...", "info");
-
-      const originId = reportOriginId;
-
-      // Navigate back to origin without summary — we have our own translated feedback
-      try {
-        const result = await ctx.navigateTree(originId!, {
-          summarize: false,
-        });
-
-        if (result.cancelled) {
-          ctx.ui.notify(
-            "Navigation cancelled. Use /annotations to try again.",
-            "info",
-          );
-          return;
-        }
-
-        // Clear state
-        setReportWidget(ctx, false);
-        reportOriginId = undefined;
-        pi.appendEntry(REPORT_STATE_TYPE, { active: false });
-
-        // Send the LLM-translated feedback as a user message on the main branch
-        pi.sendUserMessage(
-          `I reviewed a report of our discussion and have the following feedback:\n\n${translatedFeedback}`,
-        );
-
-        ctx.ui.notify(
-          "Back on main branch with your feedback injected.",
-          "info",
-        );
-      } catch (error) {
-        ctx.ui.notify(
-          `Failed to return: ${error instanceof Error ? error.message : String(error)}`,
-          "error",
-        );
-      }
-    },
+    handler: async (args, ctx) => handleAnnotations(args, ctx),
   });
 
   // ── /end-report ──
@@ -394,7 +430,7 @@ export default function htmlReportExtension(pi: ExtensionAPI) {
   pi.registerCommand("end-report", {
     description:
       "Leave report branch and return to main branch without annotations",
-    handler: async (_args, ctx) => {
+    handler: async (args, ctx) => {
       if (!ctx.hasUI) {
         ctx.ui.notify("end-report requires interactive mode", "error");
         return;
@@ -408,6 +444,16 @@ export default function htmlReportExtension(pi: ExtensionAPI) {
           ctx.ui.notify("Not in a report branch.", "info");
           return;
         }
+      }
+
+      // If user passed annotations as args, redirect to /annotations flow
+      if (args?.trim()) {
+        ctx.ui.notify(
+          "Annotations detected — routing to /annotations flow...",
+          "info",
+        );
+        await handleAnnotations(args, ctx);
+        return;
       }
 
       const summaryChoice = await ctx.ui.select(
