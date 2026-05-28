@@ -1,0 +1,42 @@
+[uBlock Origin]
+! Title: YouTube Cleanup
+! Description: Hide comments, suggestions, recommendations, and homepage clutter
+! Homepage: https://gitlab.com/viktomas/dotfiles
+! Last modified: 2026-05-28
+
+! ============================
+! YouTube Comments
+! ============================
+www.youtube.com##ytd-comments
+www.youtube.com###comments > .ytd-comments.style-scope
+
+! ============================
+! YouTube Suggestions / Recommendations
+! ============================
+
+! Sidebar "Up next" / related videos
+www.youtube.com###related
+
+! Endscreen suggestions
+www.youtube.com##.ytp-suggestions
+www.youtube.com##.videowall-endscreen
+
+! Pause overlay recommendations
+www.youtube.com##.ytp-pause-overlay
+
+! Fullscreen suggestion grid (2025 player UI)
+www.youtube.com##.ytp-fullscreen-grid-stills-container
+www.youtube.com##.ytp-fullscreen-quick-actions
+
+! ============================
+! Homepage cleanup
+! ============================
+
+! Shorts, "Top News", and other injected sections on home
+www.youtube.com##[page-subtype="home"] ytd-rich-section-renderer:has(#dismissible)
+
+! Shorts in sidebar menu
+www.youtube.com##ytd-guide-renderer ytd-guide-entry-renderer:has(a[title="Shorts"]), ytd-mini-guide-entry-renderer[aria-label="Shorts"]
+
+! "How is this recommendation?" tooltip
+www.youtube.com##[page-subtype="home"] ytd-rich-item-renderer #attached-survey
