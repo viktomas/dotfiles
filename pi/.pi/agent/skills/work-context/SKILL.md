@@ -67,6 +67,12 @@ Also load this skill when asked to save, create, or look up a **reference** — 
    ```
    List files to find relevant references, or create new ones here when asked to save something for later.
 
+   **Semantic search across all work notes** — the entire `/Users/tomas/workspace/gl/work` tree (including `references/`, `mrs/`, `board/`, `todo.md`) is indexed by `qmd`. Use it when looking for a past reference, decision, or note by topic rather than by filename:
+   ```bash
+   qmd query "<topic or question>" -c work
+   ```
+   Prefer this over blind `rg`/`fd` when the user asks "do we have notes on X", "what did I decide about Y", or "find that reference about Z". Fall back to `rg`/`fd` for exact strings or filenames. After adding new references, run `qmd embed` to index them.
+
 8. **Task sessions** — board items can link to zellij task sessions via `$slug` annotations on headings. Full CLI reference and conventions are in:
    ```
    /Users/tomas/workspace/gl/work/.pi/skills/task-management/SKILL.md

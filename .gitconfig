@@ -36,7 +36,7 @@
 
 
 [push]
-  default = current
+	default = simple
   autoSetupRemote = true
   followTags = false
 [filter "lfs"]

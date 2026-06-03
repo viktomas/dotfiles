@@ -207,6 +207,74 @@ curl -s --request POST "https://gitlab.com/api/v4/projects/<project_id>/merge_tr
 
 Projects with merge trains: `gitlab-org/cli` (34675721), `gitlab-org/editor-extensions/gitlab-lsp` (46519181).
 
+## GraphQL — Work Items (Epics, Issues)
+
+Group-level work items (new-style epics) have **no REST API for notes**. Use GraphQL.
+
+### Fetch work item comments (non-system notes)
+
+**⚠️ Always use `filter: ONLY_COMMENTS`** on the `discussions` field. Without it, the default page is flooded with system notes (label changes, child additions, etc.) and real comments won't appear.
+
+```graphql
+{
+  group(fullPath: "gitlab-org") {
+    workItem(iid: "19717") {
+      title
+      widgets {
+        ... on WorkItemWidgetNotes {
+          type
+          discussions(filter: ONLY_COMMENTS) {
+            nodes {
+              notes {
+                nodes {
+                  id
+                  body
+                  author { username }
+                  createdAt
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Fetch work item children (hierarchy)
+
+```graphql
+{
+  group(fullPath: "gitlab-org") {
+    workItem(iid: "19717") {
+      title
+      widgets {
+        ... on WorkItemWidgetHierarchy {
+          children {
+            nodes {
+              iid
+              title
+              state
+              webUrl
+              workItemType { name }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Fetch a single note by ID
+
+If you have a note URL like `#note_3390005104`, fetch it directly:
+
+```graphql
+{ note(id: "gid://gitlab/Note/3390005104") { body author { username } createdAt } }
+```
+
 ## API Documentation
 
 For exploring GitLab API endpoints and parameters, check the local GDK docs at `/Users/tomas/workspace/gl/gdk/gitlab/doc/api/`. These are the source `.md` files for the official GitLab API docs.

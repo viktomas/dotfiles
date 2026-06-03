@@ -89,6 +89,23 @@ MRs from forks (e.g. renovate bot) have `source_project_id ≠ target_project_id
 
 This is common with renovate dependency MRs that fail artifact updates (e.g. Go module path changes that renovate can't handle).
 
+## Pushing Fork Branches
+
+`push.default` is set to `simple`. For the branch's tracking remote, `git push` pushes there (not `origin`) — but only if the local and remote branch names match; otherwise it refuses. When a branch tracks a fork remote (e.g. `gitlab-renovate-forks`) with a matching branch name, a plain `git push` pushes there.
+
+Always verify the tracking remote before pushing fork branches:
+
+```bash
+git branch -vv          # shows [remote/branch] tracking info
+git push                # pushes to tracked remote
+```
+
+If the branch name on the remote differs from the local branch name (common with fork worktrees where local name is `fork/<remote>/<branch>` but the remote branch is just `<branch>`), specify the refspec:
+
+```bash
+git push <fork-remote> HEAD:<remote-branch-name>
+```
+
 ## ⚠️ Pre-push Hooks Can Corrupt Worktree State
 
 **Root cause**: Git sets `GIT_WORK_TREE` during hook execution. This leaks into test subprocesses, causing lefthook hooks from `.bare/hooks/` to fire in test temp repos. Only happens inside hooks (pre-push, pre-commit), not when running `make test-changed` directly.

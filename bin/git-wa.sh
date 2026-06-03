@@ -14,22 +14,6 @@
 # Otherwise its progress lines will pollute your captured output.
 # ──────────────────────────────────────────────────────────────────────────
 
-# Debug environment differences
-# echo "=== DEBUG INFO ===" >&2
-# echo "Script path: $0" >&2
-# echo "Working directory: $(pwd)" >&2
-# echo "PATH: $PATH" >&2
-# echo "Git root: $(git rev-parse --show-toplevel 2>/dev/null || echo 'Not in git repo')" >&2
-# echo "Git dir: $(git rev-parse --git-dir 2>/dev/null || echo 'Not in git repo')" >&2
-# echo "Arguments: $@" >&2
-# echo "Number of args: $#" >&2
-# echo "Shell: $SHELL" >&2
-# echo "User: $USER" >&2
-# echo "==================" >&2
-# worktree_path=$(cd "$1" && pwd)
-# (cd "$worktree_path" && npm run prepare)
-# # Execute git worktree with all passed arguments and
-# # Check if git worktree command was successful
 if git worktree add "$@" 1>&2; then
 # The first argument is always the worktree path for git worktree add
     worktree_path=$(cd "$1" && pwd)
@@ -59,27 +43,6 @@ if git worktree add "$@" 1>&2; then
             echo "Found go.mod, running go mod download"
             (cd "$worktree_path" && go mod download) || echo "go mod download failed, continuing..."
         fi
-
-        # Create soft links for files from parent directory
-        # echo "Creating soft links for additional files..."
-        # for item in "CLAUDE.md" ".claude"; do
-        #     if [ -e "$item" ]; then
-        #         # Get absolute path of the source item
-        #         source_path=$(realpath "$item")
-        #         target_path="$worktree_path/$item"
-        #
-        #         # Remove existing file/directory if it exists
-        #         if [ -e "$target_path" ]; then
-        #             rm -rf "$target_path"
-        #         fi
-        #
-        #         # Create soft link
-        #         ln -s "$source_path" "$target_path"
-        #         echo "Created soft link for $item"
-        #     else
-        #         echo "Warning: $item not found in parent directory"
-        #     fi
-        # done
 
         # Set up remote tracking if not already configured
         branch=$(cd "$worktree_path" && git branch --show-current)

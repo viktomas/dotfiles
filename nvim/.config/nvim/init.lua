@@ -36,7 +36,12 @@ vim.api.nvim_set_hl(0, 'DiagnosticUnderlineHint', { undercurl = false })
 require("mini.icons").setup({})
 -- add LSP kind icons to autocompletion
 MiniIcons.tweak_lsp_kind()
-require("mini.snippets").setup({})
+require("mini.snippets").setup({
+  mappings = {
+    jump_next = '<Tab>',
+    jump_prev = '<S-Tab>',
+  },
+})
 require("mini.completion").setup({})
 
 -- Disable mini.completion fallback in markdown — without this, every word
