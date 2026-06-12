@@ -142,7 +142,8 @@ You **must** use Mermaid entity escapes (NOT \`&\`-prefixed HTML entities):
 | \`#\` | \`#35;\` |
 | \`"\` | \`#quot;\` |
 | \`;\` | \`#59;\` |
-| Line break | \`#lt;br/#gt;\` |
+
+**Line breaks are the exception** — do NOT use \`#lt;br/#gt;\` (Mermaid shows it as the literal text \`<br/>\`). Use the HTML entity \`&lt;br/&gt;\`: the browser decodes it to \`<br/>\` in the element's text content, which Mermaid then renders as a real line break. Example: \`A[#quot;First line&lt;br/&gt;Second line#quot;]\`.
 
 ## Syntax Highlighting
 

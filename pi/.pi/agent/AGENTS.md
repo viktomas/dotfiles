@@ -1,5 +1,6 @@
 prefer `fd` and `rg` over `find` and `grep`
 `rg` uses `-t` for file type
+`rg` recurses by default — do NOT pass `-r` for "recursive" (grep habit). In `rg`, `-r` is `--replace`, so `rg -rn "pat"` parses as `--replace=n` and rewrites every match to the literal `n`.
 
 My GitLab username is @viktomas.
 

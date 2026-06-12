@@ -61,9 +61,17 @@ You **must** use Mermaid's own entity escapes (NOT `&`-prefixed HTML entities):
 | `#` | `#35;` |
 | `"` | `#quot;` |
 | `;` | `#59;` |
-| Line break | `#lt;br/#gt;` |
 
 Use `#quot;` for quoted labels: `A[#quot;My Node#quot;]`, `subgraph S[#quot;Title#quot;]`. See the **mermaid** skill for the full escaping reference.
+
+**Line breaks are the one exception** — do NOT use `#lt;br/#gt;` (Mermaid decodes it to the *literal text* `<br/>` and shows it in the node). Use the HTML entity `&lt;br/&gt;` instead: the browser decodes it to `<br/>` in the element's text content, which Mermaid then renders as a real line break.
+
+```html
+<pre class="mermaid">
+graph LR
+    A[#quot;First line&lt;br/&gt;Second line#quot;] --> B[#quot;Done#quot;]
+</pre>
+```
 
 The `.mermaid-wrapper` div provides a white background so diagrams are readable against the dark page.
 

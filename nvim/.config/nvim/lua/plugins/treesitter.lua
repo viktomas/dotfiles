@@ -1,13 +1,23 @@
-require("nvim-treesitter").setup({
-  ensure_installed = { "lua", "markdown", "markdown_inline", "typescript", "javascript", "go" },
-  -- Install parsers synchronously (only applied to `ensure_installed`)
-  sync_install = false,
-  -- Automatically install missing parsers when entering buffer
-  auto_install = true,
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false,
-  },
+require("nvim-treesitter").setup({})
+
+-- Ensure parsers we care about are installed (the `main` branch ignores
+-- `ensure_installed` in setup(), so install explicitly).
+local ensure_installed = {
+  "lua", "markdown", "markdown_inline", "typescript", "javascript", "go", "fennel",
+}
+pcall(function()
+  require("nvim-treesitter").install(ensure_installed)
+end)
+
+-- The `main` branch no longer auto-enables highlighting. Start treesitter
+-- highlighting for any buffer whose filetype has a parser available.
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function(args)
+    local ok = pcall(vim.treesitter.start, args.buf)
+    if not ok then
+      return
+    end
+  end,
 })
 
 -- Incremental selection via built-in treesitter (nvim 0.12+)

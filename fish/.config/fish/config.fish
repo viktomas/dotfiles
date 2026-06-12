@@ -1,6 +1,9 @@
 source ~/.secrets/secrets
 source ~/.secrets/gdk
 set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
+# Shared Turborepo cache across git worktrees (each worktree has its own
+# node_modules/.turbo, so without this every fresh worktree rebuilds from scratch)
+set -gx TURBO_CACHE_DIR ~/.cache/turbo
 if status is-interactive
     abbr --add fd fd --hidden
     fish_vi_key_bindings

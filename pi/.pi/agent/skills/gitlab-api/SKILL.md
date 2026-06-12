@@ -83,6 +83,8 @@ glab issue create --title "..." --description ":robot: AI-generated
 Issue body here..." -R OWNER/REPO
 ```
 
+When creating an issue, use the `## Problem` and `## Solution` headers and be brief!
+
 ## glab — Merge Requests
 
 ### View MR details
