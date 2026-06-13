@@ -26,6 +26,11 @@ vim.pack.add({
   { src = 'https://github.com/echasnovski/mini.pairs',                     version = 'b7fde3719340946feb75017ef9d75edebdeb0566' },
   { src = 'https://github.com/echasnovski/mini.surround',                  version = 'd205d1741d1fcc1f3117b4e839bf00f74ad72fa2' },
   { src = 'https://github.com/echasnovski/mini.snippets',                  version = 'c7a5fd5e767dcc732940f59f2a83c64ea7346a3e' },
+  -- Fennel / Lisp structural editing (parinfer + paredit, glued by parpar)
+  { src = 'https://github.com/gpanders/nvim-parinfer',                     version = '3968e669d9f02589aa311d33cb475b16b27c5fbb' },
+  { src = 'https://github.com/julienvincent/nvim-paredit',                 version = 'b6ba636874a3115d944e35746444724240568aca' },
+  { src = 'https://github.com/dundalek/parpar.nvim',                       version = 'e99a88f0f0b1234f49a3efe9c49b712b58a5acfc' },
+  { src = 'https://github.com/Olical/conjure',                             version = '16b436c0124dae26250986fd4e660529d6bb14f0' },
 })
 
 vim.cmd.colorscheme("tokyonight")
@@ -68,6 +73,7 @@ require("plugins.lsp")
 require("plugins.treesitter")
 require("plugins.formatter")
 require("plugins.love2d")
+require("plugins.fennel")
 -- require("plugins.gitlab")
 require("permalink")
 

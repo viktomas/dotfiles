@@ -5,6 +5,11 @@
       "src": "https://github.com/stevearc/conform.nvim",
       "version": "'086a40dc7ed8242c03be9f47fbcee68699cc2395'"
     },
+    "conjure": {
+      "rev": "16b436c0124dae26250986fd4e660529d6bb14f0",
+      "src": "https://github.com/Olical/conjure",
+      "version": "'16b436c0124dae26250986fd4e660529d6bb14f0'"
+    },
     "fzf-lua": {
       "rev": "c9e7b7bfbd01f949164988ee1684035468e1995c",
       "src": "https://github.com/ibhagwan/fzf-lua",
@@ -50,6 +55,16 @@
       "src": "https://github.com/neovim/nvim-lspconfig",
       "version": "'16812abf0e8d8175155f26143a8504e8253e92b0'"
     },
+    "nvim-paredit": {
+      "rev": "b6ba636874a3115d944e35746444724240568aca",
+      "src": "https://github.com/julienvincent/nvim-paredit",
+      "version": "'b6ba636874a3115d944e35746444724240568aca'"
+    },
+    "nvim-parinfer": {
+      "rev": "3968e669d9f02589aa311d33cb475b16b27c5fbb",
+      "src": "https://github.com/gpanders/nvim-parinfer",
+      "version": "'3968e669d9f02589aa311d33cb475b16b27c5fbb'"
+    },
     "nvim-treesitter": {
       "rev": "7caec274fd19c12b55902a5b795100d21531391f",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
@@ -59,6 +74,11 @@
       "rev": "0fcc83805ad11cf714a949c98c605ed717e0b83e",
       "src": "https://github.com/stevearc/oil.nvim",
       "version": "'0fcc83805ad11cf714a949c98c605ed717e0b83e'"
+    },
+    "parpar.nvim": {
+      "rev": "e99a88f0f0b1234f49a3efe9c49b712b58a5acfc",
+      "src": "https://github.com/dundalek/parpar.nvim",
+      "version": "'e99a88f0f0b1234f49a3efe9c49b712b58a5acfc'"
     },
     "render-markdown.nvim": {
       "rev": "e3c18ddd27a853f85a6f513a864cf4f2982b9f26",
