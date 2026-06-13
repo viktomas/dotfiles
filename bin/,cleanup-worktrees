@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+#
+# Removes git worktrees whose last commit is older than a threshold (default 30 days).
+#
+# Age is measured by the committer date of each worktree's HEAD — a proxy for
+# "this branch hasn't been touched in a while". main/master and the bare repo
+# are always skipped.
+#
+# Usage:
+#   cleanup-old-worktrees.sh [--days N] [--dry-run]
+#
+# Options:
+#   --days N     Remove worktrees with HEAD older than N days (default: 30).
+#   --dry-run    Show what would be removed without removing anything.
+#
+# Run from any worktree or the bare repo of a bare-repo + worktree layout.
+
+set -euo pipefail
+
+DAYS=30
+DRY_RUN=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --days)
+      DAYS="${2:?--days needs a value}"
+      shift 2
+      ;;
+    --days=*)
+      DAYS="${1#--days=}"
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    -h|--help)
+      sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if ! [[ "$DAYS" =~ ^[0-9]+$ ]]; then
+  echo "Error: --days must be a non-negative integer (got '$DAYS')" >&2
+  exit 1
+fi
+
+now=$(date +%s)
+cutoff=$((now - DAYS * 86400))
+
+removed=0
+wt_path=""
+head_sha=""
+is_bare=false
+is_branch_main=false
+
+process_entry() {
+  # Reset-aware: relies on globals set during parsing.
+  [[ -z "$wt_path" ]] && return
+
+  if [[ "$is_bare" == true ]]; then
+    return
+  fi
+  if [[ "$is_branch_main" == true ]]; then
+    return
+  fi
+  if [[ -z "$head_sha" ]]; then
+    return
+  fi
+
+  # Committer date of HEAD (epoch seconds).
+  local commit_ts
+  if ! commit_ts=$(git show -s --format=%ct "$head_sha" 2>/dev/null); then
+    echo "Skipping $wt_path (cannot read commit $head_sha)"
+    return
+  fi
+
+  if [[ "$commit_ts" -ge "$cutoff" ]]; then
+    return
+  fi
+
+  local age_days=$(((now - commit_ts) / 86400))
+  echo "Stale: $wt_path (last commit ${age_days}d ago)"
+
+  if [[ "$DRY_RUN" == true ]]; then
+    echo "  (dry-run, skipping)"
+  else
+    for big_dir in node_modules dist out build target .venv __pycache__; do
+      if [[ -d "$wt_path/$big_dir" ]]; then
+        echo "  Clearing $big_dir..."
+        rm -rf "${wt_path:?}/$big_dir"
+      fi
+    done
+    git worktree remove --force "$wt_path"
+    echo "  Removed worktree"
+  fi
+  removed=$((removed + 1))
+}
+
+while IFS= read -r line; do
+  if [[ "$line" == "worktree "* ]]; then
+    # New entry starts — flush the previous one.
+    process_entry
+    wt_path="${line#worktree }"
+    head_sha=""
+    is_bare=false
+    is_branch_main=false
+  elif [[ "$line" == "HEAD "* ]]; then
+    head_sha="${line#HEAD }"
+  elif [[ "$line" == "branch "* ]]; then
+    branch="${line#branch refs/heads/}"
+    if [[ "$branch" == "main" || "$branch" == "master" ]]; then
+      is_branch_main=true
+    fi
+  elif [[ "$line" == "bare" ]]; then
+    is_bare=true
+  fi
+done < <(git worktree list --porcelain)
+# Flush the final entry.
+process_entry
+
+if [[ "$DRY_RUN" == false ]]; then
+  git worktree prune
+fi
+
+if [[ "$removed" -eq 0 ]]; then
+  echo "No worktrees older than ${DAYS} days."
+else
+  echo ""
+  if [[ "$DRY_RUN" == true ]]; then
+    echo "Would remove $removed worktree(s) older than ${DAYS} days."
+  else
+    echo "Removed $removed worktree(s) older than ${DAYS} days."
+  fi
+fi
