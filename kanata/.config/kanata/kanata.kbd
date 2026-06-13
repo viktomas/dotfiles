@@ -38,7 +38,7 @@
   brdn brup _    _    bldn blup prev pp   next mute vold volu
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
-  esc  @a   @s   @d   @f   @g   @h   @j   @k   @l   @;   '    ret
+  esc  a    @s   @d   @f   @g   @h   @j   @k   @l   ;    '    ret
   lsft z    x    c    v    b    n    m    ,    .    /    @rs       up
   fn   lctl lalt lmet           spc            rmet ralt     left down rght
 )
@@ -56,16 +56,15 @@
 ;; ── Aliases ────────────────────────────────────────────────────
 
 (defalias
-  ;; Home row mods — left hand
+  ;; Home row mods — left hand (ring=alt, middle=cmd, index=ctrl)
   ;; tap-hold-opposite-hand-release: bilateral filtering via defhands,
   ;; resolves hold on opposite-hand key press+release (not just press).
   ;; (same-hand tap)    — same-hand key immediately resolves as tap
   ;; (timeout tap)      — if timeout expires with no other key, output the letter
-  a (tap-hold-opposite-hand-release $hold-time a lalt
+  ;; Pinky (a / ;) has no mod — bare letters in deflayer.
+  s (tap-hold-opposite-hand-release $hold-time s lalt
     (same-hand tap) (timeout tap))
-  s (tap-hold-opposite-hand-release $hold-time s lmet
-    (same-hand tap) (timeout tap))
-  d (tap-hold-opposite-hand-release $hold-time d lsft
+  d (tap-hold-opposite-hand-release $hold-time d lmet
     (same-hand tap) (timeout tap))
   f (tap-hold-opposite-hand-release $hold-time f lctl
     (same-hand tap) (timeout tap))
@@ -73,11 +72,9 @@
   ;; Home row mods — right hand
   j (tap-hold-opposite-hand-release $hold-time j rctl
     (same-hand tap) (timeout tap))
-  k (tap-hold-opposite-hand-release $hold-time k rsft
+  k (tap-hold-opposite-hand-release $hold-time k rmet
     (same-hand tap) (timeout tap))
-  l (tap-hold-opposite-hand-release $hold-time l rmet
-    (same-hand tap) (timeout tap))
-  ; (tap-hold-opposite-hand-release $hold-time ; ralt
+  l (tap-hold-opposite-hand-release $hold-time l ralt
     (same-hand tap) (timeout tap))
 
   ;; Symbol layer triggers — same bilateral approach, hold activates layer.

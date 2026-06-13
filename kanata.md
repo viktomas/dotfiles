@@ -1,6 +1,6 @@
 # Kanata — Installation & Migration from Karabiner
 
-> **⚠️ Experimental (2026-04-13):** No neutral keys remain. `tab` is left-hand, `spc` and `ret` are right-hand. This enables combos like Cmd+Space, Cmd+Return, and Cmd+Tab with the appropriate opposite-hand HRM keys, but may cause misfires on fast rolls (e.g. `s→space` after a 150ms+ pause = Cmd+Space). Monitoring — may need to re-introduce neutral keys if misfires are problematic.
+> **⚠️ Experimental (2026-04-13):** No neutral keys remain. `tab` is left-hand, `spc` and `ret` are right-hand. This enables combos like Cmd+Space, Cmd+Return, and Cmd+Tab with the appropriate opposite-hand HRM keys, but may cause misfires on fast rolls (e.g. `d→space` after a 150ms+ pause = Cmd+Space). Monitoring — may need to re-introduce neutral keys if misfires are problematic.
 
 - kanata live in /Users/tomas/workspace/tmp/kanata, if not, clone it there from git@github.com:jtroo/kanata.git
 - hrm app lives in  /Users/tomas/workspace/tmp/hrm, if not, clone it there from git@github.com:wontaeyang/hrm.git
@@ -128,9 +128,9 @@ All HRM and layer-trigger keys use `tap-hold-opposite-hand-release` with `defhan
    - **No neutral keys** — all keys are assigned to a hand. Tab is left-hand, Space and Return are right-hand. This means every key participates in bilateral filtering. Trade-off: fast cross-hand rolls involving these keys could misfire (mitigated by `require-prior-idle 150`).
 4. If 500ms pass with no qualifying key → `(timeout tap)` → output `f` as tap. This is a safety net, not the normal path.
 
-**Important:** Every key that should trigger hold resolution must be in `defhands`. The number row (`1-0`), symbols (`- = [ ] \ '`), grave, `tab`, and arrow keys are all assigned — left hand gets `grv 1 2 3 4 5 tab left rght`, right hand gets `6 7 8 9 0 - = [ ] \ ' spc ret up down`. Without this, combos like `cmd+1` (hold `l`, tap `1`) or `cmd+tab` (hold `l`, tap `tab`) wouldn't work because unassigned keys can't resolve the tap-hold.
+**Important:** Every key that should trigger hold resolution must be in `defhands`. The number row (`1-0`), symbols (`- = [ ] \ '`), grave, `tab`, and arrow keys are all assigned — left hand gets `grv 1 2 3 4 5 tab left rght`, right hand gets `6 7 8 9 0 - = [ ] \ ' spc ret up down`. Without this, combos like `cmd+1` (hold `k`, tap `1`) or `cmd+tab` (hold `k`, tap `tab`) wouldn't work because unassigned keys can't resolve the tap-hold.
 
-**Arrow key hand assignment** follows the Kinesis layout: `left`/`rght` are left-hand, `up`/`down` are right-hand. On a normal keyboard (all arrows right-hand), this means right-hand HRM + `left`/`rght` won't resolve as hold — use left-hand HRM instead (e.g., `s`=Cmd + `left`).
+**Arrow key hand assignment** follows the Kinesis layout: `left`/`rght` are left-hand, `up`/`down` are right-hand. On a normal keyboard (all arrows right-hand), this means right-hand HRM + `left`/`rght` won't resolve as hold — use left-hand HRM instead (e.g., `d`=Cmd + `left`).
 
 **Why `-release` matters:** Without it (`tap-hold-opposite-hand`), hold triggers the moment an opposite-hand key is *pressed*. With `-release`, it waits for press+release. This prevents misfires on fast cross-hand overlaps like `f↓ j↓ f↑ j↑` where you release `f` before `j` — should be `fj`, not `Ctrl+j`.
 
@@ -138,17 +138,15 @@ All HRM and layer-trigger keys use `tap-hold-opposite-hand-release` with `defhan
 
 ### What's implemented
 
-**Home row mods** (8 keys, `tap-hold-opposite-hand-release` with `defhands`):
-| Key | Tap | Hold |
-|-----|-----|------|
-| `a` | a | left_option |
-| `s` | s | left_command |
-| `d` | d | left_shift |
-| `f` | f | left_control |
-| `j` | j | right_control |
-| `k` | k | right_shift |
-| `l` | l | right_command |
-| `;` | ; | right_option |
+**Home row mods** (6 keys, `tap-hold-opposite-hand-release` with `defhands`). Index→Ctrl, middle→Cmd, ring→Option. Pinky (`a`/`;`) has no mod — bare letters. No Shift on the home row.
+| Key | Finger | Tap | Hold |
+|-----|--------|-----|------|
+| `s` | ring | s | left_option |
+| `d` | middle | d | left_command |
+| `f` | index | f | left_control |
+| `j` | index | j | right_control |
+| `k` | middle | k | right_command |
+| `l` | ring | l | right_option |
 
 **Symbol layer triggers** (2 keys, same `tap-hold-opposite-hand-release`):
 | Key | Tap | Hold |
@@ -213,11 +211,11 @@ Use `sudo kanata --cfg ... --debug` to see event timings and tune. The Kanata si
 
 ## Multi-modifier combos
 
-Same-hand multi-mod combos (e.g. `f`+`d` for ctrl+shift) are **not supported** — same-hand keys resolve immediately as tap via `(same-hand tap)`. This matches the HRM app's default behavior (`holdTriggerOnRelease: false`).
+Same-hand multi-mod combos (e.g. `f`+`d` for ctrl+cmd) are **not supported** — same-hand keys resolve immediately as tap via `(same-hand tap)`. This matches the HRM app's default behavior (`holdTriggerOnRelease: false`).
 
 The HRM app has a `holdTriggerOnRelease` option (default: off) that when enabled makes same-hand keys stay undecided instead of resolving as tap. Both undecided keys then resolve as hold when an opposite-hand key completes a press+release cycle. Kanata's `tap-hold-opposite-hand-release` has no equivalent — `(same-hand tap)` is the only same-hand option.
 
-Cross-hand multi-mod combos (e.g. `s`+`j` for cmd+ctrl) work in the HRM app: pressing `s↓ j↓` then a non-mod-tap key that gets released resolves whichever mod-tap key is on the opposite hand. In practice this requires two separate trigger keys (one per hand) to resolve both mods. In kanata, cross-hand mod-tap keys pressed together would deadlock — each waits for the other's release, and self-release resolves as tap.
+Cross-hand multi-mod combos (e.g. `s`+`j` for alt+ctrl) work in the HRM app: pressing `s↓ j↓` then a non-mod-tap key that gets released resolves whichever mod-tap key is on the opposite hand. In practice this requires two separate trigger keys (one per hand) to resolve both mods. In kanata, cross-hand mod-tap keys pressed together would deadlock — each waits for the other's release, and self-release resolves as tap.
 
 ## Compared to the HRM Swift app
 
@@ -237,7 +235,7 @@ The only behavioral gap: holding an HRM key alone for 500ms then pressing anothe
 
 ## Open questions
 
-- **Symbol layer + HRM interaction** — when symbol layer is active via `g`/`h` hold, pressing an HRM key (e.g., `a`) should output the symbol (`#`), not enter tap-hold. The `sym` deflayer maps `a` directly to `S-3`, bypassing the alias. Verify this works as expected.
+- **Symbol layer + HRM interaction** — when symbol layer is active via `g`/`h` hold, pressing an HRM key (e.g., `d`) should output the symbol, not enter tap-hold. The `sym` deflayer maps each position directly, bypassing the alias. Verify this works as expected.
 
 ## Reference
 
