@@ -105,47 +105,24 @@ local paredit = require("nvim-paredit")
 --      typing the head and the form is balanced again.
 --
 -- Notes on the implementation details that were easy to get wrong:
---   * wrap_element_under_cursor does NOT move the cursor -- it stays wherever it
---     was inside the element. If you wrapped `foo|bar` you'd end up inserting
---     mid-symbol -> `(fooinc bar)`. So we must reposition the cursor ourselves
---     to just after the opening paren before `startinsert`.
---   * wrap_element_under_cursor returns the RANGE of the wrapped element
---     `{ row, col, end_row, end_col }` (0-indexed), where `col` is the column of
---     the inserted `(`. The element therefore starts at `col + 1`; placing the
---     cursor there and entering insert lands us right before the element.
+--   * wrap_element_under_cursor returns a LIST of nodes, not a single TSNode, so
+--     don't call :start() on it. We don't need to: paredit leaves the cursor on
+--     the (now wrapped) element, so a plain `startinsert` already lands us right
+--     before it.
 --   * We only register the InsertLeave re-enable if parinfer WAS enabled, so we
 --     never silently turn it on in a buffer where the user had it off.
 local function wrap_and_type_head()
   local was_enabled = vim.b.parinfer_enabled
   vim.b.parinfer_enabled = false
 
-  -- Wrap the element. Returns the wrapped range; col is where `(` was inserted.
-  local range = paredit.api.wrap_element_under_cursor("(", ")")
-
-  -- Move the cursor to just after the opening paren, i.e. right before the
-  -- element, so the call head we type lands in front of it regardless of where
-  -- in the symbol the cursor started.
-  if range then
-    vim.api.nvim_win_set_cursor(0, { range[1] + 1, range[2] + 1 })
-  end
+  -- Wrap the element; cursor ends up on the wrapped element, ready for insert.
+  paredit.api.wrap_element_under_cursor("(", ")")
 
   if was_enabled then
     -- Re-enable parinfer once we leave insert. `once = true` so this fires for
-    -- exactly this wrap, not every future insert-leave in the buffer.
-    --
-    -- We listen on ModeChanged (insert -> normal), NOT InsertLeave.
-    -- InsertLeave does NOT fire when insert mode is aborted with <C-c>, so a
-    -- wrap followed by <C-c> would leave `parinfer_enabled` stuck `false` for
-    -- the rest of the session -- after which NOTHING rebalances (deletes,
-    -- edits, etc. all stop auto-closing parens). ModeChanged fires on both
-    -- <Esc> (i:n) and <C-c> (i:n), so parinfer can never get stuck off.
-    -- (ModeChanged is a global event -- it can't be scoped with `buffer`, and
-    -- `pattern`+`buffer` together is an error -- but `once` + the i:n match
-    -- means it fires exactly once, on this wrap's insert-leave. The callback
-    -- re-enables parinfer for whatever buffer is current then, which is this
-    -- one, since you can't change buffers without first leaving insert.)
-    vim.api.nvim_create_autocmd("ModeChanged", {
-      pattern = "i:n",
+    -- exactly this wrap, not every future InsertLeave in the buffer.
+    vim.api.nvim_create_autocmd("InsertLeave", {
+      buffer = 0,
       once = true,
       callback = function()
         vim.b.parinfer_enabled = true
@@ -239,72 +216,6 @@ vim.api.nvim_create_autocmd("FileType", {
       vim.cmd("normal! v")
       paredit.api.select_around_form()
     end, "Select form")
-
-    -- Visual-mode indent / dedent (> and <) should cooperate with parinfer the
-    -- same way the structural moves do. parinfer runs in SMART mode: on every
-    -- edit it records a per-change log in its `on_bytes` callback and, on
-    -- TextChanged, replays that log to decide whether to move parens to
-    -- preserve your *intent* -- applying the result ASYNCHRONOUSLY via
-    -- vim.schedule. A visual `>` shifts every selected line in one operator,
-    -- firing a burst of per-line byte changes; smart mode then re-runs and
-    -- redraws a tick later, which is the "flicker" you see on a multi-line
-    -- shift (and, in some buffer states, a re-inference you didn't ask for).
-    --
-    -- Fix (same spirit as parpar's slurp/barf wrapper): pause parinfer for the
-    -- duration of the shift so it can't react, do the whole multi-line `>` in
-    -- one go, then re-enable. A plain visual `>` with parinfer paused shifts
-    -- exactly the selected lines and leaves the parens balanced, so no
-    -- re-inference is needed -- the buffer is already valid, with no second,
-    -- scheduled redraw to flicker.
-    --
-    -- The re-enable MUST wait for the `>` edit's own TextChanged. That event is
-    -- queued during the operator and fires only after this callback returns.
-    -- If we re-enabled synchronously (or via vim.schedule, which doesn't
-    -- reliably land after the event), parinfer would be back on when the event
-    -- arrives and would react to the multi-line change -- the exact bug.
-    --
-    -- So we re-enable from a one-shot, buffer-local TextChanged autocmd. It is
-    -- registered AFTER parinfer's own TextChanged handler (parinfer attaches
-    -- on buffer enter), so for the `>` edit the order is: parinfer's handler
-    -- runs first and no-ops (still disabled), then ours runs and re-enables.
-    -- parinfer is therefore never live for the shift, and is back for the next
-    -- genuine edit. A deferred safety net re-enables even if the shift changed
-    -- no text (e.g. `<` with nothing to remove fires no TextChanged).
-    --
-    -- Details:
-    --   * v:count1 preserves a leading count, so `3>` still shifts 3 levels.
-    --   * the operator runs on the live selection (the map fires from visual
-    --     mode); a trailing gv re-selects so you can press >/< again to keep
-    --     indenting -- the usual visual-indent quality-of-life remap.
-    local function reindent(op)
-      return function()
-        local was_enabled = vim.b.parinfer_enabled
-        if not was_enabled then
-          vim.cmd("normal! " .. vim.v.count1 .. op .. "gv")
-          return
-        end
-        local buf = vim.api.nvim_get_current_buf()
-        local restored = false
-        local function restore()
-          if not restored and vim.api.nvim_buf_is_valid(buf) then
-            restored = true
-            vim.b[buf].parinfer_enabled = true
-          end
-        end
-        vim.b.parinfer_enabled = false
-        vim.api.nvim_create_autocmd("TextChanged", {
-          buffer = buf,
-          once = true,
-          callback = restore,
-        })
-        vim.cmd("normal! " .. vim.v.count1 .. op .. "gv")
-        -- Safety net: if the shift produced no TextChanged, the autocmd never
-        -- fires; re-enable on a real timer tick so parinfer can't stay off.
-        vim.defer_fn(restore, 50)
-      end
-    end
-    map("x", ">", reindent(">"), "Indent (parinfer-safe)")
-    map("x", "<", reindent("<"), "Dedent (parinfer-safe)")
   end,
 })
 
