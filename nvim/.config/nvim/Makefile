@@ -23,4 +23,9 @@ clean:
 	rm -f init.lua
 #	rm -f lua/plugins/minipack.lua
 
-.PHONY: all clean
+# Run the structural-editing integration tests (loads the real config so the
+# parinfer/paredit/parpar plugins and keymaps are present).
+test:
+	nvim --headless -c "luafile tests/structural_editing.lua"
+
+.PHONY: all clean test
