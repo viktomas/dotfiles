@@ -29,18 +29,19 @@ Each worktree's `.git` file points back to `.bare/worktrees/<name>`.
 **Always use `git wta`** (fish function) — never raw `git worktree add`:
 
 ```bash
-# New branch for your own work
-fish -c 'cd /path/to/repo && git wta -n <name>'
+# New or existing branch for your own work
+fish -c 'cd /path/to/repo && git wta <name>'
 
 # Review an existing MR (checks out the MR's branch)
 fish -c 'cd /path/to/repo && git wta <MR URL>'
 ```
 
-With `-n <name>`:
-1. Fetches `origin/main`
-2. Creates worktree at `<repo>/<name>/` with branch `tv/YYYY-MM/<name>` based on `origin/main`
-3. Runs post-setup: `mise trust`, `npm ci`, `go mod download` (as applicable)
-4. Changes into the new worktree directory
+With `git wta <name>`:
+1. Fetches from `origin`
+2. If a branch named `<name>` already exists (local or `origin/<name>`), creates a worktree at `<repo>/<name>/` checking out that branch as-is — no `tv/` prefix
+3. Otherwise creates a new branch `tv/YYYY-MM/<name>` based on `origin/main`
+4. Runs post-setup: `mise trust`, `npm ci`, `go mod download` (as applicable)
+5. Changes into the new worktree directory
 
 With an MR URL:
 1. Fetches the MR's source branch
@@ -49,7 +50,7 @@ With an MR URL:
 
 Use `git wta <MR URL>` when reviewing MRs — it gets you the actual MR code, not an empty branch off main.
 
-The branch naming convention for `-n` is `tv/YYYY-MM/<name>` (e.g., `tv/2026-03/my-feature`).
+The branch naming convention for brand-new branches is `tv/YYYY-MM/<name>` (e.g., `tv/2026-03/my-feature`).
 
 ## Updating Main Branch
 

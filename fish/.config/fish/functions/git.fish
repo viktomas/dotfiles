@@ -7,16 +7,22 @@ function git --wraps=git --description 'sets a special behaviour for git wta and
             set -l worktree_path $output[1]
             cd $worktree_path
             echo "✓ Changed to worktree: $worktree_path"
-        else if test "$argv[2]" = -n
-            set -l name $argv[3]
-            set -l date_prefix (date +%Y-%m)
-            set -l branch "tv/$date_prefix/$name"
-            command git fetch origin main
-            and ~/bin/git-wa.sh $name -b $branch --no-track origin/main
-            and cd $name
         else
-            ~/bin/git-wa.sh $argv[2..-1]
-            and cd $argv[2]
+            # New-worktree mode.
+            set -l name $argv[2]
+            command git fetch origin
+            if command git show-ref --verify --quiet "refs/heads/$name"
+                or command git show-ref --verify --quiet "refs/remotes/origin/$name"
+                # Branch already exists: check it out in a new worktree as-is
+                ~/bin/git-wa.sh $name $name
+                and cd $name
+            else
+                # New branch: prefix with tv/YYYY-MM and base on origin/main
+                set -l date_prefix (date +%Y-%m)
+                set -l branch "tv/$date_prefix/$name"
+                ~/bin/git-wa.sh $name -b $branch --no-track origin/main
+                and cd $name
+            end
         end
     else if test "$argv[1]" = wtu
         # Update the local main branch worktree without changing cwd
