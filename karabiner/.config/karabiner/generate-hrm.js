@@ -13,7 +13,7 @@
 //   right_command → 0
 //
 // Layer uses fn as the modifier (auto-releases on key up, no variable needed).
-// See karabiner.md for detailed explanation.
+// See karabiner/README.md in the dotfiles repo for detailed explanation.
 
 const fs = require("fs");
 const path = require("path");

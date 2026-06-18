@@ -1,16 +1,45 @@
 # Dotfiles
 
-On ubuntu machine:
+Managed with [GNU Stow](https://www.gnu.org/software/stow/): each top-level
+directory is a package that mirrors the home directory. Running `stow <package>`
+from the repo root symlinks its files into `~`.
 
-1. Run sudo apt install git
-1. git clone https://github.com/viktomas/dotfiles.git ~/.dotfiles
-1. cd ~/.dotfiles
-1. ./ubuntu-install-basic.sh
-1. ./install.sh
+Examples:
+- `fish/.config/fish/config.fish` → `~/.config/fish/config.fish`
+- `ghostty/.config/ghostty/config.ghostty` → `~/.config/ghostty/config.ghostty`
+- `pi/.pi/agent/settings.json` → `~/.pi/agent/settings.json`
+
+To add a package: create a directory named after the tool, mirror the file's
+path relative to `~` inside it, then add `stow <name>` to `install.sh`.
+
+## Install (Ubuntu)
+
+1. `sudo apt install git`
+1. `git clone https://github.com/viktomas/dotfiles.git ~/.dotfiles`
+1. `cd ~/.dotfiles`
+1. `./ubuntu-install-basic.sh`
+1. `./install.sh`
+
+## Per-tool docs
+
+Each tool's setup and notes live in its own package README:
+
+| Tool | Doc |
+|---|---|
+| Keyboard mapping (kanata: HRM, symbol layer, tab chords) | `kanata/README.md` |
+| Karabiner DriverKit driver (kanata's HID dependency) | `karabiner/README.md` |
+| Neovim (plugins via `vim.pack`, Fennel LSP) | `nvim/README.md` |
+| Ghostty terminal + tab switching | `ghostty/README.md` |
+| Fish shell | `fish/README.md` |
+| pi & qmd (global npm tools via mise) | `pi/README.md` |
+
+Repo-wide conventions are in `AGENTS.md`.
 
 ## Bin
 
-It's a good idea to start all the scripts with comma, so I can easily autocomplete only my personal commands https://rhodesmill.org/brandon/2009/commands-with-comma/ .
+It's a good idea to start all the scripts with a comma, so I can easily
+autocomplete only my personal commands —
+https://rhodesmill.org/brandon/2009/commands-with-comma/ .
 
 ## Crontab
 
@@ -18,23 +47,8 @@ Edit crontab by running `./bin/edit-crontab.sh`.
 
 ## Git
 
-- Configured to use different `.gitconfig` for work and private repos based on [How to use different git emails · Hao's learning log](https://blog.hao.dev/how-to-use-different-git-emails-for-personal-and-work-repositories-on-the-same-machine)
-
-## `neovim`
-
-- [ ] replacing visually selected text by pressing `p` removes leading spaces. Fix it
-
-## Keyboard shortcuts: Tab switching
-
-Space+j / Space+k switch tabs across apps:
-
-- **Kanata** (`defchordsv2`): Space+j → Cmd+Shift+[, Space+k → Cmd+Shift+]
-- **Browsers / other apps**: Cmd+Shift+[/] is the native macOS tab switching shortcut — works out of the box
-- **Ghostty → Zellij**: Ghostty intercepts Cmd+Shift+[/] and forwards as Ctrl+Shift+j/k (kitty keyboard protocol), which Zellij binds to `GoToPreviousTab`/`GoToNextTab` in normal mode
-
-## Ghostty
-
-Config is stow-managed at `ghostty/.config/ghostty/config.ghostty`. Ghostty auto-loads it from the XDG path (`~/.config/ghostty/config.ghostty`) — no manual setup needed after `stow ghostty`.
+- Configured to use a different `.gitconfig` for work and private repos based on
+  [How to use different git emails](https://blog.hao.dev/how-to-use-different-git-emails-for-personal-and-work-repositories-on-the-same-machine).
 
 ## Mac-specific setup
 

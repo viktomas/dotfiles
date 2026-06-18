@@ -7,11 +7,11 @@
 
 ## Why Kanata
 
-Karabiner-Elements can't implement timeless home row mods (see `karabiner.md` for the full analysis). Kanata provides `tap-hold-opposite-hand-release` — bilateral filtering via `defhands` with release-based resolution, the closest match to the HRM app's timeless behavior. It uses the same Karabiner DriverKit virtual keyboard driver under the hood.
+Karabiner-Elements can't implement timeless home row mods (see `../karabiner/README.md` for the full analysis). Kanata provides `tap-hold-opposite-hand-release` — bilateral filtering via `defhands` with release-based resolution, the closest match to the HRM app's timeless behavior. It uses the same Karabiner DriverKit virtual keyboard driver under the hood.
 
 ## Prerequisites
 
-The Karabiner DriverKit VirtualHIDDevice system must be installed and running. This includes the system extension (dext) and the userspace daemon. See `karabiner.md` "DriverKit VirtualHIDDevice" section for full details and install instructions.
+The Karabiner DriverKit VirtualHIDDevice system must be installed and running. This includes the system extension (dext) and the userspace daemon. See `../karabiner/README.md` "DriverKit VirtualHIDDevice" section for full details and install instructions.
 
 Verify:
 ```bash
@@ -242,5 +242,5 @@ The only behavioral gap: holding an HRM key alone for 500ms then pressing anothe
 - Kanata source: `/Users/tomas/workspace/tmp/kanata`
 - Kanata docs: https://github.com/jtroo/kanata/blob/main/docs/config.adoc
 - Kanata simulator: https://jtroo.github.io/kanata-sim/
-- Karabiner analysis: `~/.dotfiles/karabiner.md`
+- Karabiner analysis: `~/.dotfiles/karabiner/README.md`
 - Original Karabiner config generator: `~/.dotfiles/karabiner/.config/karabiner/generate-hrm.js`

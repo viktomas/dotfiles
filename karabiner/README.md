@@ -1,6 +1,6 @@
 # Karabiner — Post-Migration Notes
 
-Karabiner-Elements was replaced by [Kanata](https://github.com/jtroo/kanata) for HRM and symbol layer (2026-04-09). See `kanata.md` for the current setup.
+Karabiner-Elements was replaced by [Kanata](https://github.com/jtroo/kanata) for HRM and symbol layer (2026-04-09). See `../kanata/README.md` for the current setup.
 
 ## Installation State
 
@@ -62,7 +62,7 @@ ps aux | grep '[K]arabiner-VirtualHIDDevice-Daemon'
 
 ### 3. Application (kanata)
 
-Connects to the daemon's socket to send virtual key events. See `kanata.md` for setup.
+Connects to the daemon's socket to send virtual key events. See `../kanata/README.md` for setup.
 
 ## Why Karabiner Didn't Work for HRM
 
