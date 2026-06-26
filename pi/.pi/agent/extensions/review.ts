@@ -141,6 +141,8 @@ Flag issues that:
 5. Don't rely on unstated assumptions about the codebase or author's intent.
 6. IMPORTANT: Have provable impact on other parts of the code — it is not enough to speculate that a change may disrupt another part, you must identify the parts that are provably affected.
 7. Be particularly careful with untrusted user input and follow the specific guidelines to review.
+8. Comments in the code that explain WHAT the code does. I only want comments that explain WHY (reason not already obvious in the code)
+9. Unnecessary tests. If a test is duplicate or tests something trivial, let's remove it.
 
 ## Untrusted User Input
 
