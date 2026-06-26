@@ -1,8 +1,6 @@
 ---
 name: gdk
-description: GitLab Development Kit (GDK) — local GitLab development environment. Use when the user mentions GDK, starting/stopping GitLab locally, running rails console, GDK services, or local GitLab development.
-metadata:
-  autoload-keywords: gdk, gdk start, gdk stop, gdk update, gdk status, gdk reconfigure, local gitlab
+description: GitLab Development Kit (GDK) — local GitLab development environment. Use when the user mentions GDK, starting/stopping GitLab locally, running rails console, GDK services, or local GitLab development, or looking up something in the gitlab project. Keywords - gdk, gdk start, gdk stop, gdk update, gdk status, gdk reconfigure, local gitlab.
 ---
 
 # GitLab Development Kit (GDK)
@@ -36,6 +34,7 @@ After alias is restored (agent can do this): `gdk restart gitlab-workhorse sshd`
 
 - **Username**: `root`
 - **Password**: `stromek23`
+- **API token** (`root`, `api` scope): `source ~/.secrets/gdk` → exports `$GDK_TOKEN` (and `$GDK_RUNNER_TOKEN`). Use for REST/GraphQL calls and for connecting the Duo CLI (`GITLAB_TOKEN=$GDK_TOKEN GITLAB_URL=http://gdk.test:8080`).
 
 ## Configuration
 
@@ -183,6 +182,39 @@ Toggle it by editing `env.runit` and restarting rails: `gdk restart rails-web ra
 ## GitLab Source
 
 The GitLab Rails app is at `/Users/tomas/workspace/gl/gdk/gitlab/`. This is a regular git checkout that GDK manages.
+
+## Testing an MR branch (gitlab, gitlab-ai-gateway, etc.)
+
+**Don't just `git checkout` an MR branch and restart services.** A branch is usually based on an older master and pulls in unrelated migrations and gem/Gemfile.lock changes. Checking it out raw leads to rails failing to boot:
+- `Could not find <gem> in locally installed gems (Bundler::GemNotFound)` → missing `bundle install`
+- HTTP 500 with `check_pending_migrations` → unrun migrations from the branch base
+
+**Correct workflow** — update GDK first, then rebase the branch on the freshly-updated master:
+
+```bash
+# 1. Update GDK: pulls latest code on all managed repos + bundle install + db:migrate + more
+fish -c 'cd /Users/tomas/workspace/gl/gdk && gdk update'
+
+# 2. Fetch + rebase the MR branch onto the updated master (in the relevant repo)
+cd /Users/tomas/workspace/gl/gdk/gitlab
+git fetch origin <mr-branch>
+git checkout <mr-branch>
+git rebase origin/master       # branch now sits on the same base gdk update just migrated
+
+# 3. Only if the rebased branch adds NEW migrations of its own:
+fish -c 'cd /Users/tomas/workspace/gl/gdk/gitlab && bundle exec rails db:migrate'
+
+# 4. Restart the services that load the changed code
+fish -c 'cd /Users/tomas/workspace/gl/gdk && gdk restart rails-web rails-background-jobs'
+```
+
+`gdk update` is the thing that runs `bundle install` and `db:migrate` for you — rebasing onto the just-updated master means the branch shares that already-migrated base, so step 3 is usually a no-op.
+
+**Which service to restart for which repo:**
+- `gitlab/` (Rails, incl. `ee/...workflow.rb` agent privileges) → `rails-web rails-background-jobs`
+- `gitlab-ai-gateway/` flow configs / `tools_registry.py` / `base.py` → `duo-workflow-service` (the V1 Flow engine runs from this service, **not** `gitlab-ai-gateway`). Restart it **after** the gateway code is updated, not before.
+
+Verify rails is healthy before testing: poll `curl -s -o /dev/null -w '%{http_code}' -H "PRIVATE-TOKEN: $GDK_TOKEN" http://gdk.test:8080/api/v4/user` until it returns `200` (502 = still booting, 500 = app error — check `gitlab/log/development.log`).
 
 ## Feature Flags
 

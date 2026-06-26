@@ -7,6 +7,10 @@ description: Interact with GitLab REST API using GITLAB_TOKEN - use for TODOs, p
 
 Prefer `glab` CLI commands over raw `curl`. Use `glab api` for endpoints without a dedicated subcommand. Fall back to `curl` only when `glab` doesn't work (documented below).
 
+**NEVER write a Python/`urllib`/`requests` script (or any other ad-hoc HTTP client) to call the GitLab API.** The order is always: dedicated `glab` subcommand → `glab api` → `curl`. If you're tempted to script the API, the right command almost certainly exists below — check the update section for assignees/labels/milestones.
+
+**IMPORTANT**: When You talk about MRs and Issues, never use the #123 and !345 shortcuts, always use [title](full URL) format. I don't keep the integer IDs in my head and they are useless for me
+
 **IMPORTANT**: If you encounter a `glab` command that fails, behaves unexpectedly, or is missing functionality, you MUST update this skill file to document the issue — either by adding a curl fallback with an explanation, or by adding a warning note to the relevant section. This keeps the skill accurate for future use.
 
 When running from a git worktree of the target project, `glab` auto-detects the repo. Otherwise use `-R OWNER/REPO`.
@@ -85,6 +89,22 @@ Issue body here..." -R OWNER/REPO
 
 When creating an issue, use the `## Problem` and `## Solution` headers and be brief!
 
+### Update an issue — assignees, labels, milestone
+
+Use `glab issue update`. Do **not** script the API for these.
+
+```bash
+glab issue update <iid> --assignee viktomas              # replace assignees
+glab issue update <iid> --assignee @me                   # assign yourself
+glab issue update <iid> --assignee +alice --assignee -bob # add alice, remove bob
+glab issue update <iid> --unassign                       # remove all assignees
+glab issue update <iid> --label ui,ux                    # add labels (comma-separated)
+glab issue update <iid> --unlabel working                # remove labels
+glab issue update <iid> --milestone "16.5"               # set milestone ('' or 0 to clear)
+```
+
+Scoped labels work as-is: `--label "type::feature"`. Add `-R OWNER/REPO` when not inside the project's worktree.
+
 ## glab — Merge Requests
 
 ### View MR details
@@ -102,6 +122,66 @@ glab mr list --assignee=@me -F json
 glab mr list --reviewer=@me -F json
 glab mr list --source-branch=my-branch -F json
 ```
+
+### Update an MR — assignees, labels, milestone, reviewers
+
+Use `glab mr update`. Do **not** script the API for these. Works on cross-fork MRs too —
+target the project where the MR lives (the upstream), e.g.
+`glab mr update 3552 -R gitlab-org/editor-extensions/gitlab-lsp --label "type::feature"`.
+
+```bash
+glab mr update <iid> --assignee viktomas                 # replace assignees
+glab mr update <iid> --assignee @me                      # assign yourself
+glab mr update <iid> --assignee +alice --assignee -bob   # add alice, remove bob
+glab mr update <iid> --unassign                          # remove all assignees
+glab mr update <iid> --reviewer alice                    # request review (same +/-/! prefixes)
+glab mr update <iid> --label "type::feature","group::editor extensions"  # add labels
+glab mr update <iid> --unlabel "workflow::in dev"        # remove labels
+glab mr update <iid> --milestone "16.5"                  # set milestone ('' or 0 to clear)
+```
+
+### Create an MR (incl. cross-fork)
+
+```bash
+glab mr create --fill --draft --target-branch main -R OWNER/REPO
+```
+
+**⚠️ Cross-fork limitation:** `glab mr create` fails with `source_branch: does not exist`
+when the source branch lives in a fork and you pass the upstream as `-R`. Use the
+`glab api` fallback below (POST to the **fork's** project ID with `target_project_id` set
+to the upstream). Then set labels/assignee with `glab mr update` — never Python.
+
+```bash
+# Cross-fork draft MR: source in fork (56477207) -> upstream main (46519181)
+glab api -X POST "projects/<fork_id>/merge_requests" \
+  -f source_branch="my-branch" \
+  -f target_branch="main" \
+  -F target_project_id=<upstream_id> \
+  -f title="Draft: feat(scope): ..." \
+  -f description="$(cat /tmp/mr_description.md)" \
+  -F remove_source_branch=true -F squash=true
+```
+
+Quick-action lines in the description (`/label`, `/assign`) are unreliable on cross-fork
+API create — `/assign me` may apply but `/label` often doesn't. Set them explicitly with
+`glab mr update` afterwards.
+
+### Upload a file (GIF/image/attachment) and embed it in a description/comment
+
+To put an image or GIF inside an MR/issue description or comment, first upload it to the
+project's uploads store, then use the returned markdown snippet. The `--form file=@PATH`
+syntax streams the binary correctly — do **not** script this with Python.
+
+```bash
+glab api --method POST projects/:id/uploads --form "file=@/tmp/demo.gif" \
+  | jq -r '.markdown'
+# -> ![demo](/uploads/<hash>/demo.gif)
+```
+
+Paste that `![...](...)` markdown into the `--description` body (or a note) and update the
+MR/issue. Run from the project worktree so `:id` resolves; otherwise use the numeric
+project ID (e.g. `projects/46519181/uploads`). The upload is scoped to that project, so
+embed it in an MR/issue of the **same** project.
 
 ### Merge an MR
 
