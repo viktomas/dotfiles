@@ -69,7 +69,7 @@ keybinds clear-defaults=true {
         bind "K" { NewPane "down"; MovePane "up"; }
         bind "L" { NewPane "right"; }
         bind "c" { SwitchToMode "renamepane"; PaneNameInput 0; }
-        bind "Ctrl c" { SwitchToMode "renametab"; TabNameInput 0; }
+        bind "t" { SwitchToMode "renametab"; TabNameInput 0; }
         bind "Ctrl d" { CloseFocus; }
         bind "e" { TogglePaneEmbedOrFloating; }
         bind "f" { ToggleFocusFullscreen; }
@@ -162,12 +162,11 @@ keybinds clear-defaults=true {
     }
     renametab {
         bind "esc" { UndoRenameTab; SwitchToMode "pane"; }
-    }
-    shared_among "renametab" "renamepane" {
-        bind "enter" { SwitchToMode "pane"; }
+        bind "enter" { TogglePaneFrames; SwitchToMode "normal"; }
     }
     renamepane {
         bind "esc" { UndoRenamePane; SwitchToMode "pane"; }
+        bind "enter" { SwitchToMode "pane"; }
     }
     shared_among "session" "tmux" {
         bind "d" { Detach; }
