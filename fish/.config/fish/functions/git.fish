@@ -6,23 +6,33 @@ function git --wraps=git --description 'sets a special behaviour for git wta and
             or return 1
             set -l worktree_path $output[1]
             cd $worktree_path
-            echo "✓ Changed to worktree: $worktree_path"
+            echo "✓ Changed to worktree: $worktree_path" >&2
+            # Machine-readable: bare worktree path on the last stdout line.
+            echo $worktree_path
         else
             # New-worktree mode.
             set -l name $argv[2]
+            # Folder name is the branch slug with '/' -> '-' so the worktree
+            # layout stays flat (matches MR mode).
+            set -l folder (string replace -a / - -- $name)
             command git fetch origin
+            set -l worktree_path
             if command git show-ref --verify --quiet "refs/heads/$name"
                 or command git show-ref --verify --quiet "refs/remotes/origin/$name"
                 # Branch already exists: check it out in a new worktree as-is
-                ~/bin/git-wa.sh $name $name
-                and cd $name
+                set worktree_path (~/bin/git-wa.sh $folder $name)
+                or return 1
             else
                 # New branch: prefix with tv/YYYY-MM and base on origin/main
                 set -l date_prefix (date +%Y-%m)
                 set -l branch "tv/$date_prefix/$name"
-                ~/bin/git-wa.sh $name -b $branch --no-track origin/main
-                and cd $name
+                set worktree_path (~/bin/git-wa.sh $folder -b $branch --no-track origin/main)
+                or return 1
             end
+            cd $worktree_path
+            echo "✓ Changed to worktree: $worktree_path" >&2
+            # Machine-readable: bare worktree path on the last stdout line.
+            echo $worktree_path
         end
     else if test "$argv[1]" = wtu
         # Update the local main branch worktree without changing cwd
