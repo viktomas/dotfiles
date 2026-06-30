@@ -145,6 +145,8 @@ You **must** use Mermaid entity escapes (NOT \`&\`-prefixed HTML entities):
 
 **Line breaks are the exception** — do NOT use \`#lt;br/#gt;\` (Mermaid shows it as the literal text \`<br/>\`). Use the HTML entity \`&lt;br/&gt;\`: the browser decodes it to \`<br/>\` in the element's text content, which Mermaid then renders as a real line break. Example: \`A[#quot;First line&lt;br/&gt;Second line#quot;]\`.
 
+**Edge contrast**: the stock \`theme: 'default'\` draws edges in faint \`~#333\` that nearly vanish on the dark report page. Initialize Mermaid with \`theme: 'base'\` + explicit \`themeVariables\` (dark \`lineColor\`/\`textColor\` on a white \`background\`) and force \`.mermaid-wrapper svg { background:#fff !important; }\` — the template already does this; keep it when adapting.
+
 ## Syntax Highlighting
 
 highlight.js is loaded from CDN. Add language packs you need:

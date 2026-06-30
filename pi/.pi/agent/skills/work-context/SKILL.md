@@ -71,8 +71,4 @@ Also load this skill when asked to save, create, or look up a **reference** — 
    ```
    Prefer this over blind `rg`/`fd` when the user asks "do we have notes on X", "what did I decide about Y", or "find that reference about Z". Fall back to `rg`/`fd` for exact strings or filenames. After adding new references, run `qmd embed` to index them.
 
-8. **Task sessions** — board items can link to zellij task sessions via `$slug` annotations on headings. Full CLI reference and conventions are in:
-   ```
-   /Users/tomas/workspace/gl/work/.pi/skills/task-management/SKILL.md
-   ```
-   Task CLI source and tests live in `/Users/tomas/workspace/gl/orchestrator/`.
+8. **Task sessions** — board items can link to zellij task sessions via `$slug` annotations on headings. Full CLI reference and conventions are in the **task-management** skill. Task CLI source and tests live in `/Users/tomas/workspace/gl/task/main/`.

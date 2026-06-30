@@ -17,27 +17,29 @@ freeze --execute "tmux capture-pane -t $SESSION -p -e" \
   --font.family "JetBrainsMono Nerd Font Mono"
 ```
 
-### With tui-testing
+### Driving a TUI to a state first
 
-Drive the app to the desired state with `tui_ctrl`, then snapshot:
+Use the **tmux-cli-testing** skill's helper (`tmux_test_helper.sh`) to drive the app to
+the desired state, then snapshot the same tmux session. This is the one harness for
+driving TUIs over tmux — don't introduce a separate one.
 
 ```bash
-CTRL="path/to/tui_ctrl.ts"
-$CTRL launch -s demo --cols 100 --rows 25 --cwd "$PROJECT" node app.js
-$CTRL wait -s demo "Ready" --timeout 30
+source path/to/tmux-cli-testing/scripts/tmux_test_helper.sh
+trap cleanup_test EXIT
+
+start_test --cwd "$PROJECT" node app.js   # helper creates session $TMUX_SESSION
+wait_for "Ready" 30
 sleep 1
 
 # Navigate to the screen you want to capture
-$CTRL writeln -s demo "some input"
-$CTRL wait -s demo "Expected output" --timeout 15
+send_line "some input"
+wait_for "Expected output" 15
 sleep 1
 
-# Capture
-freeze --execute "tmux capture-pane -t demo -p -e" \
+# Capture the helper's session ($TMUX_SESSION)
+freeze --execute "tmux capture-pane -t \"$TMUX_SESSION\" -p -e" \
   --output shot.png --window --padding 20 \
   --font.family "JetBrainsMono Nerd Font Mono"
-
-$CTRL kill -s demo
 ```
 
 ## GIFs from asciinema casts (agg)

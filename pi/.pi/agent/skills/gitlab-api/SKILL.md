@@ -1,6 +1,6 @@
 ---
 name: gitlab-api
-description: Interact with GitLab REST API using GITLAB_TOKEN - use for TODOs, projects, issues, and other API queries
+description: Interact with GitLab REST API using GITLAB_TOKEN - use for TODOs, repositories, CI/pipelines, MRs, issues, and other API queries
 ---
 
 # GitLab API
@@ -9,7 +9,9 @@ Prefer `glab` CLI commands over raw `curl`. Use `glab api` for endpoints without
 
 **NEVER write a Python/`urllib`/`requests` script (or any other ad-hoc HTTP client) to call the GitLab API.** The order is always: dedicated `glab` subcommand → `glab api` → `curl`. If you're tempted to script the API, the right command almost certainly exists below — check the update section for assignees/labels/milestones.
 
-**IMPORTANT**: When You talk about MRs and Issues, never use the #123 and !345 shortcuts, always use [title](full URL) format. I don't keep the integer IDs in my head and they are useless for me
+**Content standards** (titles, description format, the `:robot: AI-generated` prefix, and the `[title](URL)` rule for referring to MRs/issues) live in the **mr-issue-standards** skill. This skill only covers the API mechanics — read mr-issue-standards before writing any MR/issue/comment body.
+
+**Comment/note CRUD** on MR diff lines and threads is owned by the **gitlab-mr-comments** skill (`glab mr note`). Use the curl/GraphQL fallbacks here only for what `glab mr note` can't do (award emoji, group-level work-item notes).
 
 **IMPORTANT**: If you encounter a `glab` command that fails, behaves unexpectedly, or is missing functionality, you MUST update this skill file to document the issue — either by adding a curl fallback with an explanation, or by adding a warning note to the relevant section. This keeps the skill accurate for future use.
 
@@ -87,7 +89,7 @@ glab issue create --title "..." --description ":robot: AI-generated
 Issue body here..." -R OWNER/REPO
 ```
 
-When creating an issue, use the `## Problem` and `## Solution` headers and be brief!
+For the title style, `## Problem`/`## Solution` structure, and the `:robot:` prefix, see the **mr-issue-standards** skill.
 
 ### Update an issue — assignees, labels, milestone
 
@@ -291,7 +293,7 @@ Projects with merge trains: `gitlab-org/cli` (34675721), `gitlab-org/editor-exte
 
 ## GraphQL — Work Items (Epics, Issues)
 
-Group-level work items (new-style epics) have **no REST API for notes**. Use GraphQL.
+Group-level work items (new-style epics) have **no REST API for notes**, so `glab mr note` / the **gitlab-mr-comments** skill can't reach them. Use GraphQL here instead.
 
 ### Fetch work item comments (non-system notes)
 

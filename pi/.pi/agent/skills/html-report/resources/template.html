@@ -122,6 +122,8 @@
     padding: 1.5rem; margin: 1.25rem 0; overflow-x: auto;
   }
   .mermaid { display: flex; justify-content: center; }
+  /* Force a white canvas so diagram edges/lines stay high-contrast on the dark page */
+  .mermaid-wrapper svg { background: #fff !important; }
   .diagram-caption {
     text-align: center; color: var(--text-dim);
     font-size: 0.85rem; margin-top: 0.4rem; font-style: italic;
@@ -235,8 +237,21 @@ graph LR
 <script>
   mermaid.initialize({
     startOnLoad: true,
-    theme: 'default',
+    // 'base' + explicit themeVariables: the stock 'default' theme uses faint
+    // ~#333 lines that nearly vanish on a dark page. A dark lineColor on a
+    // forced-white canvas keeps edges readable.
+    theme: 'base',
     securityLevel: 'loose',
+    themeVariables: {
+      background: '#ffffff',
+      primaryColor: '#eef1ff',
+      primaryTextColor: '#1a1b26',
+      primaryBorderColor: '#7aa2f7',
+      secondaryColor: '#e8ecff',
+      tertiaryColor: '#f5f7ff',
+      lineColor: '#394066',
+      textColor: '#1a1b26',
+    },
   });
   hljs.highlightAll();
 </script>

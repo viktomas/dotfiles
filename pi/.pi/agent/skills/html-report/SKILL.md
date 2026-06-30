@@ -54,15 +54,10 @@ The template includes the Mermaid JS CDN and `mermaid.initialize()` at the botto
 - Raw `"` inside the `<pre>` will break the HTML — the browser sees it as closing an attribute
 - Raw `#` is interpreted by Mermaid as the start of an entity (e.g., `#123;` becomes a character code)
 
-You **must** use Mermaid's own entity escapes (NOT `&`-prefixed HTML entities):
-
-| Character | Mermaid escape |
-|-----------|---------------|
-| `#` | `#35;` |
-| `"` | `#quot;` |
-| `;` | `#59;` |
-
-Use `#quot;` for quoted labels: `A[#quot;My Node#quot;]`, `subgraph S[#quot;Title#quot;]`. See the **mermaid** skill for the full escaping reference.
+You **must** use Mermaid's own entity escapes (`#quot;`, `#35;`, `#59;` — NOT
+`&`-prefixed HTML entities). The **mermaid** skill is the canonical reference for the
+full escape table; the most common one here is `#quot;` for quoted labels:
+`A[#quot;My Node#quot;]`, `subgraph S[#quot;Title#quot;]`.
 
 **Line breaks are the one exception** — do NOT use `#lt;br/#gt;` (Mermaid decodes it to the *literal text* `<br/>` and shows it in the node). Use the HTML entity `&lt;br/&gt;` instead: the browser decodes it to `<br/>` in the element's text content, which Mermaid then renders as a real line break.
 
@@ -74,6 +69,8 @@ graph LR
 ```
 
 The `.mermaid-wrapper` div provides a white background so diagrams are readable against the dark page.
+
+**Edge/line contrast**: the stock `theme: 'default'` draws edges in faint `~#333` and does not force an opaque light canvas, so on the dark report page connecting lines and arrows nearly disappear. The template avoids this by initializing Mermaid with `theme: 'base'` plus explicit `themeVariables` (a dark `lineColor` and `textColor` on a white `background`) and a `.mermaid-wrapper svg { background:#fff !important; }` rule. Keep both when adapting the template — do not revert to `theme: 'default'` without re-checking edge contrast.
 
 ## Syntax Highlighting
 
