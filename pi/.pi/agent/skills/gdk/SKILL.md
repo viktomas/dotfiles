@@ -31,3 +31,8 @@ export GDK_RUNNER_TOKEN="glrt-yyy"
 ```
 
 this file is sourced and the env variables available to you
+
+## Duo test project
+
+Seeded Duo test project at `/Users/tomas/workspace/test/test` (remote `http://gdk.test:3000/gitlab-duo/test.git`). Use as cwd when running the Duo CLI (avoids some edge cases).
+

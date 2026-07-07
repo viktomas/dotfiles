@@ -9,7 +9,7 @@ If the working directory contains changes, first make sure if I want to review o
 
 If the working directory is clean or user wishes to diff with main, find merge base with main and review changes from there.
 
-For context, use the gitlab-api skill to find the MR description and all relevant/referenced issues and MRs, try to get as much context as you can to understand the changes.
+For context, use the gitlab-api skill to find the MR description and all relevant/referenced issues and MRs, try to get as much context as you can to understand the changes. If the MR has green pipeline, then don't run tests/compilation.
 
 Fish for any relevant architecture.md files that are in the same path as changed files. (`fd -i architecture.md`).
 

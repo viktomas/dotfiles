@@ -148,6 +148,21 @@ glab mr update <iid> --milestone "16.5"                  # set milestone ('' or 
 glab mr create --fill --draft --target-branch main -R OWNER/REPO
 ```
 
+**Multi-line/markdown description from a file.** `glab mr create` has **no**
+`--description-file` and does **not** read the description from stdin — `-d -`
+opens an editor, and there is no stdin path in `mr_create.go`. Write the body
+with the write tool, then expand the file into `-d` via command substitution so
+markdown/newlines survive shell quoting:
+
+```bash
+# write /tmp/mr-desc.md with the write tool, then:
+glab mr create -a viktomas -t "feat(scope): ..." -d "$(cat /tmp/mr-desc.md)" --yes
+rm -f /tmp/mr-desc.md
+```
+
+Same `"$(cat file)"` trick works for `-f description=...` on the `glab api`
+cross-fork fallback below.
+
 **⚠️ Cross-fork limitation:** `glab mr create` fails with `source_branch: does not exist`
 when the source branch lives in a fork and you pass the upstream as `-R`. Use the
 `glab api` fallback below (POST to the **fork's** project ID with `target_project_id` set
