@@ -34,6 +34,7 @@ import (
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer"
+	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
 
 	"oss.terrastruct.com/d2/d2graph"
@@ -256,6 +257,7 @@ func main() {
 			renderer.WithNodeRenderers(
 				util.Prioritized(&blockRenderer{errors: &errs, ruler: ruler}, 100),
 			),
+			html.WithUnsafe(),
 		),
 	)
 

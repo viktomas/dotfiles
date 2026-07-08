@@ -30,10 +30,20 @@ Standard GFM markdown, plus fenced blocks by info string:
   light/dark theme, so SVGs must not assume a white background.
 - **anything else** — a language name, syntax-highlighted client-side.
 
+Raw HTML passes through, so `<details>`/`<summary>` collapsible sections work.
+Leave a blank line after `<summary>` so its content is parsed as markdown.
+
 ````md
 # Example report
 
 Prose outside fences: headings, lists, **bold**, `inline code`, [links](https://example.com).
+
+<details>
+<summary>Extra details</summary>
+
+Hidden **markdown**, code blocks, and d2 diagrams all work here.
+
+</details>
 
 ```d2
 client -> api: request
