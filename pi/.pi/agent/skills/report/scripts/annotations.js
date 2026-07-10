@@ -13,7 +13,7 @@
   const marksOf = (id) => document.querySelectorAll(`mark.ann[data-ann-id="${id}"]`);
   const inIgnored = (node) =>
     (node.nodeType === 3 ? node.parentElement : node)
-      .closest('#ann-add,#ann-export,.ann-note,figure.diagram,pre');
+      .closest('#ann-add,#ann-export,.ann-note,figure.diagram');
 
   function updateCount() {
     exportBtn.dataset.count = notes.size;
