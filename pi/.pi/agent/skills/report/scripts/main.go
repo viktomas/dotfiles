@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"cmp"
 	"context"
+	_ "embed"
 	"encoding/xml"
 	"flag"
 	"fmt"
@@ -184,18 +185,30 @@ var pageTemplate = template.Must(template.New("page").Parse(`<!DOCTYPE html>
   code:not(pre code) { background: rgba(127,127,127,0.18); padding: 0.1em 0.35em; border-radius: 4px; }
   table { border-collapse: collapse; }
   th, td { border: 1px solid rgba(127,127,127,0.35); padding: 0.4em 0.8em; }
+{{.AnnotationCSS}}
 </style>
 </head>
 <body>
 {{.Body}}
+<button id="ann-add">📝 Note</button>
+<button id="ann-export" data-count="0" title="Copy all notes as markdown">📋 Export notes</button>
 <script>hljs.highlightAll();</script>
+<script>{{.AnnotationJS}}</script>
 </body>
 </html>
 `))
 
+//go:embed annotations.css
+var annotationCSS string
+
+//go:embed annotations.js
+var annotationJS string
+
 type pageData struct {
-	Title string
-	Body  template.HTML
+	Title         string
+	Body          template.HTML
+	AnnotationCSS template.CSS
+	AnnotationJS  template.JS
 }
 
 var titleRE = regexp.MustCompile(`(?m)^#\s+(.+)$`)
@@ -285,7 +298,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(2)
 	}
-	execErr := pageTemplate.Execute(f, pageData{Title: title, Body: template.HTML(body.String())})
+	execErr := pageTemplate.Execute(f, pageData{
+		Title:         title,
+		Body:          template.HTML(body.String()),
+		AnnotationCSS: template.CSS(annotationCSS),
+		AnnotationJS:  template.JS(annotationJS),
+	})
 	closeErr := f.Close()
 	if err := cmp.Or(execErr, closeErr); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
