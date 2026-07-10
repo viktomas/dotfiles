@@ -5,7 +5,7 @@ PREFIX := $(HOME)/bin
 
 build: $(BINARY)
 
-$(BINARY): main.go annotations.css annotations.js go.mod go.sum
+$(BINARY): main.go annotations.css annotations.js zoom.css zoom.js go.mod go.sum
 	go build -o $(BINARY) .
 
 install: build

@@ -186,14 +186,17 @@ var pageTemplate = template.Must(template.New("page").Parse(`<!DOCTYPE html>
   table { border-collapse: collapse; }
   th, td { border: 1px solid rgba(127,127,127,0.35); padding: 0.4em 0.8em; }
 {{.AnnotationCSS}}
+{{.ZoomCSS}}
 </style>
 </head>
 <body>
 {{.Body}}
 <button id="ann-add">📝 Note</button>
 <button id="ann-export" data-count="0" title="Copy all notes as markdown">📋 Export notes</button>
+<dialog id="zoom-overlay"></dialog>
 <script>hljs.highlightAll();</script>
 <script>{{.AnnotationJS}}</script>
+<script>{{.ZoomJS}}</script>
 </body>
 </html>
 `))
@@ -204,11 +207,19 @@ var annotationCSS string
 //go:embed annotations.js
 var annotationJS string
 
+//go:embed zoom.css
+var zoomCSS string
+
+//go:embed zoom.js
+var zoomJS string
+
 type pageData struct {
 	Title         string
 	Body          template.HTML
 	AnnotationCSS template.CSS
 	AnnotationJS  template.JS
+	ZoomCSS       template.CSS
+	ZoomJS        template.JS
 }
 
 var titleRE = regexp.MustCompile(`(?m)^#\s+(.+)$`)
@@ -303,6 +314,8 @@ func main() {
 		Body:          template.HTML(body.String()),
 		AnnotationCSS: template.CSS(annotationCSS),
 		AnnotationJS:  template.JS(annotationJS),
+		ZoomCSS:       template.CSS(zoomCSS),
+		ZoomJS:        template.JS(zoomJS),
 	})
 	closeErr := f.Close()
 	if err := cmp.Or(execErr, closeErr); err != nil {
