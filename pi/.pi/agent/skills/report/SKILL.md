@@ -1,6 +1,6 @@
 ---
 name: report
-description: Generate a standalone HTML report from a markdown file with d2 diagrams, SVGs, and syntax-highlighted code blocks. Use when the user asks for a report, a visual writeup, or a document with diagrams.
+description: Generate a standalone HTML report from a markdown file with d2 diagrams, SVGs, and syntax-highlighted code blocks. ALWAYS use when the user asks for or mentions a report. Otherwise use this skill for visual explanation.
 ---
 
 # Report
@@ -8,6 +8,8 @@ description: Generate a standalone HTML report from a markdown file with d2 diag
 Write the report as markdown, then render it to HTML with `mdreport`.
 
 ## Rendering
+
+Always render the report after you write it!
 
 ```bash
 /Users/tomas/.pi/agent/skills/report/scripts/mdreport <report.md> [output.html]

@@ -9,7 +9,7 @@ function parseArgs(argv) {
 	const out = {
 		model: DEFAULT_MODEL,
 		purpose: "general research support",
-		timeoutMs: 120000,
+		timeoutMs: 300000,
 		json: false,
 		help: false,
 		query: "",
@@ -88,6 +88,50 @@ function parseLocation(locationStr) {
 	return loc;
 }
 
+async function postMessages(apiKey, body, timeoutMs) {
+	// Retry transient network failures ("fetch failed") with a short backoff.
+	const maxAttempts = 3;
+	let lastErr;
+	for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+		const signal = AbortSignal.timeout ? AbortSignal.timeout(timeoutMs) : undefined;
+		try {
+			const res = await fetch("https://api.anthropic.com/v1/messages", {
+				method: "POST",
+				headers: {
+					"x-api-key": apiKey,
+					"anthropic-version": "2023-06-01",
+					"content-type": "application/json",
+					accept: "application/json",
+				},
+				body: JSON.stringify(body),
+				signal,
+			});
+			const payload = await res.text();
+			if (!res.ok) {
+				// Retry on 429 / 5xx (overloaded); fail fast on other 4xx.
+				if ((res.status === 429 || res.status >= 500) && attempt < maxAttempts) {
+					lastErr = new Error(`Anthropic request failed (${res.status}): ${payload}`);
+					await new Promise((r) => setTimeout(r, 2000 * attempt));
+					continue;
+				}
+				throw new Error(`Anthropic request failed (${res.status}): ${payload}`);
+			}
+			try {
+				return JSON.parse(payload);
+			} catch {
+				throw new Error("Anthropic returned non-JSON response");
+			}
+		} catch (err) {
+			// AbortError (timeout) is not retried; genuine network errors are.
+			const isTimeout = err?.name === "TimeoutError" || err?.name === "AbortError";
+			if (isTimeout || attempt >= maxAttempts) throw err;
+			lastErr = err;
+			await new Promise((r) => setTimeout(r, 2000 * attempt));
+		}
+	}
+	throw lastErr || new Error("Anthropic request failed");
+}
+
 async function runSearch({ model, apiKey, query, purpose, timeoutMs, allowedDomains, blockedDomains, location }) {
 	const toolDef = { type: "web_search_20260318", name: "web_search", max_uses: 5 };
 	if (allowedDomains?.length) toolDef.allowed_domains = allowedDomains;
@@ -97,36 +141,22 @@ async function runSearch({ model, apiKey, query, purpose, timeoutMs, allowedDoma
 
 	const body = {
 		model,
-		max_tokens: 1800,
+		// The web_search_20260318 tool emits many thinking / tool-result blocks
+		// before the summary; a small budget can hit max_tokens with no text.
+		max_tokens: 8000,
 		system: buildSystemPrompt(),
 		tools: [toolDef],
 		messages: [{ role: "user", content: buildUserPrompt(query, purpose) }],
 	};
 
-	const signal = AbortSignal.timeout ? AbortSignal.timeout(timeoutMs) : undefined;
-
-	const res = await fetch("https://api.anthropic.com/v1/messages", {
-		method: "POST",
-		headers: {
-			"x-api-key": apiKey,
-			"anthropic-version": "2023-06-01",
-			"content-type": "application/json",
-			accept: "application/json",
-		},
-		body: JSON.stringify(body),
-		signal,
-	});
-
-	const payload = await res.text();
-	if (!res.ok) {
-		throw new Error(`Anthropic request failed (${res.status}): ${payload}`);
-	}
-
+	// Long agentic turns can return stop_reason "pause_turn"; feed the content
+	// back and continue until a terminal stop reason.
+	const maxContinues = 5;
 	let parsed;
-	try {
-		parsed = JSON.parse(payload);
-	} catch {
-		throw new Error("Anthropic returned non-JSON response");
+	for (let i = 0; i <= maxContinues; i++) {
+		parsed = await postMessages(apiKey, body, timeoutMs);
+		if (parsed.stop_reason !== "pause_turn") break;
+		body.messages.push({ role: "assistant", content: parsed.content });
 	}
 
 	const text = (parsed.content || [])
@@ -136,7 +166,10 @@ async function runSearch({ model, apiKey, query, purpose, timeoutMs, allowedDoma
 		.trim();
 
 	if (!text) {
-		throw new Error("Anthropic returned no text content");
+		throw new Error(
+			`Anthropic returned no text content (stop_reason: ${parsed.stop_reason}). ` +
+				"If stop_reason is max_tokens, raise max_tokens in search.mjs.",
+		);
 	}
 
 	return text;

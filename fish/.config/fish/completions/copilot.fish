@@ -78,7 +78,7 @@ complete -c copilot -l remote -f -d 'Enable remote control of your session from 
 complete -c copilot -l no-remote -f -d 'Disable remote control of your session from GitHub web and mobile'
 complete -c copilot -l remote-export -f -d 'Export your session to GitHub web and mobile (read-only; does not enable remote control)'
 complete -c copilot -l no-remote-export -f -d 'Disable exporting your session to GitHub web and mobile (also disables remote control)'
-complete -c copilot -l max-ai-credits -r -d 'Set the soft maximum AI Credits allowed for each response'
+complete -c copilot -l max-ai-credits -r -d 'Set max AI credits for this session'
 complete -c copilot -n '__fish_seen_subcommand_from login' -l host -r -d 'GitHub host URL (default: https://github.com)'
 complete -c copilot -n '__fish_seen_subcommand_from plugin' -f -a 'install' -d 'Install a plugin'
 complete -c copilot -n '__fish_seen_subcommand_from plugin' -f -a 'uninstall' -d 'Uninstall a plugin'

@@ -10,15 +10,36 @@ GDK lives in /Users/tomas/workspace/gl/gdk
 - `gitlab` contains the main GitLab monolith Ruby on Rails codebase, database, API, frontend, everything
 - `gitlab-ai-gateway` AI Gateway (AIGW) and Duo Workflow Service (DWS)
 
+## Running `gdk`
+
+`gdk` is **not on PATH**. Run it via mise from the gdk dir:
+`cd /Users/tomas/workspace/gl/gdk && mise exec -- gdk <cmd>`
+
 ## Starting GDK
 
-Start GDK with `cd /Users/tomas/workspace/gl/gdk && gdk start`
+Start GDK with `cd /Users/tomas/workspace/gl/gdk && mise exec -- gdk start`
 
 ## Updating GDK
 
-Update GDK with `cd /Users/tomas/workspace/gl/gdk && gdk update`
+Update GDK with `cd /Users/tomas/workspace/gl/gdk && mise exec -- gdk update`
 
 This will checkout the default branches so make sure that all work in progress is comitted.
+
+**`gdk update` is slow (~10-15 min).** It git-pulls every component, runs
+`bundle install` + `yarn install`, downloads prebuilt gitaly + workhorse
+binaries (network-bound), and runs DB migrations. Don't run it as a blocking
+foreground call — it will hit tool timeouts. Instead run it in the background
+and poll the log:
+
+```bash
+cd /Users/tomas/workspace/gl/gdk
+nohup mise exec -- gdk update > /tmp/gdk-update.log 2>&1 &
+# then poll: tail -8 /tmp/gdk-update.log ; ps -p <pid>
+```
+
+Progress markers in the log, in order: tool-versions → bundle/yarn install →
+DB setup/migrations → `Package extracted successfully` (workhorse, then
+gitaly) → `Successfully updated in Xm Ys!` at the end.
 
 Thanks to complications like migrations, you want to generally rebase your WIP branches on latest main/master after upgrading GDK
 

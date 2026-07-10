@@ -227,5 +227,6 @@
   },
   "workbench.secondarySideBar.defaultVisibility": "hidden",
   "git.blame.editorDecoration.enabled": true,
-  "diffEditor.maxComputationTime": 0
+  "diffEditor.maxComputationTime": 0,
+  "task.allowAutomaticTasks": "off"
 }
