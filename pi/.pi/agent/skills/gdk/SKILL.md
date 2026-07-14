@@ -57,3 +57,6 @@ this file is sourced and the env variables available to you
 
 Seeded Duo test project at `/Users/tomas/workspace/test/test` (remote `http://gdk.test:3000/gitlab-duo/test.git`). Use as cwd when running the Duo CLI (avoids some edge cases).
 
+## Troubleshooting
+
+For issues, look into [AI-owned troubleshooting docs](./ai-owned-troubleshooting.md). Update this file every time after you debug a gdk issue.

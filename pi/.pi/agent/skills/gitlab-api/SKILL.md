@@ -5,6 +5,8 @@ description: CRUD GitLab issues,MRs,pipelines,jobs,epics,issue comments
 
 ## MR
 
+- For MR comments, use the `gitlab-mr-comments` skill!
+
 - Read
   - Use `glab mr view <ID if not run on branch>`  (if run on a branch, recognises the MR automatically)
 
