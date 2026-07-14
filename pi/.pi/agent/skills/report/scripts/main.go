@@ -259,7 +259,8 @@ func main() {
 	if len(args) > 1 {
 		outputPath = args[1]
 	} else {
-		outputPath = strings.TrimSuffix(inputPath, filepath.Ext(inputPath)) + ".html"
+		base := strings.TrimSuffix(filepath.Base(inputPath), filepath.Ext(inputPath))
+		outputPath = filepath.Join(os.TempDir(), base+".html")
 	}
 
 	source, err := os.ReadFile(inputPath)
@@ -323,6 +324,8 @@ func main() {
 		os.Exit(2)
 	}
 
+	fmt.Println("NOTE FOR THE LLM: This HTML file is for the human user only. Never read it.")
+	fmt.Println("Always treat the source markdown file as the single source of truth (SSOT).")
 	fmt.Println(outputPath)
 	openInBrowser(outputPath)
 }

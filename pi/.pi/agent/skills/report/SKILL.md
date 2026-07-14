@@ -15,9 +15,9 @@ Always render the report after you write it!
 /Users/tomas/.pi/agent/skills/report/scripts/mdreport <report.md> [output.html]
 ```
 
-Output defaults to `<report>.html` and opens in the browser. An invalid `d2` or
-`svg` block aborts with exit 1, naming the block type and line. Build first if
-the binary is missing:
+Output defaults to `<report>.html` in the system temp folder and opens in the
+browser. The generated HTML is for the human user only — NEVER read it, NEVER touch it.
+An invalid `d2` or `svg` block aborts with exit 1, naming the block type and line. Build first if the binary is missing:
 
 ```bash
 make -C /Users/tomas/.pi/agent/skills/report/scripts build
