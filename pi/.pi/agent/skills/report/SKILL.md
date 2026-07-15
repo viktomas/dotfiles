@@ -31,10 +31,18 @@ Standard GFM markdown, plus fenced blocks by info string:
 - **d2** — compiled to inline SVG (https://d2lang.com).
 - **svg** — inlined as-is, validated for an `<svg>` root. The page respects OS
   light/dark theme, so SVGs must not assume a white background.
+- **diff** — a unified diff, rendered client-side by diff2html as a colored
+  side-by-side diff with word-level highlighting. Use it whenever you show code
+  changes; write a normal unified diff (`--- a/file`, `+++ b/file`, `@@ ... @@`).
+- **GitHub alert callouts** — blockquotes starting with `> [!NOTE]`, `> [!TIP]`,
+  `> [!IMPORTANT]`, `> [!WARNING]`, or `> [!CAUTION]` render as colored boxes
+  with an icon; use them to flag severity/importance. Append `+`/`-` to the type
+  (`> [!TIP]+` / `> [!CAUTION]-`) for a collapsible box, open/closed by default.
 - **anything else** — a language name, syntax-highlighted client-side.
 
 Raw HTML passes through, so `<details>`/`<summary>` collapsible sections work.
 Leave a blank line after `<summary>` so its content is parsed as markdown.
+Callouts and diffs render correctly inside `<details>` too.
 
 ````md
 # Example report
@@ -64,6 +72,19 @@ api -> client: response
 
 ```js
 console.log('hello world');
+```
+
+> [!WARNING]
+> Callouts flag severity without any HTML or custom syntax.
+
+```diff
+--- a/main.go
++++ b/main.go
+@@ -1,3 +1,3 @@
+ func main() {
+-	fmt.Println("hi")
++	fmt.Println("hello")
+ }
 ```
 ````
 

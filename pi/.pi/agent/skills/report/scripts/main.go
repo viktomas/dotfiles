@@ -4,7 +4,11 @@
 //
 //    ```d2   -> compiled with the d2 library, inlined as SVG
 //    ```svg  -> validated as well-formed SVG, inlined as-is
+//    ```diff -> emitted as a container that diff2html renders client-side
 //    ```lang -> left as source text; highlight.js does the coloring client-side
+//
+// GitHub-style alert callouts (> [!NOTE], > [!WARNING], ...) are rendered as
+// styled boxes by the gm-alert-callouts extension.
 //
 // Everything else is standard CommonMark/GFM, rendered by goldmark's default
 // renderer untouched.
@@ -19,6 +23,7 @@ import (
 	"cmp"
 	"context"
 	_ "embed"
+	"encoding/base64"
 	"encoding/xml"
 	"flag"
 	"fmt"
@@ -37,6 +42,7 @@ import (
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
+	alertcallouts "github.com/zmtcreative/gm-alert-callouts"
 
 	"oss.terrastruct.com/d2/d2graph"
 	"oss.terrastruct.com/d2/d2layouts/d2dagrelayout"
@@ -102,6 +108,15 @@ func (r *blockRenderer) render(w util.BufWriter, source []byte, node ast.Node, e
 		_, _ = w.WriteString(`<figure class="diagram">`)
 		_, _ = w.WriteString(content)
 		_, _ = w.WriteString(`</figure>`)
+
+	case "diff":
+		// Hand the raw unified diff to diff2html in the browser. base64 keeps
+		// arbitrary source characters (<, >, &, quotes) safe in the attribute;
+		// malformed content just renders as an empty box, never breaking the page.
+		enc := base64.StdEncoding.EncodeToString([]byte(content))
+		_, _ = w.WriteString(`<div class="report-diff" data-diff="`)
+		_, _ = w.WriteString(enc)
+		_, _ = w.WriteString(`"></div>`)
 
 	default:
 		_, _ = w.WriteString(`<pre><code class="language-`)
@@ -174,7 +189,9 @@ var pageTemplate = template.Must(template.New("page").Parse(`<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{.Title}}</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html@3.4.51/bundles/css/diff2html.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/diff2html@3.4.51/bundles/js/diff2html-ui-slim.min.js"></script>
 <style>
   :root { color-scheme: light dark; }
   body { font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
@@ -185,6 +202,7 @@ var pageTemplate = template.Must(template.New("page").Parse(`<!DOCTYPE html>
   code:not(pre code) { background: rgba(127,127,127,0.18); padding: 0.1em 0.35em; border-radius: 4px; }
   table { border-collapse: collapse; }
   th, td { border: 1px solid rgba(127,127,127,0.35); padding: 0.4em 0.8em; }
+{{.ExtrasCSS}}
 {{.AnnotationCSS}}
 {{.ZoomCSS}}
 </style>
@@ -195,11 +213,18 @@ var pageTemplate = template.Must(template.New("page").Parse(`<!DOCTYPE html>
 <button id="ann-export" data-count="0" title="Copy all notes as markdown">📋 Export notes</button>
 <dialog id="zoom-overlay"></dialog>
 <script>hljs.highlightAll();</script>
+<script>{{.DiffJS}}</script>
 <script>{{.AnnotationJS}}</script>
 <script>{{.ZoomJS}}</script>
 </body>
 </html>
 `))
+
+//go:embed extras.css
+var extrasCSS string
+
+//go:embed diff.js
+var diffJS string
 
 //go:embed annotations.css
 var annotationCSS string
@@ -216,6 +241,8 @@ var zoomJS string
 type pageData struct {
 	Title         string
 	Body          template.HTML
+	ExtrasCSS     template.CSS
+	DiffJS        template.JS
 	AnnotationCSS template.CSS
 	AnnotationJS  template.JS
 	ZoomCSS       template.CSS
@@ -277,7 +304,13 @@ func main() {
 
 	var errs []buildError
 	md := goldmark.New(
-		goldmark.WithExtensions(extension.GFM),
+		goldmark.WithExtensions(
+			extension.GFM,
+			alertcallouts.NewAlertCallouts(
+				alertcallouts.UseGFMStrictIcons(),
+				alertcallouts.WithFolding(true),
+			),
+		),
 		goldmark.WithRendererOptions(
 			renderer.WithNodeRenderers(
 				util.Prioritized(&blockRenderer{errors: &errs, ruler: ruler}, 100),
@@ -313,6 +346,8 @@ func main() {
 	execErr := pageTemplate.Execute(f, pageData{
 		Title:         title,
 		Body:          template.HTML(body.String()),
+		ExtrasCSS:     template.CSS(extrasCSS),
+		DiffJS:        template.JS(diffJS),
 		AnnotationCSS: template.CSS(annotationCSS),
 		AnnotationJS:  template.JS(annotationJS),
 		ZoomCSS:       template.CSS(zoomCSS),
