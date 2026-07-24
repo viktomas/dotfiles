@@ -3,6 +3,8 @@ name: gitlab-api
 description: CRUD GitLab issues,MRs,pipelines,jobs,epics,issue comments
 ---
 
+The `$GITLAB_TOKEN` variable is always in your shell environment
+
 ## MR
 
 - For MR comments, use the `gitlab-mr-comments` skill!

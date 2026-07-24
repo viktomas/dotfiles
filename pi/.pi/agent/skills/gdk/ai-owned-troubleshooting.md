@@ -23,3 +23,29 @@ stale `GITLAB_TOKEN` pointing at gitlab.com in the shell will be preferred and
 fail with `invalid_token` against gdk.test — override it explicitly:
 `GITLAB_TOKEN=$GDK_TOKEN GITLAB_BASE_URL=http://gdk.test:3000 duo run …`.
 
+
+## Duo Agent Platform "not available for this namespace or project" (AgenticChatForbiddenError)
+
+Fresh GDK has no Duo add-on/entitlement, so `duo run` / the Duo CLI fail at
+workflow creation with `AgenticChatForbiddenError`. Enable it once (rake tasks
+need the AI Gateway URL in env):
+
+```bash
+cd /Users/tomas/workspace/gl/gdk/gitlab
+AI_GATEWAY_URL="http://gdk.test:5052" mise exec -- bundle exec rake "gitlab:duo:setup[duo_enterprise]"
+AI_GATEWAY_URL="http://gdk.test:5052" mise exec -- bundle exec rake gitlab:duo:onboard_dap
+# diagnose a specific project:
+AI_GATEWAY_URL="http://gdk.test:5052" mise exec -- bundle exec rake "gitlab:duo:verify_setup[gitlab-duo/test]"
+```
+
+`setup` seeds/entitles the `gitlab-duo` group + project and assigns root a seat;
+`onboard_dap` registers the Agent Platform service accounts/flows. After this the
+seeded project `gitlab-duo/test` works.
+
+## Duo CLI resolves the namespace but not the project → 403 on workflow create
+
+Running the CLI in a repo whose remote is on GDK, project auto-detection can
+resolve only the *namespace* (`namespace_id: gitlab-duo`, no `project_id`). A
+non-chat flow (`developer/v1`, `software_development`, custom inline flow) then
+403s at create because `check_duo_workflow_access` needs a project container.
+Pass the project explicitly: `--gitlab-project-path gitlab-duo/test`.
