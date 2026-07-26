@@ -5,11 +5,13 @@ description: Generate a standalone HTML report from a markdown file with d2 diag
 
 # Task report
 
-Each task has a default report file location which might or might not contain a file, run `task report` to get the file location.
+A report is a **snapshot of an understanding at a point in time** — an investigation
+write-up with diagrams, for a human to read. Write it as markdown, render it to HTML with
+`mdreport`, and freeze the markdown into the task's memory with `tm artifact` so a later
+session can find it.
 
-Write the report as markdown, then render it to HTML with `mdreport`.
-
-You can write an extra report to a different location if asked, but default to the `task report` file.
+Write the markdown wherever the work is happening (the workspace, a scratch dir). There is
+no reserved report path any more: `tm` holds the copy that outlives the session.
 
 ## Rendering
 
@@ -17,12 +19,36 @@ Always render the report after you write it!
 
 ```bash
 mdreport report.md
-mdreport $(task report)
 ```
 
 Output defaults to `<filename.md without md suffix>.html` in the system temp folder and opens in the
 browser. The generated HTML is for the human user only — NEVER read it, NEVER touch it.
 An invalid `d2` or `svg` block aborts with exit 1, naming the block type and line. 
+
+## Freezing the report into task memory
+
+In a session with a `tm` task, freeze the markdown once it is written and rendered:
+
+```bash
+tm artifact ./report.md --note "Turn-cancellation: root cause + fix options"
+```
+
+`tm` copies the file into the task's `artifacts/` dir and prints the absolute path of the
+frozen copy. `tm resume`/`tm show` then list it for every later session, so nobody has to
+remember where the report went.
+
+**Never edit a frozen artifact, and never keep a report as a living document.** A report
+that is edited in place drifts from reality and nobody can tell whether it still describes
+the current state. When your understanding changes, write a new report and supersede the
+old one:
+
+```bash
+tm artifact ./report-v2.md --note "Revised after the debug-log capture" --supersedes a1
+```
+
+The superseded snapshot stays in the log, honest about what was true when it was written,
+and only the live one shows up in the default views — which is what the hand-written
+"the older report is outdated, don't read it" notes used to do by hand.
 
 ## Format
 
