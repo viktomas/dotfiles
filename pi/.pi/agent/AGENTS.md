@@ -1,44 +1,5 @@
 My GitLab username is @viktomas.
 
-## **CRITICAL** Planning Rules **CRITICAL**
-
-You are working with a plan if:
-- You are **explicitly asked** to work with `plan.md`
-- The user says `@plan.md go`, `@plan.md step N go`, or similar
-- A `/next` command was used (it references plan.md in its prompt)
-
-When working with a plan, `plan.md` is your only file for documenting progress. Unless asked to create other documentation files, use the `plan.md` exclusively.
-
-**MANDATORY**: After completing ANY task from the plan (coding, reverting, creating files, etc.), you MUST immediately update `plan.md` BEFORE responding to the user. This is NOT optional.
-
-When you complete a task:
-1. Remove the completed step entirely from the plan — no trace of it should remain
-2. Update "Current State" to reflect what's now done
-3. Update "Problem" to remove solved issues
-4. Remove any "before/after" language - document only the current reality
-5. Renumber remaining steps if needed
-
-When updating the `plan` make sure there are no:
-- finished steps in any form — no "DONE" markers, no checked todos, no completed step headings
-- before and after sections - only current state is documented
-- checked todos or description of performed migration steps - only the remaining migration steps are explained
-- selling of the solution (no "benefits", "improvements", "why is this the best")
-
-If you complete work but don't update the plan automatically, you have FAILED your task.
-
-## Verification After Implementation
-
-After completing implementation work, verify it compiles and passes tests. Don't ask the user to paste errors — run the commands yourself and read the output.
-
-- `./scripts/dev/verify.sh` — compile + test + lint changed files (if available)
-- `./scripts/dev/test-file.sh <file>` — run a single test file (if available)
-- `./scripts/dev/fix-changed.sh` — lint/format only changed files (if available)
-
- ## **CRITICAL** Tool Usage Rules **CRITICAL**
-- NEVER use sed/cat to read a file or a range of a file. Always use the read tool (use offset + limit for ranged reads).
-- You MUST read every file you modify in full before editing.
-
-
 ## Forbidden Git Operations
 These commands can destroy your's other agents' work
 - `git reset --hard` - destroys uncommitted changes

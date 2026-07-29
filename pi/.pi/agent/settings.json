@@ -1,8 +1,8 @@
 {
-  "lastChangelogVersion": "0.81.1",
+  "lastChangelogVersion": "0.82.0",
   "hideThinkingBlock": true,
   "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-8",
+  "defaultModel": "claude-opus-5",
   "defaultThinkingLevel": "medium",
   "npmCommand": [
     "mise",

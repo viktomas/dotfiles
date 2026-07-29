@@ -1,0 +1,1 @@
+/Users/tomas/workspace/gl/tm/completions/tm.fish

@@ -24,6 +24,42 @@ fail with `invalid_token` against gdk.test — override it explicitly:
 `GITLAB_TOKEN=$GDK_TOKEN GITLAB_BASE_URL=http://gdk.test:3000 duo run …`.
 
 
+## Every `/api/v4/*` request 500s with `wrong number of arguments (given 1, expected 0)`
+
+A `rails-web` puma that has been up for ~2 weeks while the `gitlab` checkout /
+gems moved underneath it serves a stale Grape API stack — *all* API requests
+(even unauthenticated `GET /api/v4/projects`) return a Rails exception page with
+`wrong number of arguments (given 1, expected 0)` and nothing is written to
+`gitlab/log/api_json.log`. Fix: `mise exec -- gdk restart rails-web`
+(takes ~40s to boot), then re-check `curl -s -o /dev/null -w '%{http_code}'
+http://gdk.test:3000/api/v4/projects`.
+
+## Running the Duo CLI (gitlab-lsp) under tmux
+
+Three traps, all of which make the tmux session die instantly with
+`no server running`:
+
+1. `node` inside tmux resolves to a non-mise node that rejects
+   `--use-system-ca`. Use the absolute path
+   (`/Users/tomas/.local/share/mise/installs/node/24/bin/node`).
+1. Piping the CLI into `tee` removes the TTY, so the TUI paints once and exits.
+   Never pipe; read the CLI's own log file instead
+   (`$TMPDIR/gitlab-duo-cli/duo-cli-log-*.log`, or `duo log tail -f`).
+1. `tmux new-session -e GITLAB_TOKEN=…` did not reach the CLI reliably; the
+   token also must not carry a trailing newline (`$(cat file)` breaks the auth
+   header). Prefer explicit flags in a small launcher script:
+   `--gitlab-base-url http://gdk.test:3000 --gitlab-auth-token "$(tr -d '\n' < /tmp/gdk-token)"`.
+
+If `$GDK_TOKEN` from `~/.secrets/gdk` is expired, mint a new PAT (do **not**
+call `t.set_token(...)`, it breaks auth on this version — let GitLab generate it):
+
+```bash
+cd /Users/tomas/workspace/gl/gdk/gitlab && mise exec -- bundle exec rails runner '
+u = User.find_by_username("root")
+t = u.personal_access_tokens.create!(scopes: ["api","read_user"], name: "local-#{Time.now.to_i}", expires_at: 90.days.from_now)
+puts "TOKEN=#{t.token}"'
+```
+
 ## Duo Agent Platform "not available for this namespace or project" (AgenticChatForbiddenError)
 
 Fresh GDK has no Duo add-on/entitlement, so `duo run` / the Duo CLI fail at
