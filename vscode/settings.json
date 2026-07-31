@@ -229,5 +229,5 @@
   "git.blame.editorDecoration.enabled": true,
   "diffEditor.maxComputationTime": 0,
   "task.allowAutomaticTasks": "off",
-  "diffEditor.renderSideBySide": false
+  "diffEditor.renderSideBySide": true
 }
