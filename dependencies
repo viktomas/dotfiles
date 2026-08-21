@@ -14,3 +14,5 @@ brew install font-jetbrains-mono-nerd-font
 brew install fsouza/prettierd/prettierd
 # so I have `cal` that can start with Monday
 brew install util-linux
+# fj, the Forgejo CLI, for my self-hosted instance on `n` (see the fj skill)
+brew install forgejo-cli
