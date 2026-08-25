@@ -5,20 +5,30 @@ description: use this skill when you need to search the web, think google search
 
 # Web Search
 
-Run from this skill directory (set your bash tool timeout to at least 200s — the
-web_search tool runs multi-step and a query can take 2+ minutes):
+Use the `claude` CLI in headless mode. It searches the web and returns a
+post-processed summary with source links. Typical query takes 30–60s, so set
+your bash tool timeout to at least 180s.
 
 ```bash
-node search.mjs "<what to look up (the search terms)>" --purpose "<why you need it, so results are summarized for your goal>"
+claude -p "Search the web: <what to look up>. Purpose: <why you need it, so results are summarized for your goal>. Cite sources." --allowed-tools WebSearch WebFetch
 ```
 
-The skill uses Anthropic's search API and LLM will post-process the reslts to give you summary.
-
 Notes:
-- `--timeout` is in **milliseconds** (default 300000 = 5 min); it is the internal API
-  wait, separate from your bash tool timeout. Don't set it to a small number.
-- Transient network / 429 / 5xx errors are retried automatically.
-- "server tool use limit exceeded" in the output means Anthropic rate-limited the
-  web_search tool (too many searches in a short window); wait a bit and retry.
+- Always pass `--allowed-tools WebSearch WebFetch` — without it the CLI answers
+  from memory instead of searching, and unrestricted tools would need permissions.
+- `WebFetch` lets it read a specific page; include the URL in the prompt when you
+  already know where the answer lives.
+- Add `--model sonnet` for cheaper/faster answers, `--model opus` for hard
+  research questions. Default is fine for most searches.
+- Ask for source URLs in the prompt; the output is markdown, safe to quote.
+- Run from any directory; no state or setup needed.
 
-Use this only when absolutely necessary: If you need to white/black list domains or set result location, run the `node search.mjs` without args to see the script help.
+Examples:
+
+```bash
+# straight lookup
+claude -p "Search the web: latest stable Node.js version and release date. Cite sources." --allowed-tools WebSearch WebFetch
+
+# targeted read of a known page
+claude -p "Fetch https://nodejs.org/en/about/previous-releases and tell me the EOL date of Node 22." --allowed-tools WebSearch WebFetch
+```
