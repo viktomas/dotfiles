@@ -6,8 +6,9 @@ description: use this skill when you need to search the web, think google search
 # Web Search
 
 Use the `claude` CLI in headless mode. It searches the web and returns a
-post-processed summary with source links. Typical query takes 30–60s, so set
-your bash tool timeout to at least 180s.
+post-processed summary with source links. A simple query takes 30–60s, so set
+your bash tool timeout to at least 180s. For complicated, multi-step research
+queries set the bash tool timeout to 1000s.
 
 ```bash
 claude -p "Search the web: <what to look up>. Purpose: <why you need it, so results are summarized for your goal>. Cite sources." --allowed-tools WebSearch WebFetch
