@@ -64,7 +64,12 @@ const RULES: Rule[] = [
 	{
 		id: "git-worktree",
 		patterns: [/\bgit\s+worktree\b/i, /\bgit\s+wt[au]\b/i],
-			promptPatterns: [/\bworktree\b/i, /\b(create|make|start)\s+(?:a|an|the)?\s*(new\s+)?branch\b/i],
+        promptPatterns: [/\bworktree\b/i, /\b(create|make|start)\s+(?:a|an|the)?\s*(new\s+)?branch\b/i],
+	},
+	{
+		id: "subagents",
+		patterns: [/\bsubagents?\b/i],
+        promptPatterns: [/\bsubagents?\b/i],
 	},
 ];
 
