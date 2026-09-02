@@ -1,33 +1,59 @@
 ---
 name: report
-description: Generate a standalone HTML report from a markdown file with d2 diagrams, SVGs, and syntax-highlighted code blocks. ALWAYS use when the user asks for or mentions a report. Use this skill for visual explanation.
+description: Write an investigation report with diagrams rendered inline in the terminal (d2, svg). ALWAYS use when the user asks for or mentions a report. Use this skill for visual explanation.
 ---
 
 # Task report
 
 A report is a **snapshot of an understanding at a point in time** — an investigation
-write-up with diagrams, for a human to read. Write it as markdown, render it to HTML with
-`mdreport`, and freeze the markdown into the task's memory with `tm artifact` so a later
-session can find it.
+write-up with diagrams, for a human to read.
 
-Write the markdown wherever the work is happening (the workspace, a scratch dir). There is
-no reserved report path any more: `tm` holds the copy that outlives the session.
+The report lives in two places:
 
-## Rendering
+1. **The transcript** — write the prose directly in your reply as markdown, and render each
+   diagram inline so the user reads it without leaving the terminal.
+2. **A markdown file** — the same content, frozen into the task's memory with
+   `tm artifact` so a later session can find it. Write the file wherever the work is
+   happening (the workspace, a scratch dir); `tm` holds the copy that outlives the session.
 
-Always render the report after you write it!
+## Diagrams
+
+Just write a fenced ```d2 or ```svg block in your reply. The `diagram` extension renders
+every complete block to an image below the message (Kitty graphics protocol) and replaces
+the raw source with a `◈ diagram N` marker, so the prose stays readable.
+
+If a block fails to compile, its source stays visible and you get a message with the
+compiler error — fix it and repost the corrected block.
+
+You never see the rendered image yourself, so keep diagrams small enough to be obviously
+correct. To eyeball one, render it manually and `read` the PNG:
 
 ```bash
-mdreport report.md
+diagram flow.d2          # prints the PNG path; -w max width px, -H max height
+echo 'a -> b' | diagram -t d2 -
 ```
 
-Output defaults to `<filename.md without md suffix>.html` in the system temp folder and opens in the
-browser. The generated HTML is for the human user only — NEVER read it, NEVER touch it.
-An invalid `d2` or `svg` block aborts with exit 1, naming the block type and line. 
+- **d2** — https://d2lang.com. Default layout is top-down; add `direction: right` for wide
+  flows. Prefer several small diagrams over one big one; tall diagrams get scaled down to
+  fit the height cap and their text turns to mush.
+- **svg** — must have an `<svg>` root and an explicit `viewBox`. Rendered on a white
+  background, so use dark strokes/fills (`#111`, `#1a56db`), never `currentColor`.
+
+The markdown file keeps the fenced source, not the PNG, so a later session re-renders it
+by quoting the block back or running `diagram` on it.
+
+## Everything else is plain markdown
+
+Prose, headings, lists, tables, `inline code`, links, and fenced code blocks all render in
+the transcript. Use fenced ```diff blocks with a normal unified diff (`--- a/file`,
+`+++ b/file`, `@@ ... @@`) whenever you show code changes.
+
+In the markdown file, keep each diagram as a fenced ```d2 / ```svg block at the place where
+it belongs.
 
 ## Freezing the report into task memory
 
-In a session with a `tm` task, freeze the markdown once it is written and rendered:
+In a session with a `tm` task, freeze the markdown once it is written:
 
 ```bash
 tm artifact ./report.md --note "Turn-cancellation: root cause + fix options"
@@ -47,78 +73,12 @@ tm artifact ./report-v2.md --note "Revised after the debug-log capture" --supers
 ```
 
 The superseded snapshot stays in the log, honest about what was true when it was written,
-and only the live one shows up in the default views — which is what the hand-written
-"the older report is outdated, don't read it" notes used to do by hand.
+and only the live one shows up in the default views.
 
-## Format
+## Machinery
 
-Standard GFM markdown, plus fenced blocks by info string:
-
-- **d2** — compiled to inline SVG (https://d2lang.com).
-- **svg** — inlined as-is, validated for an `<svg>` root. The page respects OS
-  light/dark theme, so SVGs must not assume a white background.
-- **diff** — a unified diff, rendered client-side by diff2html as a colored
-  side-by-side diff with word-level highlighting. Use it whenever you show code
-  changes; write a normal unified diff (`--- a/file`, `+++ b/file`, `@@ ... @@`).
-- **GitHub alert callouts** — blockquotes starting with `> [!NOTE]`, `> [!TIP]`,
-  `> [!IMPORTANT]`, `> [!WARNING]`, or `> [!CAUTION]` render as colored boxes
-  with an icon; use them to flag severity/importance. Append `+`/`-` to the type
-  (`> [!TIP]+` / `> [!CAUTION]-`) for a collapsible box, open/closed by default.
-- **anything else** — a language name, syntax-highlighted client-side.
-
-Raw HTML passes through, so `<details>`/`<summary>` collapsible sections work.
-Leave a blank line after `<summary>` so its content is parsed as markdown.
-Callouts and diffs render correctly inside `<details>` too.
-
-````md
-# Example report
-
-Prose outside fences: headings, lists, **bold**, `inline code`, [links](https://example.com).
-
-<details>
-<summary>Extra details</summary>
-
-Hidden **markdown**, code blocks, and d2 diagrams all work here.
-
-</details>
-
-```d2
-client -> api: request
-api -> db: query
-db -> api: rows
-api -> client: response
-```
-
-```svg
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40">
-  <rect x="2" y="2" width="116" height="36" rx="6" fill="none" stroke="currentColor"/>
-  <text x="60" y="24" text-anchor="middle" font-family="sans-serif" fill="currentColor">custom mark</text>
-</svg>
-```
-
-```js
-console.log('hello world');
-```
-
-> [!WARNING]
-> Callouts flag severity without any HTML or custom syntax.
-
-```diff
---- a/main.go
-+++ b/main.go
-@@ -1,3 +1,3 @@
- func main() {
--	fmt.Println("hi")
-+	fmt.Println("hello")
- }
-```
-````
-
-## If `mdreport` binary is missing
-
-Build first if the binary is missing:
-
-```bash
-make -C /Users/tomas/.pi/agent/skills/report/scripts install
-```
-
+- `~/.pi/agent/extensions/diagram.ts` — renders ```d2 / ```svg blocks in assistant messages,
+  caches PNGs in `~/.cache/pi/diagrams/`, reports failures back to the agent.
+- `~/.pi/agent/skills/report/scripts/diagram` — bash helper (`d2` + `rsvg-convert`), also
+  symlinked as `~/bin/diagram`. If it is missing:
+  `ln -sf ~/.pi/agent/skills/report/scripts/diagram ~/bin/diagram && brew install d2 librsvg`
