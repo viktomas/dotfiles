@@ -22,15 +22,27 @@ import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { Image, Text } from "@earendil-works/pi-tui";
+import { getCellDimensions, Image, Text } from "@earendil-works/pi-tui";
 
 const execFileAsync = promisify(execFile);
 
 const DIAGRAM_BIN = join(homedir(), ".pi", "agent", "skills", "report", "scripts", "diagram");
 const CACHE_DIR = join(homedir(), ".cache", "pi", "diagrams");
 const RENDER_TIMEOUT_MS = 20_000;
-const MAX_WIDTH_CELLS = 80;
-const MAX_HEIGHT_CELLS = 40;
+/** Display box. Width is clamped to the transcript width, so this only caps very wide images. */
+const MAX_WIDTH_CELLS = 160;
+const MAX_HEIGHT_CELLS = 45;
+/** Supersampling: render above the display resolution so the terminal downscale stays crisp. */
+const OVERSAMPLE = 2;
+const MAX_PX = 3000;
+
+/** Pixel size to rasterise at, matching the cells the image will occupy on screen. */
+function targetPixels(): { width: number; height: number } {
+	const cell = getCellDimensions();
+	const width = Math.round(MAX_WIDTH_CELLS * (cell.widthPx || 10) * OVERSAMPLE);
+	const height = Math.round(MAX_HEIGHT_CELLS * (cell.heightPx || 20) * OVERSAMPLE);
+	return { width: Math.min(MAX_PX, width), height: Math.min(MAX_PX, height) };
+}
 
 /** ```d2 / ```svg fenced block, with its closing fence. */
 const FENCE_RE = /^([ \t]*)(`{3,}|~{3,})[ \t]*(d2|svg)[^\n]*\n([\s\S]*?)^[ \t]*\2[ \t]*$/gm;
@@ -70,13 +82,18 @@ function assistantText(content: unknown): string {
 /** Render a block to PNG in the cache dir. Returns the path, or throws with the compiler error. */
 async function render(block: Block): Promise<string> {
 	mkdirSync(CACHE_DIR, { recursive: true });
-	const png = join(CACHE_DIR, `${block.hash}.png`);
+	const px = targetPixels();
+	const png = join(CACHE_DIR, `${block.hash}-${px.width}x${px.height}.png`);
 	if (existsSync(png)) return png;
 
 	const src = join(tmpdir(), `pi-diagram-${block.hash}.${block.lang}`);
 	writeFileSync(src, block.source);
 	try {
-		await execFileAsync(DIAGRAM_BIN, [src, "-o", png], { timeout: RENDER_TIMEOUT_MS });
+		await execFileAsync(
+			DIAGRAM_BIN,
+			[src, "-o", png, "-w", String(px.width), "-H", String(px.height)],
+			{ timeout: RENDER_TIMEOUT_MS },
+		);
 	} catch (error) {
 		const err = error as { stderr?: string; message?: string };
 		const raw = (err.stderr || err.message || "unknown error").trim();
@@ -127,11 +144,20 @@ export default function diagrams(pi: ExtensionAPI) {
 		});
 	});
 
-	pi.on("message_end", async (event, ctx) => {
+	pi.on("message_end", (event, ctx) => {
 		if (event.message.role !== "assistant") return;
 
 		const found = blocks(assistantText(event.message.content));
 		if (found.length === 0) return;
+
+		// Detached on purpose: while `message_end` listeners run, the TUI still holds the
+		// streaming component and splices new entries *above* it. Handing control back
+		// first lets the message settle, so the images land under it.
+		void processBlocks(found, ctx);
+	});
+
+	async function processBlocks(found: Block[], ctx: { ui: { notify: (message: string, level: string) => void } }) {
+		await new Promise((resolve) => setTimeout(resolve, 0));
 
 		const failures: string[] = [];
 		let fresh = false;
@@ -170,5 +196,5 @@ export default function diagrams(pi: ExtensionAPI) {
 			},
 			{ deliverAs: "followUp", triggerTurn: fresh },
 		);
-	});
+	}
 }

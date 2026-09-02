@@ -33,9 +33,10 @@ diagram flow.d2          # prints the PNG path; -w max width px, -H max height
 echo 'a -> b' | diagram -t d2 -
 ```
 
-- **d2** — https://d2lang.com. Default layout is top-down; add `direction: right` for wide
-  flows. Prefer several small diagrams over one big one; tall diagrams get scaled down to
-  fit the height cap and their text turns to mush.
+- **d2** — https://d2lang.com. The image is capped at ~45 rows tall and the transcript
+  width, and the terminal cannot zoom, so the diagram's own size decides how big its text
+  ends up. Default layout is top-down, which burns the height budget fastest: add
+  `direction: right` for flows, and split anything past ~8 nodes into several diagrams.
 - **svg** — must have an `<svg>` root and an explicit `viewBox`. Rendered on a white
   background, so use dark strokes/fills (`#111`, `#1a56db`), never `currentColor`.
 

@@ -92,8 +92,8 @@ if [ -z "$out" ]; then
 	out="$(mktemp "${TMPDIR:-/tmp}/diagram.XXXXXX").png"
 fi
 
-# Fit the diagram into maxw x maxh without distorting narrow/tall shapes, and
-# never upscale beyond 3x (rasterised text gets soft).
+# Fit the diagram into maxw x maxh without distorting narrow/tall shapes. Scaling
+# up is free: the source is vector, so text stays sharp at any zoom.
 zoom="$(awk -v maxw="$maxw" -v maxh="$maxh" '
 	match($0, /viewBox="[^"]+"/) {
 		vb = substr($0, RSTART + 9, RLENGTH - 10)
@@ -102,7 +102,6 @@ zoom="$(awk -v maxw="$maxw" -v maxh="$maxh" '
 		if (w > 0 && h > 0) {
 			z = maxw / w
 			if (maxh / h < z) z = maxh / h
-			if (z > 3) z = 3
 			printf "%.4f", z
 		}
 		exit
