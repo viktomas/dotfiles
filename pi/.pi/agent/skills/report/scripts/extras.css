@@ -1,0 +1,42 @@
+/* GitHub-style alert callouts (> [!NOTE] etc.), rendered by gm-alert-callouts. */
+.callout {
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-left: 4px solid var(--callout-color, #888);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin: 1.5rem 0;
+  background: color-mix(in srgb, var(--callout-color, #888) 8%, transparent);
+}
+.callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--callout-color, #888);
+  font-weight: 600;
+}
+.callout-title-text { margin: 0; }
+.callout-title svg { width: 1.1em; height: 1.1em; flex: none; }
+.callout-body { margin-top: 0.4rem; }
+.callout-body > :first-child { margin-top: 0; }
+.callout-body > :last-child { margin-bottom: 0; }
+
+.callout-note { --callout-color: #2f81f7; }
+.callout-tip { --callout-color: #3fb950; }
+.callout-important { --callout-color: #a371f7; }
+.callout-warning { --callout-color: #d29922; }
+.callout-caution { --callout-color: #f85149; }
+
+details.callout > summary.callout-title {
+  cursor: pointer;
+  list-style: none;
+}
+details.callout > summary.callout-title::-webkit-details-marker { display: none; }
+
+/* Rich diffs (```diff blocks), rendered client-side by diff2html. Break out of
+   the prose column so side-by-side diffs have room. */
+.report-diff {
+  margin: 1.5rem 0;
+  text-align: left;
+  width: min(1200px, 96vw);
+  margin-left: calc((100% - min(1200px, 96vw)) / 2);
+}
