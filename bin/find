@@ -1,0 +1,73 @@
+#!/bin/bash
+# find — a guarded wrapper around /usr/bin/find.
+#
+# Why this exists: an agent (or a tired human) types `find / -name '*.templ'`,
+# the filesystem scan takes 39 minutes, and the session looks hung. There is
+# almost never a good reason for a `find` in a dev workflow to run for minutes:
+# if it does, the search root is too broad, or `rg --files` / `fd` / a package
+# path is the right tool instead.
+#
+# Behaviour: run the real find, but kill it after FIND_TIMEOUT seconds (180 by
+# default) and explain on stderr what happened. Whatever find had already
+# printed is kept — only the tail of the search is lost.
+#
+# Escape hatches, for the rare legitimate whole-disk scan:
+#   FIND_TIMEOUT=900 find / ...   # raise the limit
+#   FIND_NO_TIMEOUT=1 find / ...  # disable it entirely
+#   /usr/bin/find / ...           # bypass this wrapper completely
+
+set -uo pipefail
+
+REAL_FIND=/usr/bin/find
+[ -x "$REAL_FIND" ] || REAL_FIND=/bin/find
+
+LIMIT=${FIND_TIMEOUT:-180}
+
+# No timeout wanted, or no timeout binary available: just exec the real thing.
+TIMEOUT=""
+for candidate in timeout gtimeout; do
+	if p=$(command -v "$candidate" 2>/dev/null); then
+		TIMEOUT=$p
+		break
+	fi
+done
+
+if [ -n "${FIND_NO_TIMEOUT:-}" ] || [ -z "$TIMEOUT" ] || [ "$LIMIT" = "0" ]; then
+	exec "$REAL_FIND" "$@"
+fi
+
+# --foreground: keep find in *our* process group, so it still shares the
+# terminal — Ctrl-C, `-ok` prompts and job control behave exactly as they do
+# for an unwrapped find. Without it, coreutils timeout moves the child into its
+# own group and Ctrl-C no longer reaches it. Probed, because a timeout(1)
+# without the flag would otherwise fail outright.
+FG=--foreground
+"$TIMEOUT" --foreground 0 true 2>/dev/null || FG=
+
+# -k 5: if find ignores SIGTERM for 5s (it shouldn't), SIGKILL it.
+"$TIMEOUT" $FG -k 5 "$LIMIT" "$REAL_FIND" "$@"
+status=$?
+
+# 124 = timed out (TERM), 137 = had to be KILLed after the grace period.
+if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then
+	cat >&2 <<-EOF
+
+		find: KILLED after ${LIMIT}s by the wrapper at ${BASH_SOURCE[0]}.
+
+		This was almost certainly an unbounded search. Any results printed above are
+		partial. Do not just retry it — narrow the search instead:
+
+		  * give a real starting directory, not / or ~ or \$GOPATH
+		  * add -maxdepth N
+		  * prune the obvious sinkholes:
+		      -type d \\( -name node_modules -o -name .git -o -name vendor \\) -prune -o ...
+		  * for files tracked in a repo, use: rg --files | rg pattern
+		  * for a fast whole-tree name search, use: fd pattern [dir]
+		  * for a Go module's source, get the path first: go list -m -f '{{.Dir}}' <mod>
+
+		If you genuinely need the long scan: FIND_TIMEOUT=900 find ... (or FIND_NO_TIMEOUT=1).
+	EOF
+	exit 124
+fi
+
+exit "$status"
