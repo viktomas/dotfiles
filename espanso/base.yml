@@ -2,13 +2,13 @@
 matches:
   # Simple text replacement
   - trigger: "..lex"
-    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"VS Code" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::VS Code"'
+    replace: '/label ~"devops::ai clients" ~"group::developer clients" ~"category:vs code" ~"section::ai"'
   - trigger: "..lls"
-    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Language Server"'
+    replace: '/label ~"devops::ai clients" ~"group::duo client sdk" ~"category:duo client sdk" ~"section::ai"'
   - trigger: "..lcl"
-    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev" ~"Editor Extensions::Duo CLI"'
+    replace: '/label ~"devops::ai clients" ~"group::developer clients" ~"category:duo cli" ~"section::ai"'
   - trigger: '..lteam'
-    replace: '/label ~"devops::ai-powered" ~"group::editor extensions" ~"Category:Editor Extensions" ~"section::dev"'
+    replace: '/label ~"devops::ai clients" ~"section::ai"'
   - trigger: "..lf"
     replace: '/label ~"type::feature"'
   - trigger: "..lb"
