@@ -37,7 +37,11 @@ fj $H pr search    -r tomas/finance -s all
 fj $H actions tasks -r tomas/agent               # CI runs, newest first
 fj $H repo view tomas/notes
 fj $H issue create -r tomas/agent "title" --body "..."
+fj $H pr create -r tomas/finance "feat(x): title" --base master --head my-branch --body '...'
 ```
+
+The title is **positional** — there is no `--title` — and `-R <remote>` is only
+for the number-targeted verbs, never for `create`.
 
 ## The ssh-remote gotcha
 

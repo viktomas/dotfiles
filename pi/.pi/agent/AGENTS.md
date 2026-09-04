@@ -13,6 +13,13 @@ These commands can destroy your's other agents' work
 
 You can only use them on direct user request.
 
+## Editing Files
+
+Edit files with the `edit` tool. If `oldText` does not match, `read` the region
+and retry with what is actually there. Do not fall back to `python` string
+splicing (`s.index(...)`) or `sed -i` to rewrite a block — those edits are
+unreviewable and silently miss neighbouring occurrences.
+
 ## Git Interactive Commands
 
 Commands like `git rebase --continue`, `git merge --continue`, and `git commit` open an editor and hang when run non-interactively. Always prefix with `GIT_EDITOR=true` to auto-accept the default message:
