@@ -38,6 +38,12 @@ vim.cmd.colorscheme("tokyonight")
 vim.api.nvim_set_hl(0, 'DiagnosticUnnecessary', { fg = '#7982a9', italic = true })
 vim.api.nvim_set_hl(0, 'DiagnosticUnderlineHint', { undercurl = false })
 
+-- Attention-based (near-blank) highlighting for Go / TypeScript.
+-- Swap `rules` for one of: presets.blank, presets.scaffolding, presets.foreign,
+-- presets.attention -- or hand-roll a table of capture -> tier.
+local highlight = require("user.highlight")
+highlight.setup({ rules = highlight.presets.foreign })
+
 require("mini.icons").setup({})
 -- add LSP kind icons to autocompletion
 MiniIcons.tweak_lsp_kind()

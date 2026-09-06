@@ -9,6 +9,7 @@ is `init.lua`, with per-plugin setup in `lua/plugins/*.lua`.
 |---|---|
 | Plugin management (`vim.pack`: add, update, pin, delete, hooks) | `docs/vim-pack.md` |
 | Fennel + love2d LSP (hover docs, completions in `.fnl`) | `docs/fennel-love2d.md` |
+| Attention-based (near-blank) highlighting for Go/TypeScript | `docs/highlighting.md` |
 
 ## Plugins — vim.pack
 
