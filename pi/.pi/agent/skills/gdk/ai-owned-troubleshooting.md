@@ -85,3 +85,76 @@ resolve only the *namespace* (`namespace_id: gitlab-duo`, no `project_id`). A
 non-chat flow (`developer/v1`, `software_development`, custom inline flow) then
 403s at create because `check_duo_workflow_access` needs a project container.
 Pass the project explicitly: `--gitlab-project-path gitlab-duo/test`.
+
+## `gdk update` fails at `gitlab:db:truncate_legacy_tables:sec`
+
+`gdk update` can end with
+`PG::FeatureNotSupported: cannot truncate a table referenced in a foreign key
+constraint` from
+`rake gitlab:db:lock_writes gitlab:db:truncate_legacy_tables:sec gitlab:db:unlock_writes`.
+This step runs **after** the repos are updated and after `db:migrate`, so the
+checkouts and the schema are already fine — the failure is cosmetic for local
+work. Verify and continue manually:
+
+```bash
+cd /Users/tomas/workspace/gl/gdk/gitlab
+mise exec -- bundle exec rake db:migrate     # should be a no-op
+mise exec -- gdk start
+```
+
+If a branch checkout changes `Gemfile.lock`, `rake` dies with
+`Could not find <gem> in locally installed gems` — run
+`mise exec -- bundle install` first.
+
+## Putting GDK into "Duo CLI auto mode" state (gitlab-lsp !4008/!4010, epic &23199)
+
+The `duo_auto_mode` capability does not exist on gitlab master; it comes from
+the unmerged gitlab!253317. To test the CLI auto-mode MRs:
+
+```bash
+cd /Users/tomas/workspace/gl/gdk/gitlab
+git fetch origin 'refs/merge-requests/253317/head:mr-253317' && git checkout mr-253317
+mise exec -- bundle install && mise exec -- bundle exec rake db:migrate   # 2 new cascading-setting migrations
+mise exec -- bundle exec rails runner '
+Feature.enable(:duo_workflow_local_tool_governance)
+a = ApplicationSetting.current
+a.update!(tool_approval_for_session_enabled: true, duo_auto_mode_enabled: true,
+          lock_tool_approval_for_session_enabled: false, lock_duo_auto_mode_enabled: false)
+ns = Group.find_by_full_path("gitlab-duo").namespace_settings
+ns.update!(tool_approval_for_session_enabled: true, duo_auto_mode_enabled: true,
+           lock_tool_approval_for_session_enabled: false, lock_duo_auto_mode_enabled: false)
+Project.find_by_full_path("gitlab-duo/test").project_setting.update!(duo_auto_mode_enabled: true)'
+```
+
+Beware: the availability accessors are tri-state
+(`default_on`/`default_off`/`never_on`); `locked: true` normalizes to
+`never_on` and *disables* the capability even with `enabled: true`.
+
+Verify the capability reaches the client:
+
+```bash
+curl -s -H "PRIVATE-TOKEN: $GDK_TOKEN" -H 'Content-Type: application/json' \
+  -d '{"query":"query { aiFlowsMetadata(namespaceId: \"gid://gitlab/Group/96\", projectId: \"gid://gitlab/Project/20\") { capabilities { name } } }"}' \
+  http://gdk.test:3000/api/graphql
+# expect duo_auto_mode, tool_call_approval, tool_call_approval_source, ...
+```
+
+Governance rules the CLI reads (note: **always the full catalogue with
+defaults**, even with zero `ai_tool_rules` rows):
+
+```bash
+curl -s -H "PRIVATE-TOKEN: $GDK_TOKEN" -H 'Content-Type: application/json' \
+  -d '{"query":"query { aiToolRules(fullPath: \"gitlab-duo\", projectPath: \"gitlab-duo/test\") { nodes { id localAccess } } }"}' \
+  http://gdk.test:3000/api/graphql
+```
+
+Add a deny rule for manual testing:
+`Ai::ToolRule.create!(namespace_id: Group.find_by_full_path("gitlab-duo").id, tool_name: "run_command", web_access: "deny", local_access: "deny")`
+— a deny is enforced by DWS *stripping the tool from the toolset*, so the agent
+reports "the tool is not available" rather than showing a denial.
+
+## Duo CLI per-user settings (e.g. `autoMode`) live in `~/.gitlab/storage.json`
+
+Keyed `gid://gitlab/User/<id>:Duo CLI:<setting>` with a `{"enabled": bool}`
+value. GDK's root user is `User/1`, so toggling a setting while pointed at GDK
+does not touch the gitlab.com profile's entry.
