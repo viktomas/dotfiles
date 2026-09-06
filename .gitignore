@@ -14,3 +14,4 @@ pi/.pi/agent/sessions
 karabiner/.config/karabiner/automatic_backups
 pi/.pi/agent/trust.json
 /bin/mdreport
+pi/.pi/agent/subagent-sessions
