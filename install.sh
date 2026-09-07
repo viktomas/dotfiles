@@ -30,6 +30,7 @@ stow kanata
 stow ghostty
 stow pi
 stow claude
+stow mise
 
 # tiling window manager
 stow yabai

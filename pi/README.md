@@ -1,11 +1,16 @@
 # pi & qmd — global npm tools (via mise)
 
 `pi` and `qmd` are npm packages managed by mise's `npm:` backend in
-`~/.config/mise/config.toml`. Fish wrapper functions in
+`~/.config/mise/config.toml` (stow-managed: `mise/.config/mise/config.toml`). Fish wrapper functions in
 `fish/.config/fish/functions/{pi,qmd}.fish` pin `node@24` at runtime so the tools
 work regardless of a project's local node version.
 
 The pi config is stow-managed: `pi/.pi/agent/` → `~/.pi/agent/`.
+
+Extensions in `pi/.pi/agent/extensions/` are type-checked, not compiled (pi loads
+them through jiti). `package.json` + `tsconfig.json` there exist only so nvim's
+`ts_ls` and `npx tsc --noEmit` resolve node and `@earendil-works/*` types; the
+types come from the mise pi install via its version-independent `latest` symlink.
 
 - **Update:** `mise upgrade`
 - **Runtime node pinning:** the fish functions call

@@ -1,0 +1,18 @@
+[tools]
+"aqua:asciinema/agg" = "latest"
+"aqua:charmbracelet/freeze" = "latest"
+bun = "latest"
+deno = "latest"
+go = "latest"
+node = "24.16.0"
+"npm:@earendil-works/pi-coding-agent" = "latest"
+pnpm = "latest"
+python = "3.12"
+yarn = "latest"
+"npm:@tobilu/qmd" = "latest"
+"npm:typescript-language-server" = "latest"
+"npm:typescript" = "5"
+
+[settings]
+idiomatic_version_file_enable_tools = []
+minimum_release_age = "0"
