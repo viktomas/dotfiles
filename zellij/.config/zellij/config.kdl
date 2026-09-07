@@ -475,14 +475,18 @@ themes {
     tomas-light {
         fg "#4d4d4c"
         bg "#ffffff"
-        black "#000000"
+        // zellij derives its UI from these base colours: the bar background is
+        // `black` and unselected bar text is `white`. Keeping them at real
+        // black/white would leave the bar dark in light mode, so they are
+        // inverted here (light background, dark text).
+        black "#eeeeee"
         red "#c82829"
         green "#718c00"
         yellow "#8f6a00"
         blue "#4271ae"
         magenta "#8959a8"
         cyan "#3e999f"
-        white "#bfbfbf"
+        white "#4d4d4c"
         orange "#f5871f"
     }
 }
