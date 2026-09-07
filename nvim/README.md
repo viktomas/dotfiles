@@ -15,10 +15,12 @@ is `init.lua`, with per-plugin setup in `lua/plugins/*.lua`.
 
 Go and TypeScript are painted by a hand-rolled attention-based theme
 (`lua/user/theme.lua`) layered on tokyonight: grayscale tiers, no hue outside
-diagnostics, surfaces matched to the terminal background. Read `THEME.md` before
-touching highlight groups, tier rules or `after/queries/`, and verify changes by
-measuring the screen with the `nvim-theme` skill
-(`pi/.pi/agent/skills/nvim-theme/`) rather than by eye.
+diagnostics, surfaces matched to the terminal background. It ships in two
+variants — `dark` (default) and `light` — switched with `:ThemeVariant`; any
+change must be made and measured in **both**. Read `THEME.md` before touching
+highlight groups, tier rules or `after/queries/`, and verify changes by measuring
+the screen with the `nvim-theme` skill (`pi/.pi/agent/skills/nvim-theme/`) rather
+than by eye.
 
 ## Plugins — vim.pack
 

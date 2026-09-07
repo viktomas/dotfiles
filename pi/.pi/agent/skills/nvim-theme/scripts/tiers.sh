@@ -3,12 +3,18 @@
 # asking the running config rather than by reading the source. Feed it to
 # decode.py --tiers so the annotations always match what is actually loaded.
 #
-#   tiers.sh > /tmp/tiers.json
+#   tiers.sh [variant] > /tmp/tiers.json
+#
+# `variant` (dark|light) switches the theme first, so the table matches a
+# capture taken with the same variant. Defaults to whatever the config loads.
 set -euo pipefail
 
-nvim --headless -c 'lua
+VARIANT=${1:-}
+
+nvim --headless -c "lua vim.g.user_theme_variant = '${VARIANT}'" -c 'lua
 local ok, theme = pcall(require, "user.theme")
 if not ok then io.stderr:write("cannot require user.theme\n") os.exit(1) end
+if vim.g.user_theme_variant ~= "" then theme.set_variant(vim.g.user_theme_variant) end
 local out = {}
 for name, _ in pairs(theme.tiers) do
   -- resolve by round-tripping through a scratch highlight group

@@ -40,8 +40,9 @@ vim.cmd.colorscheme("tokyonight")
 -- on a cursor-driven layer instead of in the colours. Docs: nvim/THEME.md.
 -- Swap `rules` for one of: presets.blank, presets.scaffolding, presets.foreign,
 -- presets.attention, presets.fish -- or hand-roll a table of capture -> tier.
+-- Two variants: `variant = "light"` here, or `:ThemeVariant` at runtime.
 local theme = require("user.theme")
-theme.setup({ rules = theme.presets.attention })
+theme.setup({ rules = theme.presets.attention, variant = "dark" })
 
 require("mini.icons").setup({})
 -- add LSP kind icons to autocompletion

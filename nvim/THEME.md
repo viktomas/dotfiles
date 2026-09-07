@@ -9,7 +9,14 @@ layered on top of tokyonight. Every other filetype (lua, markdown, fennel, …)
 keeps the colorscheme untouched.
 
 **Current state: `presets.attention` — grayscale tiers, neutral surfaces matched
-to the terminal background, identity on a cursor-driven layer.**
+to the terminal background, identity on a cursor-driven layer, in two variants
+(`dark` by default, `light` via `:ThemeVariant`).**
+
+> **Rule for every future change: both variants, or it is not done.** The theme
+> is one set of rules over two surface pairs (§2.1). A tier, a surface or a
+> palette entry is only finished when it has been *measured* on both — see §9.
+> The ramp is written in blend fractions but specified in ΔE, and the same
+> fraction lands at a different ΔE against a different background.
 
 ---
 
@@ -89,6 +96,46 @@ tokyonight links to its foreground still paints `#c8d3f5` (bluish) next to a
 `Normal` of `#c5c8c6`. Unnoticeable in practice, and the alternative — rewriting
 tokyonight's groups — is a colorscheme fork.
 
+### 2.1 Variants
+
+Because every colour in the theme is *derived* from that pair, a variant is just
+a different pair plus the recalibration it forces:
+
+```lua
+theme.variants.dark  = { background = "#282c34", foreground = "#c5c8c6" }
+theme.variants.light = { background = "#ffffff", foreground = "#4d4d4c", tiers = …, palette = … }
+```
+
+The light pair is ghostty's bundled **Tomorrow** theme
+(`/Applications/Ghostty.app/Contents/Resources/ghostty/themes/Tomorrow`) — the
+light sibling of the Tomorrow Night palette fish uses, so the same "editor,
+shell and zellij share one surface" argument holds on both sides. Switching:
+
+```vim
+:ThemeVariant          " toggle
+:ThemeVariant light    " or pick one
+```
+
+```lua
+theme.setup({ rules = theme.presets.attention, variant = "light" })
+```
+
+`set_variant()` rebuilds the tier table (always from the defaults, never from the
+previous merge, so toggling is lossless), swaps the hue palette, sets
+`vim.o.background` — *before* reloading the colorscheme, since that is the only
+thing tokyonight looks at to pick its light side — and repaints.
+
+Two things the light variant does **not** restate:
+
+- **Surfaces.** The same `up()` fractions land within ΔE 1.5 of their dark
+  counterparts (measured), because the two pairs have a similar fg↔bg distance:
+  ΔE 63 dark, ΔE 67 light. `up(0.07)` is ΔL 5.0 on `#282c34` and ΔL 4.2 on
+  white. One set of fractions, two variants.
+- **Hue-bearing groups.** Diagnostics, diff, git signs and search stay the
+  colorscheme's, which is what `vim.o.background` is set for.
+
+What it *must* restate is the ramp — §3.1.
+
 ---
 
 ## 3. The tier ramp
@@ -135,6 +182,32 @@ whole screen.** `strong` is only ΔE 11 from base, which is fine, because it is
 spent exclusively on *keywords* — which sit in a field of `dim` siblings, so the
 contrast that matters is dim → strong ≈ ΔE 35. The same logic makes
 `@string.escape` = `base` work: inside a `muted` string, plain base pops.
+
+### 3.1 The light ramp is lopsided the other way
+
+`blend` is a *fraction*; the ramp is specified in *ΔE*. On `#4d4d4c` over white
+the dark fractions overshoot — `faint` becomes ΔE 43, `dim` 30, `muted` 15 — so
+the light variant restates them at the fractions that reproduce the dark ladder:
+
+| Tier | dark | ΔE | light | ΔE |
+|---|---|---|---|---|
+| `faint` | 0.62 → `#64676b` | 37 | 0.53 → `#aaaaaa` | 37 |
+| `dim` | 0.42 → `#838689` | 25 | 0.34 → `#898989` | 24 |
+| `muted` / `note` | 0.20 → `#a6a9a9` | 11 | 0.15 → `#686868` | 11 |
+| `strong` | −0.55 → `#e5e6e5` | 11 | −0.32 → `#343434` | 11 |
+| `bold` | −1.00 → `#ffffff` | 20 **+ bold** | −1.00 → `#000000` | 33 **+ bold** |
+
+`bold` is the deliberate exception. The dark ramp is squeezed upwards because
+`Normal` is already near-white — pure white buys only ΔE 20. **On white that
+constraint does not exist:** `#4d4d4c` is ΔE 33 from black, so the light variant
+gets a genuinely loud top of the ramp for free, and declarations use all of it.
+The ordering (`base` < `strong` < `bold`) is what the design requires, and it is
+preserved; only the headroom differs, and only where it is actually available.
+
+The corollary for the *bottom* of the ramp: the recessive tiers are matched in
+ΔE rather than in fraction because they carry the same meaning in both variants
+— `faint` must be "scaffolding you never look for", not "as pale as the
+background lets me go".
 
 ---
 
@@ -261,11 +334,18 @@ theme.setup({
   rules = vim.tbl_extend("force", theme.presets.attention, {
     ["@type"] = "strong",      -- try a tier for TS types
   }),
-  tiers = { dim = { blend = 0.5 } },   -- widen/narrow the ramp
+  tiers = { dim = { blend = 0.5 } },   -- widen/narrow the ramp (BOTH variants)
+  variant = "light",                   -- or :ThemeVariant at runtime
   background = false,                  -- keep the colorscheme's background
   dynamic = { updatetime = 400 },      -- or dynamic = false
 })
 ```
+
+Rules and presets are **variant-independent by construction** — they name tiers,
+never colours — which is the property that makes a second variant cheap. `tiers`
+passed to `setup()` wins over the variant's own table and therefore applies to
+both: if an override is only right on one background, put it in
+`theme.variants.<name>.tiers` instead.
 
 ### `presets.foreign` — why comments are recessive
 
@@ -287,8 +367,9 @@ recedes and the comment that actually explains something is one step brighter.
 
 `presets.fish` exists, works, and is documented here because it looks good: the
 palette is my fish theme (Tomorrow Night, from
-`fish/.config/fish/conf.d/fish_frozen_theme.fish`), so the shell and the editor
-would spend hue on the same meanings — yellow comments, green strings, cyan
+`fish/.config/fish/conf.d/fish_frozen_theme.fish`; the light variant swaps in
+plain Tomorrow, with both yellows darkened because `#f0c674` is unreadable on
+white), so the shell and the editor would spend hue on the same meanings — yellow comments, green strings, cyan
 escapes, purple definitions, aqua control flow, blue types, and red reserved for
 diagnostics.
 
@@ -321,6 +402,20 @@ $S/capture.sh file.ts 30 > /tmp/pane.txt
 $S/decode.py /tmp/pane.txt --tiers /tmp/tiers.json --rows 1-25
 $S/decode.py /tmp/pane.txt --tiers /tmp/tiers.json --summary   # palette + share + dE
 ```
+
+**Then do it again for the other variant** — a change is not verified until both
+are, and "it looked fine" is not verification on either:
+
+```bash
+echo 'require("user.theme").set_variant("light")' > /tmp/light.lua
+$S/tiers.sh light > /tmp/tiers-light.json
+$S/capture.sh file.ts 30 /tmp/light.lua > /tmp/pane-light.txt
+$S/decode.py /tmp/pane-light.txt --tiers /tmp/tiers-light.json --summary
+```
+
+The two summaries must show the **same ΔE ladder** (§3.1), not the same blend
+fractions. Unowned hexes in the light summary that are chrome, not bugs:
+`#c6c6c6` is `LineNr` (fg → bg 68%) and `#717170` is `StatusLine`'s fg (20%).
 
 `capture.sh` runs the real nvim in tmux with the real LSP attached and dumps the
 pane with its escape sequences; `decode.py` turns those into per-token tier names.
@@ -358,6 +453,15 @@ applied (`tsx` and `typescript` are different languages; both must be in
 - **Injected languages.** SQL or markdown inside a template literal is a different
   treesitter language, so it is not in `theme.langs` and renders in full
   tokyonight colour. Not yet decided whether that is a bug or a feature.
+- **Nothing switches the variant automatically.** `:ThemeVariant` is manual, and
+  ghostty is still pinned to its dark default — so the light variant currently
+  means a light editor inside a dark terminal. The fix is one line of ghostty
+  config (`theme = light:Tomorrow,dark:...`, which follows the macOS appearance)
+  plus something that tells a running nvim; deliberately not done until the light
+  variant has been lived with.
+- **`bold` at ΔE 33 on light.** Three times the dark variant's top-of-ramp
+  contrast (§3.1). Justified by the headroom being real, but it is the one place
+  the two variants are not the same theme; watch whether declarations shout.
 
 ---
 
@@ -378,5 +482,11 @@ applied (`tsx` and `typescript` are different languages; both must be in
 - **now: `presets.attention` in grayscale**, with white+bold declarations, italic
   comments, neutral terminal-matched surfaces, and the dynamic layer enabled. The
   three bleed/leak fixes are in `presets.attention` and `after/queries/`.
-- **next:** live with it. The two things to watch are aqua-free `return`
-  (`strong` on every error branch) and whether TS types need a tier.
+- **light variant added.** Surfaces from ghostty's `Tomorrow`; the recessive
+  tiers restated at the fractions that reproduce the dark ΔE ladder, since the
+  dark fractions overshoot to ΔE 43/30/15 on white. Verified by decoding a real
+  light capture: the ladder matches and the only hue on screen is diagnostics.
+  Surfaces were measured and left shared (within ΔE 1.5).
+- **next:** live with it. The three things to watch are aqua-free `return`
+  (`strong` on every error branch), whether TS types need a tier, and whether
+  light `bold` (ΔE 33) is too loud.

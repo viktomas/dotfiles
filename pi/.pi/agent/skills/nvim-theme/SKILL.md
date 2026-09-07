@@ -23,6 +23,23 @@ $S/capture.sh path/to/file.ts 30 > /tmp/pane.txt   # real nvim, real LSP, line 3
 $S/decode.py /tmp/pane.txt --tiers /tmp/tiers.json --rows 1-25
 ```
 
+**The theme has two variants (`dark`, `light`) and a change is not verified
+until both are.** The ramp is written as blend fractions but calibrated in ΔE,
+and the same fraction lands at a different ΔE against a different background —
+so a tier that is right on `#282c34` can be wrong on `#ffffff`. Run the loop
+twice:
+
+```bash
+echo 'require("user.theme").set_variant("light")' > /tmp/light.lua
+$S/tiers.sh light > /tmp/tiers-light.json
+$S/capture.sh path/to/file.ts 30 /tmp/light.lua > /tmp/pane-light.txt
+$S/decode.py /tmp/pane-light.txt --tiers /tmp/tiers-light.json --summary
+```
+
+The two `--summary` outputs should show the *same ΔE ladder* (37 / 25 / 11 down,
+11 up, plus `bold`), not the same blend fractions. If a light tier's ΔE drifts
+from its dark twin, fix it in `theme.variants.light.tiers`, not in `theme.tiers`.
+
 `decode.py` prints every token prefixed with the tier that painted it:
 
 ```
@@ -61,8 +78,11 @@ t.rules["@embedded.code"] = nil   -- put the bug back
 t.apply()
 LUA
 $S/capture.sh file.ts 30 /tmp/before.lua > /tmp/before.txt
-$S/capture.sh file.ts 30            > /tmp/after.txt
+$S/capture.sh file.ts 30                 > /tmp/after.txt
 ```
+
+The same hook is how the light variant is captured: `set_variant("light")` in
+that lua file repaints everything at runtime, so no config edit is needed.
 
 ## Checking a single group without rendering anything
 
@@ -104,3 +124,9 @@ while the screen shows a colour.
 - Test a file the theme does **not** touch too (lua, markdown) — the theme is
   scoped to `theme.langs` / `theme.filetypes` and must leave everything else on
   the colorscheme.
+- `tiers.sh light` and a capture taken *without* `/tmp/light.lua` is the classic
+  mismatch: every token then decodes as a raw hex. If the summary is all `?`,
+  check that the tier table and the pane came from the same variant.
+- Chrome shows up in `--summary` as unowned hexes and that is expected:
+  `LineNr` (fg → bg 68%) and `StatusLine`'s fg (fg → bg 20%) are surfaces, not
+  tiers. Hue that is *not* a diagnostic or a diff is the thing to chase.

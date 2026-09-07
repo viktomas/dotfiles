@@ -23,12 +23,18 @@ local M = {}
 --- Editor background. Ghostty's default (`ghostty +show-config --default`), so
 --- nvim, fish and zellij share one background instead of nvim being a bluer
 --- rectangle inside the terminal. `false` keeps the colorscheme's own.
+--- Overwritten by `M.variants[<variant>].background`; see `M.set_variant`.
 M.background = "#282c34"
 
 --- Editor foreground: Tomorrow Night's fg, the neutral gray my fish theme is
 --- built around. Neutral matters here -- the whole ramp is derived from it, and
 --- a blue-tinted `Normal` makes a "grayscale" theme quietly not grayscale.
 M.foreground = "#c5c8c6"
+
+--- Which variant is live. Everything below (surfaces, ramp, hue palette) is
+--- derived from `M.background` / `M.foreground`, so a variant is just a
+--- different pair plus the ramp recalibration that pair needs.
+M.variant = "dark"
 
 -- Treesitter language names to blank (`:Inspect` tells you which lang applied).
 M.langs = {
@@ -70,7 +76,7 @@ M.tiers = {
 
 --- Optional palette, only used by `presets.fish` (kept as an alternative, see
 --- THEME.md). It is my fish theme -- Tomorrow Night -- copied from
---- `fish/.config/fish/conf.d/fish_frozen_theme.fish`.
+--- `fish/.config/fish/conf.d/fish_frozen_theme.fish`. Swapped per variant.
 M.palette = {
   gray   = "#969896", -- fish_color_autosuggestion
   red    = "#cc6666", -- fish_color_error  -- RESERVED: diagnostics only
@@ -83,6 +89,58 @@ M.palette = {
   purple = "#b294bb", -- fish_color_command / _keyword / _end
 }
 
+---------------------------------------------------------------------------
+-- variants
+---------------------------------------------------------------------------
+
+--- A variant is a surface pair + the tier recalibration that pair needs.
+---
+--- The ramp is specified in *blend fractions*, but it is calibrated in *dE*:
+--- the same fraction lands somewhere else when the distance from `Normal` to
+--- the background changes. On white, `blend = 0.62` is dE 43 instead of 37, so
+--- the light variant restates the recessive tiers at the fractions that
+--- reproduce the dark dE ladder (37 / 25 / 11). `bold` is the one exception:
+--- see THEME.md ("The light ramp is lopsided the other way").
+---
+--- Surfaces are NOT restated: the same `up()` fractions land within dE 1.5 of
+--- their dark counterparts, measured, because both pairs have a similar
+--- fg<->bg distance (63 vs 67).
+M.variants = {
+  dark = {
+    -- ghostty's default background + Tomorrow Night's neutral fg
+    background = "#282c34",
+    foreground = "#c5c8c6",
+  },
+  light = {
+    -- ghostty's `Tomorrow` theme, the light sibling of the fish palette:
+    -- `/Applications/Ghostty.app/Contents/Resources/ghostty/themes/Tomorrow`
+    background = "#ffffff",
+    foreground = "#4d4d4c",
+    tiers = {
+      faint  = { blend = 0.53 },              -- #aaaaaa  dE 37
+      dim    = { blend = 0.34 },              -- #898989  dE 24
+      muted  = { blend = 0.15 },              -- #686868  dE 11
+      strong = { blend = -0.32 },             -- #343434  dE 11
+      bold   = { blend = -1.0, bold = true }, -- #000000  dE 33 + weight
+      note   = { blend = 0.15, italic = true },
+      doc    = { blend = 0.34, italic = true },
+    },
+    -- Tomorrow (light), same semantics as the Night palette above. The two
+    -- yellows are darkened: #f0c674 / #eab700 are unreadable on white.
+    palette = {
+      gray   = "#8e908c",
+      red    = "#c82829", -- RESERVED: diagnostics only
+      yellow = "#8f6a00",
+      ochre  = "#a08a5b",
+      green  = "#718c00",
+      aqua   = "#3e999f",
+      cyan   = "#3e999f",
+      blue   = "#4271ae",
+      purple = "#8959a8",
+    },
+  },
+}
+
 --- capture (without the language suffix) -> tier name.
 --- Lookup inherits up the capture hierarchy, like neovim's own `@`-group
 --- fallback: `@keyword.conditional.ternary` uses the rule for
@@ -93,6 +151,13 @@ M.rules = {}
 ---------------------------------------------------------------------------
 -- implementation
 ---------------------------------------------------------------------------
+
+-- The grayscale ramp as written above, before any variant or user override.
+-- Variants are always merged onto *this*, never onto the merge result, so
+-- switching back and forth is lossless.
+local default_tiers = vim.deepcopy(M.tiers)
+local default_palette = vim.deepcopy(M.palette)
+local user_tiers = nil
 
 -- Every standard capture (`:h treesitter-highlight-groups`). Special captures
 -- (@spell, @nospell, @none, @conceal) are intentionally excluded.
@@ -334,16 +399,67 @@ function M.dynamic(opts)
   })
 end
 
+---------------------------------------------------------------------------
+-- variant switching
+---------------------------------------------------------------------------
+
+--- Rebuild the ramp and the palette for `name`, flip `background`, and repaint.
+---
+--- Order matters: `vim.o.background` is set *before* the colorscheme is
+--- reloaded, because that is the only thing most colorschemes (tokyonight
+--- included) look at to pick their light/dark side. The reload fires
+--- `ColorScheme`, which calls `M.apply()` -- so everything the colorscheme just
+--- painted is overwritten by our surfaces and tiers again.
+function M.set_variant(name)
+  local variant = M.variants[name]
+  if not variant then
+    vim.notify("user.theme: unknown variant " .. tostring(name), vim.log.levels.WARN)
+    return
+  end
+  M.variant = name
+  if variant.background ~= nil then M.background = variant.background end
+  if variant.foreground ~= nil then M.foreground = variant.foreground end
+  M.palette = vim.tbl_extend("force", default_palette, variant.palette or {})
+  M.tiers = vim.tbl_deep_extend("force",
+    default_tiers, M.hue_tiers(M.palette), variant.tiers or {}, user_tiers or {})
+
+  local bg = M.background and parse(M.background) or 0
+  vim.o.background = (bg % 256) * 0.114
+      + (math.floor(bg / 256) % 256) * 0.587
+      + (math.floor(bg / 65536) % 256) * 0.299 < 128 and "dark" or "light"
+
+  local scheme = variant.colorscheme or vim.g.colors_name
+  if scheme then pcall(vim.cmd.colorscheme, scheme) end
+  M.apply()
+end
+
+--- Flip between the two variants. Bound to nothing; `:ThemeVariant` calls it.
+function M.toggle()
+  M.set_variant(M.variant == "dark" and "light" or "dark")
+end
+
 function M.setup(opts)
   opts = opts or {}
   M.rules = opts.rules or M.rules
-  if opts.tiers then M.tiers = vim.tbl_deep_extend("force", M.tiers, opts.tiers) end
+  user_tiers = opts.tiers or user_tiers
   if opts.langs then M.langs = opts.langs end
   if opts.filetypes then M.filetypes = opts.filetypes end
+  vim.api.nvim_create_autocmd("ColorScheme", { callback = M.apply })
+  M.set_variant(opts.variant or M.variant)
+  -- Explicit surfaces still win over the variant, so a one-off pair (or
+  -- `background = false`, keeping the colorscheme's own) stays possible.
   if opts.background ~= nil then M.background = opts.background end
   if opts.foreground ~= nil then M.foreground = opts.foreground end
-  vim.api.nvim_create_autocmd("ColorScheme", { callback = M.apply })
-  M.apply()
+  if opts.background ~= nil or opts.foreground ~= nil then M.apply() end
+
+  vim.api.nvim_create_user_command("ThemeVariant", function(cmd)
+    if cmd.args == "" then M.toggle() else M.set_variant(cmd.args) end
+  end, {
+    nargs = "?",
+    complete = function() return vim.tbl_keys(M.variants) end,
+    desc = "Switch the theme variant (dark/light); no argument toggles",
+  })
+
   if opts.dynamic ~= false then M.dynamic(opts.dynamic) end
 end
 
@@ -446,13 +562,21 @@ M.presets.fish = vim.tbl_extend("force", M.presets.attention, {
   ["@type.builtin"]          = "dim",
 })
 
--- Tiers only `presets.fish` uses.
-M.tiers.note_hue = { fg = M.palette.yellow }
-M.tiers.doc_hue  = { fg = M.palette.ochre }
-M.tiers.text     = { fg = M.palette.green }
-M.tiers.escape   = { fg = M.palette.cyan }
-M.tiers.def      = { fg = M.palette.purple, bold = true }
-M.tiers.flow     = { fg = M.palette.aqua }
-M.tiers.shape    = { fg = M.palette.blue }
+--- Tiers only `presets.fish` uses. A function of the palette, so the light
+--- variant's palette produces a light hue ramp instead of Tomorrow Night's
+--- (which is unreadable on white).
+function M.hue_tiers(p)
+  return {
+    note_hue = { fg = p.yellow },
+    doc_hue  = { fg = p.ochre },
+    text     = { fg = p.green },
+    escape   = { fg = p.cyan },
+    def      = { fg = p.purple, bold = true },
+    flow     = { fg = p.aqua },
+    shape    = { fg = p.blue },
+  }
+end
+
+M.tiers = vim.tbl_deep_extend("force", M.tiers, M.hue_tiers(M.palette))
 
 return M
