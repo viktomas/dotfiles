@@ -1,6 +1,11 @@
 scrollback-limit = 50000000
 macos-option-as-alt = true
 
+# Follow the macOS appearance. Switching repaints open windows and emits a DEC
+# 2031 notification, which zellij relays into panes and fish/nvim act on -- one
+# `theme` command flips terminal, shell and editor. See ./themes/ and README.md.
+theme = light:tomas-light,dark:tomas-dark
+
 # Forward Cmd+Shift+[/] to zellij as Ctrl+Shift+j/k (kitty keyboard protocol)
 # instead of Ghostty's default previous_tab/next_tab.
 # Triggered by kanata Space+j/k chords → Cmd+Shift+[/].

@@ -136,6 +136,68 @@ Two things the light variant does **not** restate:
 
 What it *must* restate is the ramp — §3.1.
 
+### 2.2 Switching everything at once
+
+One command flips ghostty, zellij, fish and every *already-open* nvim:
+
+```fish
+osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to not dark mode'
+```
+
+Nothing is broadcast to PIDs. The chain is **DEC private mode 2031**, the
+"terminal colour scheme changed" notification:
+
+1. **ghostty** (`ghostty/.config/ghostty/config.ghostty`) follows the macOS
+   appearance via `theme = light:tomas-light,dark:tomas-dark`
+   (`ghostty/.config/ghostty/themes/`, the same two palettes as §2.1). Open
+   windows repaint, and ghostty emits a 2031 notification. `ghostty +show-config`
+   aside, the terminal-only path is to rewrite the theme line and
+   `kill -SIGUSR2 (pgrep -x ghostty)`; a config reload emits 2031 too.
+2. **zellij** ≥ 0.44.2 answers/relays 2031 into every pane and swaps
+   `theme_dark` / `theme_light` (both must be set, else the static `theme`
+   wins). Manual: `zellij action toggle-theme`.
+3. **fish** ≥ 4.3 learns the terminal background from OSC 11, subscribes to
+   2031, and re-applies the `[light]` / `[dark]` section of
+   `fish/.config/fish/themes/tomas.theme` whenever `$fish_terminal_color_theme`
+   changes — in shells that are already running. This is why the old
+   `conf.d/fish_frozen_theme.fish` had to go: those were *globals*, they shadow
+   everything and never update. `fish_config theme save` is the same trap with
+   universals; `fish_config theme choose tomas` in `config.fish` is the live one.
+4. **nvim** ≥ 0.11 re-queries OSC 11 on 2031 and writes `'background'`.
+5. **pi** (the coding agent TUI, which syntax-highlights code blocks) enables
+   2031 and repaints live — but only when its theme setting is the
+   `lightTheme/darkTheme` form. `pi/.pi/agent/settings.json` therefore says
+   `"theme": "light/dark"`; a plain `"dark"` pins it and pi never even sends
+   `CSI ?2031h`.
+
+So `'background'` is the single source of truth for which variant is live, and
+the theme *follows* it instead of owning it:
+
+- `setup()` takes the starting variant from `vim.o.background` (the TUI has
+   already set it from the terminal by the time user config runs) unless
+   `variant =` pins one.
+- An `OptionSet` / `background` autocommand maps a terminal-driven change onto
+  `set_variant`.
+- `set_variant()` writes `vim.o.background` only when it actually differs, under
+  a `switching` guard so its own write does not re-enter through `OptionSet`.
+
+That last point is not an optimisation, it is the whole trick. Neovim keeps its
+OSC 11 autocommand only if `'background'` was not set by a *sourced script*: at
+`VimEnter` it deletes the handler when `nvim_get_option_info2('background').was_set`
+and `last_set_sid ~= -8` (`runtime/lua/vim/_core/defaults.lua`). Measured on
+0.12.4: a `set` from a sourced file records **sid 3** (kills detection), one from
+a command/keymap callback records **sid −8** (keeps it). Hence: no write during
+startup, and `:ThemeVariant` — which runs in a command callback — stays safe.
+Pinning `variant = "light"` in `init.lua` *does* turn terminal switching off,
+which is the point of pinning.
+
+Caveats worth knowing: `OptionSet` never fires during |startup|, so this only
+reacts once the session is up; zellij [#5467](https://github.com/zellij-org/zellij/issues/5467)
+can mis-deliver a forwarded OSC 11 reply to the wrong pane, so never drive this
+by *polling* OSC 11; and zellij's live config reload does not fire for a
+symlinked `config.kdl` ([#3992](https://github.com/zellij-org/zellij/issues/3992)),
+which stow produces — the `zellij action` theme commands are unaffected.
+
 ---
 
 ## 3. The tier ramp

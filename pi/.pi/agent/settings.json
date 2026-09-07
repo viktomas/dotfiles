@@ -14,5 +14,5 @@
   "packages": [
     "npm:pi-gitlab-duo"
   ],
-  "theme": "dark"
+  "theme": "light/dark"
 }

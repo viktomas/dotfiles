@@ -1,0 +1,132 @@
+# Tomorrow Night / Tomorrow, the same two palettes ghostty, zellij and nvim use
+# (see ../../../../nvim/THEME.md).
+#
+# Selected with `fish_config theme choose tomas` in config.fish. fish re-applies
+# the matching section whenever $fish_terminal_color_theme changes -- it learns
+# the terminal's background from OSC 11 and subscribes to DEC 2031 change
+# notifications, so already-running shells recolor themselves when ghostty flips.
+#
+# Do NOT run `fish_config theme save`: that writes universal variables, which
+# stop tracking $fish_terminal_color_theme and pin one variant forever.
+
+[dark]
+fish_color_autosuggestion 969896
+fish_color_cancel --reverse
+fish_color_command b294bb
+fish_color_comment f0c674
+fish_color_cwd green
+fish_color_cwd_root red
+fish_color_end b294bb
+fish_color_error cc6666
+fish_color_escape 00a6b2
+fish_color_history_current --bold
+fish_color_host normal
+fish_color_host_remote yellow
+fish_color_keyword b294bb
+fish_color_match --background=brblue
+fish_color_normal normal
+fish_color_operator 00a6b2
+fish_color_option 81a2be
+fish_color_param 81a2be
+fish_color_quote b5bd68
+fish_color_redirection 8abeb7
+fish_color_search_match bryellow --background=brblack
+fish_color_selection white --bold --background=brblack
+fish_color_status red
+fish_color_user brgreen
+fish_color_valid_path --underline
+fish_pager_color_background
+fish_pager_color_completion normal
+fish_pager_color_description B3A06D
+fish_pager_color_prefix normal --bold --underline
+fish_pager_color_progress brwhite --background=cyan
+fish_pager_color_secondary_background
+fish_pager_color_secondary_completion
+fish_pager_color_secondary_description
+fish_pager_color_secondary_prefix
+fish_pager_color_selected_background --background=brblack
+fish_pager_color_selected_completion
+fish_pager_color_selected_description
+fish_pager_color_selected_prefix
+
+[light]
+fish_color_autosuggestion 8e908c
+fish_color_cancel --reverse
+fish_color_command 8959a8
+fish_color_comment 8f6a00
+fish_color_cwd green
+fish_color_cwd_root red
+fish_color_end 8959a8
+fish_color_error c82829
+fish_color_escape 3e999f
+fish_color_history_current --bold
+fish_color_host normal
+fish_color_host_remote 8f6a00
+fish_color_keyword 8959a8
+fish_color_match --background=d6d6d6
+fish_color_normal normal
+fish_color_operator 3e999f
+fish_color_option 4271ae
+fish_color_param 4271ae
+fish_color_quote 718c00
+fish_color_redirection 3e999f
+fish_color_search_match 8f6a00 --background=d6d6d6
+fish_color_selection 4d4d4c --bold --background=d6d6d6
+fish_color_status c82829
+fish_color_user 718c00
+fish_color_valid_path --underline
+fish_pager_color_background
+fish_pager_color_completion normal
+fish_pager_color_description a08a5b
+fish_pager_color_prefix normal --bold --underline
+fish_pager_color_progress 4d4d4c --background=d6d6d6
+fish_pager_color_secondary_background
+fish_pager_color_secondary_completion
+fish_pager_color_secondary_description
+fish_pager_color_secondary_prefix
+fish_pager_color_selected_background --background=d6d6d6
+fish_pager_color_selected_completion
+fish_pager_color_selected_description
+fish_pager_color_selected_prefix
+
+# Fallback for terminals that never report their background (fish sets
+# $fish_terminal_color_theme to `unknown` there): the dark section verbatim.
+[unknown]
+fish_color_autosuggestion 969896
+fish_color_cancel --reverse
+fish_color_command b294bb
+fish_color_comment f0c674
+fish_color_cwd green
+fish_color_cwd_root red
+fish_color_end b294bb
+fish_color_error cc6666
+fish_color_escape 00a6b2
+fish_color_history_current --bold
+fish_color_host normal
+fish_color_host_remote yellow
+fish_color_keyword b294bb
+fish_color_match --background=brblue
+fish_color_normal normal
+fish_color_operator 00a6b2
+fish_color_option 81a2be
+fish_color_param 81a2be
+fish_color_quote b5bd68
+fish_color_redirection 8abeb7
+fish_color_search_match bryellow --background=brblack
+fish_color_selection white --bold --background=brblack
+fish_color_status red
+fish_color_user brgreen
+fish_color_valid_path --underline
+fish_pager_color_background
+fish_pager_color_completion normal
+fish_pager_color_description B3A06D
+fish_pager_color_prefix normal --bold --underline
+fish_pager_color_progress brwhite --background=cyan
+fish_pager_color_secondary_background
+fish_pager_color_secondary_completion
+fish_pager_color_secondary_description
+fish_pager_color_secondary_prefix
+fish_pager_color_selected_background --background=brblack
+fish_pager_color_selected_completion
+fish_pager_color_selected_description
+fish_pager_color_selected_prefix

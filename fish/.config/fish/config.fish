@@ -8,6 +8,13 @@ if status is-interactive
     abbr --add fd fd --hidden
     fish_vi_key_bindings
 
+    # Tomorrow Night / Tomorrow, one theme file with a [dark] and a [light]
+    # section (themes/tomas.theme). fish re-applies the matching one whenever
+    # $fish_terminal_color_theme changes, so a running shell recolors itself
+    # when ghostty flips light/dark. `theme save` would break that -- see the
+    # comment at the top of the theme file, and nvim/THEME.md.
+    fish_config theme choose tomas
+
     function fish_user_key_bindings
         bind --mode insert \cr fzf_history_search
         bind --mode insert \cf forward-char

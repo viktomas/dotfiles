@@ -268,6 +268,14 @@ simplified_ui true
 // 
 // theme "dracula"
  
+// Light/dark pair, defined in the `themes` block at the bottom of this file.
+// BOTH must be set or automatic switching does not happen: zellij follows the
+// host terminal's DEC 2031 notifications (ghostty emits one when the macOS
+// appearance flips) and relays them to programs in panes. Manual:
+// `zellij action toggle-theme` / `set-light-theme` / `set-dark-theme`.
+theme_dark "tomas-dark"
+theme_light "tomas-light"
+ 
 // Choose the base input mode of zellij.
 // Default: normal
 // 
@@ -447,3 +455,34 @@ show_startup_tips false
 // Default: true
 // 
 // show_release_notes false
+
+// The same two palettes ghostty and nvim use -- Tomorrow Night on ghostty's
+// default background, and Tomorrow. See ../../../nvim/THEME.md.
+themes {
+    tomas-dark {
+        fg "#c5c8c6"
+        bg "#282c34"
+        black "#000000"
+        red "#cc6666"
+        green "#b5bd68"
+        yellow "#f0c674"
+        blue "#81a2be"
+        magenta "#b294bb"
+        cyan "#8abeb7"
+        white "#ffffff"
+        orange "#de935f"
+    }
+    tomas-light {
+        fg "#4d4d4c"
+        bg "#ffffff"
+        black "#000000"
+        red "#c82829"
+        green "#718c00"
+        yellow "#8f6a00"
+        blue "#4271ae"
+        magenta "#8959a8"
+        cyan "#3e999f"
+        white "#bfbfbf"
+        orange "#f5871f"
+    }
+}

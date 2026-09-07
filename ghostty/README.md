@@ -4,6 +4,14 @@ Config is stow-managed at `ghostty/.config/ghostty/config.ghostty`. Ghostty
 auto-loads it from the XDG path (`~/.config/ghostty/config.ghostty`) — no manual
 setup needed after `stow ghostty`.
 
+## Light/dark (`theme`)
+
+`themes/tomas-dark` and `themes/tomas-light` are Tomorrow Night (on ghostty's
+default `#282c34`) and Tomorrow — the same palettes zellij, fish and nvim use.
+`theme = light:tomas-light,dark:tomas-dark` follows the macOS appearance, so the
+fish function `theme [light|dark|toggle]` flips terminal, multiplexer, shell and
+every open editor at once. Mechanism and caveats: `../nvim/THEME.md` §2.2.
+
 ## Tab switching (Space+j / Space+k)
 
 `Space+j` / `Space+k` switch tabs across apps. Ghostty is the bridge between the

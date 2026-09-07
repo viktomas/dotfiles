@@ -34,6 +34,10 @@ M.foreground = "#c5c8c6"
 --- Which variant is live. Everything below (surfaces, ramp, hue palette) is
 --- derived from `M.background` / `M.foreground`, so a variant is just a
 --- different pair plus the ramp recalibration that pair needs.
+---
+--- Only a fallback: `setup()` derives the starting variant from
+--- `vim.o.background`, which the TUI has already set from the terminal's own
+--- background colour by the time user config runs.
 M.variant = "dark"
 
 -- Treesitter language names to blank (`:Inspect` tells you which lang applied).
@@ -403,6 +407,15 @@ end
 -- variant switching
 ---------------------------------------------------------------------------
 
+--- Guard for the `OptionSet` handler installed by `setup()`: `set_variant`
+--- writes `vim.o.background` itself, and that write fires `OptionSet` again.
+local switching = false
+
+--- The variant that matches whatever the terminal told neovim.
+local function variant_for_background()
+  return vim.o.background == "light" and "light" or "dark"
+end
+
 --- Rebuild the ramp and the palette for `name`, flip `background`, and repaint.
 ---
 --- Order matters: `vim.o.background` is set *before* the colorscheme is
@@ -424,9 +437,22 @@ function M.set_variant(name)
     default_tiers, M.hue_tiers(M.palette), variant.tiers or {}, user_tiers or {})
 
   local bg = M.background and parse(M.background) or 0
-  vim.o.background = (bg % 256) * 0.114
+  local want = (bg % 256) * 0.114
       + (math.floor(bg / 256) % 256) * 0.587
       + (math.floor(bg / 65536) % 256) * 0.299 < 128 and "dark" or "light"
+
+  -- Write only on a real mismatch. `background` is also neovim's own
+  -- terminal-theme channel: its TUI keeps an autocommand that re-sets it from
+  -- OSC 11 whenever the terminal sends a DEC 2031 notification, and that
+  -- autocommand is deleted at `VimEnter` if `background` was set from a
+  -- *sourced script* (sid ~= -8). Not writing it during startup is what keeps
+  -- the terminal in charge; writes from `:ThemeVariant`'s callback are sid -8
+  -- and harmless. See `runtime/lua/vim/_core/defaults.lua`.
+  if vim.o.background ~= want then
+    switching = true
+    vim.o.background = want
+    switching = false
+  end
 
   local scheme = variant.colorscheme or vim.g.colors_name
   if scheme then pcall(vim.cmd.colorscheme, scheme) end
@@ -445,7 +471,7 @@ function M.setup(opts)
   if opts.langs then M.langs = opts.langs end
   if opts.filetypes then M.filetypes = opts.filetypes end
   vim.api.nvim_create_autocmd("ColorScheme", { callback = M.apply })
-  M.set_variant(opts.variant or M.variant)
+  M.set_variant(opts.variant or variant_for_background())
   -- Explicit surfaces still win over the variant, so a one-off pair (or
   -- `background = false`, keeping the colorscheme's own) stays possible.
   if opts.background ~= nil then M.background = opts.background end
@@ -458,6 +484,20 @@ function M.setup(opts)
     nargs = "?",
     complete = function() return vim.tbl_keys(M.variants) end,
     desc = "Switch the theme variant (dark/light); no argument toggles",
+  })
+
+  -- Follow the terminal. ghostty emits a DEC 2031 theme-change notification
+  -- when it flips light/dark, zellij relays it into the pane, neovim re-queries
+  -- OSC 11 and writes `background` -- so `background` is the single source of
+  -- truth for which variant is live, and `:ThemeVariant` is just a manual write
+  -- to it. See THEME.md ("Switching everything at once").
+  vim.api.nvim_create_autocmd("OptionSet", {
+    pattern = "background",
+    callback = function()
+      if switching then return end
+      local want = variant_for_background()
+      if want ~= M.variant then M.set_variant(want) end
+    end,
   })
 
   if opts.dynamic ~= false then M.dynamic(opts.dynamic) end
