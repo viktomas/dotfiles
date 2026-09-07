@@ -1,0 +1,9 @@
+{
+  "name": "pi-agent-extensions",
+  "private": true,
+  "description": "Type-checking harness for my global pi extensions. Not a pi package: pi auto-discovers the *.ts files here, this package.json only exists so tsserver/tsc have a workspace root, a TypeScript version, and node types.",
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3"
+  }
+}

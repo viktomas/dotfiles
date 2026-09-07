@@ -97,6 +97,17 @@ vim.lsp.config('lua_ls', {
   },
 })
 
+-- ts_ls needs a `typescript` install. It prefers the workspace one; this is the
+-- fallback for projects without a local TypeScript (mise: npm:typescript@5).
+vim.lsp.config('ts_ls', {
+  init_options = {
+    hostInfo = 'neovim',
+    tsserver = {
+      fallbackPath = vim.fn.expand('~/.local/share/mise/installs/npm-typescript/5/node_modules/typescript/lib/tsserver.js'),
+    },
+  },
+})
+
 -- Custom gowl server (not in nvim-lspconfig — full config required)
 vim.lsp.config('gowl', {
   cmd          = { vim.fn.expand('~/private/gowl/gowl') },

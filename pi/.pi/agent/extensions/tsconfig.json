@@ -1,0 +1,31 @@
+{
+  // Extensions are loaded by pi through jiti, so nothing here is ever compiled.
+  // This file exists only to give tsserver (nvim ts_ls) a project root and to
+  // point it at the pi types that ship with the mise-installed pi CLI.
+  //
+  // The `latest` segment is a mise symlink, so this keeps working across pi
+  // upgrades. `pi-coding-agent/../*` reaches the sibling packages (pi-tui,
+  // pi-ai, pi-agent-core) inside pi's own nested node_modules.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@earendil-works/*": [
+        "/Users/tomas/.local/share/mise/installs/npm-earendil-works-pi-coding-agent/latest/node_modules/@earendil-works/pi-coding-agent/../*"
+      ]
+    }
+  },
+  "include": ["*.ts"],
+  // Symlinks into other repos (gl/task, gl/tm); they are type-checked there and
+  // still import the pre-rename `@mariozechner/*` packages.
+  "exclude": ["task.ts", "tm.ts"]
+}
