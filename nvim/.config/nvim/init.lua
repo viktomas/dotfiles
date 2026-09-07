@@ -34,15 +34,14 @@ vim.pack.add({
 })
 
 vim.cmd.colorscheme("tokyonight")
--- Make unused code more readable (keep it dimmed but legible)
-vim.api.nvim_set_hl(0, 'DiagnosticUnnecessary', { fg = '#7982a9', italic = true })
-vim.api.nvim_set_hl(0, 'DiagnosticUnderlineHint', { undercurl = false })
 
--- Attention-based (near-blank) highlighting for Go / TypeScript.
+-- Attention-based theme for Go / TypeScript: grayscale tiers on top of
+-- tokyonight, neutral surfaces matching the terminal background, and identity
+-- on a cursor-driven layer instead of in the colours. Docs: nvim/THEME.md.
 -- Swap `rules` for one of: presets.blank, presets.scaffolding, presets.foreign,
--- presets.attention -- or hand-roll a table of capture -> tier.
-local highlight = require("user.highlight")
-highlight.setup({ rules = highlight.presets.foreign })
+-- presets.attention, presets.fish -- or hand-roll a table of capture -> tier.
+local theme = require("user.theme")
+theme.setup({ rules = theme.presets.attention })
 
 require("mini.icons").setup({})
 -- add LSP kind icons to autocompletion

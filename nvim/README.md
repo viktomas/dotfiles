@@ -9,7 +9,16 @@ is `init.lua`, with per-plugin setup in `lua/plugins/*.lua`.
 |---|---|
 | Plugin management (`vim.pack`: add, update, pin, delete, hooks) | `docs/vim-pack.md` |
 | Fennel + love2d LSP (hover docs, completions in `.fnl`) | `docs/fennel-love2d.md` |
-| Attention-based (near-blank) highlighting for Go/TypeScript | `docs/highlighting.md` |
+| The theme: attention-based grayscale highlighting for Go/TypeScript | `THEME.md` |
+
+## Theme
+
+Go and TypeScript are painted by a hand-rolled attention-based theme
+(`lua/user/theme.lua`) layered on tokyonight: grayscale tiers, no hue outside
+diagnostics, surfaces matched to the terminal background. Read `THEME.md` before
+touching highlight groups, tier rules or `after/queries/`, and verify changes by
+measuring the screen with the `nvim-theme` skill
+(`pi/.pi/agent/skills/nvim-theme/`) rather than by eye.
 
 ## Plugins — vim.pack
 
