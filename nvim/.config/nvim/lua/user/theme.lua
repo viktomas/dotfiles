@@ -316,6 +316,16 @@ local function surfaces(fg, bg)
   set(0, "LspReferenceWrite", { bg = up(0.13), underline = true })
   set(0, "LspReferenceTarget", { bg = up(0.13) })
 
+  -- Markdown inline code. tokyonight paints `@markup.raw.markdown_inline` as
+  -- `bg = terminal_black, fg = blue` -- blue on blue-gray, the lowest-contrast
+  -- pair on screen (measured #3f7fe5 on #a1a7c3 in the light variant). Keep
+  -- the "this is code" box, drop the hue: plain fg on a neutral surface.
+  -- render-markdown's `RenderMarkdownCodeInline` links to this group (via
+  -- tokyonight), so the rendered spans follow.
+  set(0, "@markup.raw.markdown_inline", { fg = FG, bg = up(0.10) })
+  -- Fenced code blocks get the same surface, one step quieter than inline.
+  set(0, "RenderMarkdownCode", { bg = up(0.06) })
+
   -- Unused code: the dimmest thing on screen. NOT italic -- italic is the
   -- prose channel now (comments), and diluting it costs more than it buys.
   set(0, "DiagnosticUnnecessary", { fg = down(0.62) })

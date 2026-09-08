@@ -84,11 +84,22 @@ one knob and no palette to maintain:
 | `Visual`, `PmenuSel` | bg + 18% |
 | `WinSeparator` | bg + 20% |
 | `MatchParen` | bg + 26% (plus bold) |
+| `RenderMarkdownCode` (fenced blocks) | bg + 6% |
+| `@markup.raw.markdown_inline` (`` `code` ``) | plain fg on bg + 10% |
 | `LineNr` | fg → bg 68% |
 | `DiagnosticUnnecessary` | fg → bg 62% (the dimmest thing on screen) |
 
 Everything hue-bearing — diagnostics, diff, git signs, search — is deliberately
 **not** touched and stays tokyonight's.
+
+Markdown inline code is the one non-Go/TS exception. tokyonight defines
+`@markup.raw.markdown_inline` as `bg = terminal_black, fg = blue`, i.e. blue text
+on a blue-gray box: measured `#3f7fe5` on `#a1a7c3` in the light variant, ~1.9:1.
+The box is worth keeping (it is the only thing marking a span as code), the hue
+is not — so both variants now paint plain `Normal` fg on a neutral surface:
+`#c5c8c6` on `#383c43` (dark) and `#4d4d4c` on `#ededed` (light), ~8:1 both.
+render-markdown's `RenderMarkdownCodeInline` links to that group via tokyonight,
+so the rendered spans follow it.
 
 One consequence to know about: `Normal` changes for *every* filetype, but
 tokyonight's own group definitions do not. So in lua or markdown a capture that
