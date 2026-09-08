@@ -202,12 +202,15 @@ var pageTemplate = template.Must(template.New("page").Parse(`<!DOCTYPE html>
   code:not(pre code) { background: rgba(127,127,127,0.18); padding: 0.1em 0.35em; border-radius: 4px; }
   table { border-collapse: collapse; }
   th, td { border: 1px solid rgba(127,127,127,0.35); padding: 0.4em 0.8em; }
+  header.source { font-size: 0.8rem; opacity: 0.65; margin-bottom: 2rem; word-break: break-all; }
+  header.source code { background: rgba(127,127,127,0.18); padding: 0.1em 0.35em; border-radius: 4px; }
 {{.ExtrasCSS}}
 {{.AnnotationCSS}}
 {{.ZoomCSS}}
 </style>
 </head>
 <body>
+<header class="source">Source: <code>{{.SourcePath}}</code></header>
 {{.Body}}
 <button id="ann-add">📝 Note</button>
 <button id="ann-export" data-count="0" title="Copy all notes as markdown">📋 Export notes</button>
@@ -240,6 +243,7 @@ var zoomJS string
 
 type pageData struct {
 	Title         string
+	SourcePath    string
 	Body          template.HTML
 	ExtrasCSS     template.CSS
 	DiffJS        template.JS
@@ -338,6 +342,11 @@ func main() {
 		title = string(m[1])
 	}
 
+	sourcePath := inputPath
+	if abs, err := filepath.Abs(inputPath); err == nil {
+		sourcePath = abs
+	}
+
 	f, err := os.Create(outputPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
@@ -345,6 +354,7 @@ func main() {
 	}
 	execErr := pageTemplate.Execute(f, pageData{
 		Title:         title,
+		SourcePath:    sourcePath,
 		Body:          template.HTML(body.String()),
 		ExtrasCSS:     template.CSS(extrasCSS),
 		DiffJS:        template.JS(diffJS),
