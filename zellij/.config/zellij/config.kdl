@@ -47,8 +47,8 @@ keybinds clear-defaults=true {
             };
             SwitchToMode "normal"
         }
-        bind "j" { GoToPreviousTab; }
-        bind "k" { GoToNextTab; }
+        bind "j" { MoveFocus "down"; }
+        bind "k" { MoveFocus "up"; }
         bind "left" { MoveFocus "left"; }
         bind "down" { MoveFocus "down"; }
         bind "up" { MoveFocus "up"; }
@@ -198,7 +198,6 @@ keybinds clear-defaults=true {
         bind "Alt o" { MoveTab "right"; }
         bind "Ctrl p" { SwitchToMode "pane"; }
         bind "Ctrl s" { SwitchToMode "scroll"; }
-        bind "Ctrl t" { SwitchToMode "tab"; }
         bind "esc" { SwitchToMode "normal"; }
         bind "enter" { SwitchToMode "normal"; }
     }
