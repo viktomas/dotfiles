@@ -6,63 +6,50 @@ description: Spawn a one-shot subagent in a separate session to investigate or r
 # Subagent
 
 Run a headless `pi` for work that need not live in the main conversation. The
-subagent has its own context; only its final printed answer comes back to you.
+subagent has its own context; its final answer is the script output.
 
 ## Invocation
 
 ```bash
-pi -p --session-dir ~/.pi/agent/subagent-sessions --session-id sub-<slug> \
-  -n "subagent: <slug>" --model claude-sonnet-5 "<task for the subagent>"
+~/.pi/agent/skills/subagent/scripts/subagent.sh --mode <model> --slug <slug> "<task>"
 ```
 
-- `-p` — one-shot: run, print the final answer, exit.
-- `--session-dir ~/.pi/agent/subagent-sessions` — sessions are kept, but this dir is
-  outside `~/.pi/agent/sessions/`, so they never pollute `/resume` or `pi -r`
-  (not even the "all sessions" scope). pi has no per-session "hidden" flag, so a
-  separate session dir is the way to hide them.
-- `--session-id sub-<slug>` — short descriptive id (e.g. `sub-lsp-auth`); the file
-  lands in `~/.pi/agent/subagent-sessions/<timestamp>_sub-<slug>.jsonl`.
-- `-n "subagent: <slug>"` — display name, so the run is labelled when browsed.
+- `--slug <slug>` — short descriptive id, `[a-z0-9-]` only (e.g. `lsp-auth`).
+  Becomes the session id `sub-<slug>` and the display name.
+- `--model <model>` — optional, defaults to `claude-sonnet-5`.
+  - `accounts/fireworks/routers/glm-5p3-fast` - use fast glm5.3 for analysis unless user explicitely said they are away from keyboard, then use sonnet
+  - `claude-sonnet-5` use sonnet for implementation and slower analysis
+  - `claude-opus-5` use opus for complex subtask delegation where it's expected to resolve higher uncertainty
+- `--timeout <seconds>` — optional, defaults to `600`. Raise it for long
+  investigations; the run is killed when it expires.
+- prompt — positional, or piped on stdin for long multi-line tasks:
 
-Never use `--no-session`: without a session file a hung or truncated subagent is
-undebuggable.
+```bash
+echo "$long_prompt" | ~/.pi/agent/skills/subagent/scripts/subagent.sh --slug lsp-auth
+```
 
 A `Warning: No project session found with id ...; creating a new session` line on
 stderr is expected and harmless.
 
-To browse subagent sessions on purpose:
-
-```bash
-pi -r --session-dir ~/.pi/agent/subagent-sessions
-```
-
-The answer returns as `bash` output. Write a self-contained prompt: the subagent
-knows nothing of the main conversation, so include all context and the exact question.
-
 ## Parallel research
 
-Independent **research** subagents may run in parallel:
+Independent **research** subagents may run in parallel. Do **not** parallelize
+subagents that modify files — run those one at a time.
 
 ```bash
-D=~/.pi/agent/subagent-sessions
-pi -p --session-dir $D --session-id sub-a -n "subagent: a" --model claude-sonnet-5 "Question A" > /tmp/sub_a.txt 2>&1 &
-pi -p --session-dir $D --session-id sub-b -n "subagent: b" --model claude-sonnet-5 "Question B" > /tmp/sub_b.txt 2>&1 &
+S=~/.pi/agent/skills/subagent/scripts/subagent.sh
+$S --slug topic-a "Question A" > /tmp/sub_a.txt 2>&1 &
+$S --slug topic-b "Question B" > /tmp/sub_b.txt 2>&1 &
 wait; cat /tmp/sub_a.txt /tmp/sub_b.txt
 ```
 
 ## Debugging a hung or failed subagent
 
-Run subagents under `timeout` so they can't hang forever:
+On failure the script prints the exit reason and the session file path to stderr.
+Inspect that transcript — the last entry is the step it hung on:
 
 ```bash
-timeout 600 pi -p --session-dir ~/.pi/agent/subagent-sessions --session-id sub-x ... "..."
-```
-
-Then inspect the session transcript to see where it got stuck — the last entry is
-the step it hung on:
-
-```bash
-F=$(ls -t ~/.pi/agent/subagent-sessions/*sub-x.jsonl | head -1)
+F=$(ls -t ~/.pi/agent/subagent-sessions/*sub-<slug>.jsonl | head -1)
 
 # timeline: role / tool calls, no bulky text
 jq -rc 'select(.type=="message") | [.timestamp, .message.role,
@@ -72,7 +59,19 @@ jq -rc 'select(.type=="message") | [.timestamp, .message.role,
 tail -3 "$F" | jq .
 ```
 
-While a subagent is still running you can watch it live with
-`tail -f` on the same file.
+While a subagent is still running you can watch it live with `tail -f` on the
+same file.
 
-Do **not** parallelize subagents that modify files — run those one at a time.
+To browse subagent sessions on purpose (they are kept outside
+`~/.pi/agent/sessions/`, so they never show up in `/resume` or `pi -r`):
+
+```bash
+pi -r --session-dir ~/.pi/agent/subagent-sessions
+```
+
+## Implementaion details (ignore unless debugging)
+Subagent `pi` runs without extensions and with only the shared skills (`~/.pi/agent/skills-shared`), so it
+cannot spawn further subagents or touch task memory.
+
+The script hardcodes the session dir, the isolation flags and `--`, and wraps the
+run in `timeout` so it can never hang forever.
