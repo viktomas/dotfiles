@@ -69,6 +69,12 @@ M.tiers = {
   faint  = { blend = 0.62 },                      -- #64676b  dE 37
   dim    = { blend = 0.42 },                      -- #838689  dE 25
   muted  = { blend = 0.20 },                      -- #a6a9a9  dE 11
+  -- The one hue in the theme. Same L* as `muted` to the decimal, so it is a
+  -- pure chroma spend and the attention ramp is untouched -- strings are a
+  -- quarter of the painted glyphs, far too many to move on the luminance axis.
+  -- Restated per variant: chroma is NOT portable across backgrounds (see the
+  -- light table below and THEME.md "Strings are the exception").
+  quote  = { fg = "#a9aa97" },                     -- L* 69.0  C* 10  h 110
   base   = {},                                    -- plain Normal, no attributes
   plain  = { plain = true },                      -- base, foreground written out
   strong = { blend = -0.55 },                     -- #e5e6e5  dE 11
@@ -126,6 +132,12 @@ M.variants = {
       muted  = { blend = 0.15 },              -- #686868  dE 11
       strong = { blend = -0.32 },             -- #343434  dE 11
       bold   = { blend = -1.0, bold = true }, -- #000000  dE 33 + weight
+      -- Same L* (43.8) and same hue (110) as the dark tint, but 2.8x the
+      -- chroma. Equal dE is NOT equal appearance: CIE76 has no lightness term
+      -- and perceived colourfulness falls with luminance, so C* 10 -- clearly
+      -- green on #282c34 -- is indistinguishable from grey on white. Measured
+      -- side by side, not converted.
+      quote  = { fg = "#676b3b" },             -- L* 43.8  C* 28  h 110
       note   = { blend = 0.15, italic = true },
       doc    = { blend = 0.34, italic = true },
     },
@@ -548,8 +560,8 @@ M.presets.scaffolding = {
 M.presets.foreign = vim.tbl_extend("force", M.presets.scaffolding, {
   ["@comment"]               = "note",  -- muted + italic: notes you wrote
   ["@comment.documentation"]  = "doc",  -- dim + italic: declaration boilerplate
-  ["@string"]                = "muted",
-  ["@string.escape"]         = "base",  -- pops out of a muted string by itself
+  ["@string"]                = "quote",  -- the only hue in the theme; see THEME.md
+  ["@string.escape"]         = "base",  -- pops out of a tinted string by itself
   ["@string.regexp"]         = "base",
   ["@number"]                = "muted",
   ["@boolean"]               = "muted",

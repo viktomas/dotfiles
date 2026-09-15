@@ -2,7 +2,7 @@
 
 Implementation: `.config/nvim/lua/user/theme.lua`, wired up at the top of
 `init.lua`. Query overrides in `.config/nvim/after/queries/`. Testing tools:
-the `nvim-theme` skill (`pi/.pi/agent/skills/nvim-theme/`).
+the `nvim-theme` skill (`.pi/skills/nvim-theme/`, a project skill of this repo).
 
 Go and TypeScript buffers are painted by an **attention-based grayscale theme**
 layered on top of tokyonight. Every other filetype (lua, markdown, fennel, …)
@@ -31,8 +31,11 @@ commitments:
    dimmed, because you never go looking for `{`, `:=`, `string` or `err`.
 3. **Identifiers and calls get nothing.** They are ~75% of the tokens; colouring
    them is colouring everything, which is colouring nothing.
-4. **Hue is not part of the theme.** Diagnostics, diffs, git signs and search
-   keep it. An error is then the only coloured thing on the screen.
+4. **Hue is not part of the theme — with exactly one exception.** Diagnostics,
+   diffs, git signs and search keep it, so an error is the loudest coloured
+   thing on screen. Strings carry a deliberate low-chroma tint at *constant
+   luminance* (§3.2): the only hue the theme itself spends, and the only one
+   that had to be argued for.
 
 Where it comes from, and the sources that disagree productively:
 
@@ -220,7 +223,8 @@ whatever `Normal` is.
 |---|---|---|---|---|
 | `faint` | fg → bg 0.62 | `#64676b` | 37 | punctuation, brackets, delimiters |
 | `dim` | fg → bg 0.42 | `#838689` | 25 | keywords, operators, builtins, modules |
-| `muted` | fg → bg 0.20 | `#a6a9a9` | 11 | strings, numbers, booleans |
+| `muted` | fg → bg 0.20 | `#a6a9a9` | 11 | numbers, booleans, characters |
+| `quote` | `muted`'s L\*, C\* 10, hue 110° | `#a9aa97` | 15 (11 luminance + hue) | strings |
 | `base` | — (no attributes) | `#c5c8c6` | — | identifiers, calls, members, params, types |
 | `plain` | base, fg written out | `#c5c8c6` | — | resetting bleed (see §5) |
 | `strong` | fg → white 0.55 | `#e5e6e5` | 11 | `return`, `throw`, `defer`, `await` |
@@ -267,6 +271,7 @@ the light variant restates them at the fractions that reproduce the dark ladder:
 | `faint` | 0.62 → `#64676b` | 37 | 0.53 → `#aaaaaa` | 37 |
 | `dim` | 0.42 → `#838689` | 25 | 0.34 → `#898989` | 24 |
 | `muted` / `note` | 0.20 → `#a6a9a9` | 11 | 0.15 → `#686868` | 11 |
+| `quote` | C\* 10 → `#a9aa97` | 15 | **C\* 28** → `#676b3b` | 30 |
 | `strong` | −0.55 → `#e5e6e5` | 11 | −0.32 → `#343434` | 11 |
 | `bold` | −1.00 → `#ffffff` | 20 **+ bold** | −1.00 → `#000000` | 33 **+ bold** |
 
@@ -281,6 +286,63 @@ The corollary for the *bottom* of the ramp: the recessive tiers are matched in
 ΔE rather than in fraction because they carry the same meaning in both variants
 — `faint` must be "scaffolding you never look for", not "as pale as the
 background lets me go".
+
+### 3.2 Strings are the exception, and they are paid for in chroma
+
+The one thing full monochrome costs that nothing else replaces: you cannot see
+where a string *ends*. Not an attention problem — a **delimitation** problem, and
+the ramp has no answer for it, because the answer would have to be volume and
+strings are not worth volume.
+
+They are also not sparse. Measured as a share of painted non-blank glyphs:
+
+| corpus | strings |
+|---|---|
+| `viktomas/note` (Go CLI, 13 files) | **29.5%** |
+| gitlab-lsp TypeScript (20 files) | 23.3% (9–18% in app code, 30–50% in configs) |
+
+For scale, in that Go corpus strings (29.5%) beat *variables* (28.5%) and double
+*comments* (14.3%). So commitment 3 — "colouring 75% of the tokens is colouring
+nothing" — applies here almost as hard as it does to identifiers. Anything that
+moves strings on the luminance axis moves a quarter of the screen and starts
+competing with `bold` declarations, which are 1.4%.
+
+Hence the shape of the rule: **hold L\* exactly at `muted` and spend only
+chroma.** Then
+
+- the ramp is untouched — `quote` is the same luminance as the grey it replaced,
+  so `faint` 37 · `dim` 25 · **strings** · `base` · `strong` 11 · `bold` 20+weight
+  all still hold, and the ordering argument that killed `presets.fish` (§8)
+  cannot bite, because nothing was reordered;
+- hue becomes a *fourth channel*, orthogonal to volume, exactly as italic is for
+  comments — a category marker, not a promotion;
+- "slightly" is specifiable: C\* 10 puts the tint ΔE ~10 from the grey it
+  replaced, i.e. right at the just-noticeable threshold, while the diagnostics it
+  must not compete with sit at C\* 38–59 (`DiagInfo` 38, `DiagWarn` 49,
+  `DiagError` 59). Four to six times the chroma, on 1% of the screen instead of
+  25%.
+
+Hue 110° is `fish_color_quote`'s hue, so the shell and the editor spend colour on
+the same meaning — the §2 "one surface" argument again. It is also 33° from
+`DiagWarn`, the diagnostic most often on screen; 320° (mauve) is further from
+everything at 58° and was the runner-up.
+
+**Chroma does not port across variants, and ΔE will lie to you about it.** C\* 10
+is clearly green on `#282c34` and *indistinguishable from grey* on white, though
+CIE76 scores both at ΔE 10 from the grey they replace. CIE76 has no
+lightness-dependent chroma term, and perceived colourfulness falls with luminance
+level, so dark text on a light background needs roughly **2.8× the chroma** for
+the same effect: `#676b3b`, C\* 28. Same L\*, same hue, different chroma — chosen
+by comparing captures side by side, not by converting a number.
+
+That leaves `quote` at ΔE 30 on light against 15 on dark, the second place the
+two variants are not the same theme. It is the same trade as `bold` (§3.1) and it
+is deliberate: matched by *appearance*, not by arithmetic.
+
+What is **not** tinted: numbers, booleans and characters stay grey `muted`. The
+tint means "text data with delimiters", not "literal". `@string.escape` and
+`@string.regexp` stay `base`, which now pops out of a tinted string on two
+channels instead of one.
 
 ---
 
@@ -428,6 +490,9 @@ was ΔE 11. Comments are now `muted` + *italic* — italic makes them unmistakab
 not code at no luminance cost, and leaves the loud end of the ramp for the one
 signal that can use it.
 
+Literals moved once more since: `@string` is no longer `muted` but `quote`, the
+only hue the theme spends — see §3.2 for why strings, and only strings, earn it.
+
 It also buys a distinction the loud version could not express: **doc comments and
 in-body comments are different tiers.** In Go every top-level declaration comment
 is `@comment.documentation` (`doc`, dim+italic) while a note *inside* a function
@@ -462,6 +527,12 @@ If it ever comes back, the fix is to pick the palette entries by luminance rathe
 than by fish's semantics, i.e. only for tiers *at or below* base, and keep
 white+bold for declarations.
 
+**`quote` (§3.2) is that fix, applied to exactly one tier.** It takes fish's hue
+for strings, throws away fish's luminance, and keeps C\* at 10 instead of 45 — so
+it cannot reorder anything and it loses to every diagnostic by 4–6× in chroma.
+The general preset still fails for the general reason; the narrow case survives
+because it was narrowed until the two objections no longer applied.
+
 ---
 
 ## 9. Verifying
@@ -469,7 +540,7 @@ white+bold for declarations.
 Never judge this by looking at it. Use the `nvim-theme` skill:
 
 ```bash
-S=~/.pi/agent/skills/nvim-theme/scripts
+S=~/.dotfiles/.pi/skills/nvim-theme/scripts
 $S/tiers.sh > /tmp/tiers.json
 $S/capture.sh file.ts 30 > /tmp/pane.txt
 $S/decode.py /tmp/pane.txt --tiers /tmp/tiers.json --rows 1-25
@@ -493,6 +564,17 @@ fractions. Unowned hexes in the light summary that are chrome, not bugs:
 `capture.sh` runs the real nvim in tmux with the real LSP attached and dumps the
 pane with its escape sequences; `decode.py` turns those into per-token tier names.
 A raw hex in the output means no tier owns that token, which is usually the bug.
+
+To *choose between* candidates rather than verify one, `compare.py` captures the
+same file under N runtime variations in both variants and builds a self-contained
+HTML page — hover any screenshot to A/B it against the current theme, `v` toggles
+variant, and each card reports the colours the change actually introduced plus
+their share of the window:
+
+```bash
+$S/compare.py src/foo.ts "current" "option A=/tmp/a.lua" "option B=/tmp/b.lua" \
+  --out /tmp/options.html --keep /tmp/options-work --open
+```
 
 Single group, no rendering:
 
@@ -535,6 +617,17 @@ applied (`tsx` and `typescript` are different languages; both must be in
 - **`bold` at ΔE 33 on light.** Three times the dark variant's top-of-ramp
   contrast (§3.1). Justified by the headroom being real, but it is the one place
   the two variants are not the same theme; watch whether declarations shout.
+- **`quote` at C\* 28 on light.** The other such place (§3.2). The chroma is
+  needed for the tint to register at all on white, but 25% of the screen at C\*
+  28 is the closest the theme comes to breaking commitment 4 — watch whether a
+  `DiagnosticWarn` underline still wins attention against a screenful of olive
+  strings. Drop to C\* 22 (`#686b45`) before dropping the tint.
+- **Struct tags and import paths.** In Go a struct definition is now a column of
+  tint (`` `json:"x"` ``), and in TypeScript every `import … from '…'` line ends
+  in one. Either useful (they *are* string data) or a rhythm the eye starts
+  tracking for nothing. The narrower fallback is to tint only the delimiters via
+  `after/queries/`, which drops coverage from ~25% to ~2% and still answers "does
+  this string close?".
 
 ---
 
@@ -560,6 +653,13 @@ applied (`tsx` and `typescript` are different languages; both must be in
   dark fractions overshoot to ΔE 43/30/15 on white. Verified by decoding a real
   light capture: the ladder matches and the only hue on screen is diagnostics.
   Surfaces were measured and left shared (within ΔE 1.5).
-- **next:** live with it. The three things to watch are aqua-free `return`
-  (`strong` on every error branch), whether TS types need a tier, and whether
-  light `bold` (ΔE 33) is too loud.
+- **strings tinted (`quote`).** The first hue the theme spends on itself, and the
+  first change explored on a *page* rather than in a terminal: `compare.py`
+  (§9) rendered five candidates × two variants of the same TypeScript file, with
+  hover A/B against the current theme. Dark landed on C\* 10 immediately; light
+  at the same C\* 10 read as plain grey, which is how the "equal ΔE is not equal
+  appearance" rule (§3.2) got found. Settled at `#a9aa97` / `#676b3b`.
+- **next:** live with it. The four things to watch are aqua-free `return`
+  (`strong` on every error branch), whether TS types need a tier, whether light
+  `bold` (ΔE 33) is too loud, and whether light `quote` (C\* 28) starts
+  out-shouting diagnostics.
