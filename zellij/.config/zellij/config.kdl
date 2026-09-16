@@ -69,7 +69,8 @@ keybinds clear-defaults=true {
         bind "K" { NewPane "down"; MovePane "up"; }
         bind "L" { NewPane "right"; }
         bind "c" { SwitchToMode "renamepane"; PaneNameInput 0; }
-        bind "t" { SwitchToMode "renametab"; TabNameInput 0; }
+        bind "t" { SwitchToMode "tab"; }
+        bind "Ctrl t" { SwitchToMode "renametab"; TabNameInput 0; }
         bind "Ctrl d" { CloseFocus; }
         bind "e" { TogglePaneEmbedOrFloating; }
         bind "f" { ToggleFocusFullscreen; }
@@ -87,6 +88,30 @@ keybinds clear-defaults=true {
         bind "d" { Detach; }
         bind "w" { ToggleFloatingPanes; }
         bind "z" { TogglePaneFrames; }
+        bind "esc" { TogglePaneFrames; SwitchToMode "normal"; }
+        bind "enter" { TogglePaneFrames; SwitchToMode "normal"; }
+    }
+    tab {
+        bind "h" { GoToPreviousTab; }
+        bind "l" { GoToNextTab; }
+        bind "left" { GoToPreviousTab; }
+        bind "right" { GoToNextTab; }
+        bind "H" { MoveTab "left"; }
+        bind "L" { MoveTab "right"; }
+        bind "1" { GoToTab 1; }
+        bind "2" { GoToTab 2; }
+        bind "3" { GoToTab 3; }
+        bind "4" { GoToTab 4; }
+        bind "5" { GoToTab 5; }
+        bind "6" { GoToTab 6; }
+        bind "7" { GoToTab 7; }
+        bind "8" { GoToTab 8; }
+        bind "9" { GoToTab 9; }
+        bind "n" { NewTab; TogglePaneFrames; SwitchToMode "normal"; }
+        bind "x" { CloseTab; }
+        bind "r" { SwitchToMode "renametab"; TabNameInput 0; }
+        bind "s" { ToggleActiveSyncTab; }
+        bind "tab" { ToggleTab; }
         bind "esc" { TogglePaneFrames; SwitchToMode "normal"; }
         bind "enter" { TogglePaneFrames; SwitchToMode "normal"; }
     }
@@ -139,6 +164,18 @@ keybinds clear-defaults=true {
     }
     shared_among "pane" "prompt" "tmux" {
         bind "Ctrl q" { Quit; }
+    }
+    // Ctrl y (right shift tap) and Ctrl J/Ctrl K (kanata space+j/k -> ghostty
+    // CSI-u ctrl+shift+j/k) only ever existed in normal/pane mode, so they were
+    // dead while scrolling or resizing. Every mode here is entered from pane
+    // mode with frames on, so returning to normal must toggle frames off --
+    // same bookkeeping as the `space` escape hatch above.
+    shared_among "pane" "tab" "scroll" "search" "resize" "move" {
+        bind "Ctrl J" { ScrollToBottom; GoToPreviousTab; TogglePaneFrames; SwitchToMode "normal"; }
+        bind "Ctrl K" { ScrollToBottom; GoToNextTab; TogglePaneFrames; SwitchToMode "normal"; }
+    }
+    shared_among "tab" "scroll" "search" "resize" "move" {
+        bind "Ctrl y" { ScrollToBottom; SwitchToMode "pane"; }
     }
     shared_among "scroll" "search" {
         bind "PageDown" { PageScrollDown; }
