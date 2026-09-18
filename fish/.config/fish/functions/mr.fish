@@ -28,12 +28,29 @@ function mr --description 'Pick an MR and check out its branch locally'
         return 1
     end
 
-    # Check for existing task with matching cwd
+    set -l mr_url (echo $json_str | jq -r '.mr.web_url')
+
+    # Check for an existing task for THIS MR.
+    #
+    # mr_url is the identity of an MR task; cwd is NOT. For a non-bare repo
+    # mr-checkout.sh returns the repo root for every MR, so all MRs of that project
+    # share one cwd — matching on cwd there hijacks an unrelated task.
+    # Only a bare-repo worktree path is branch-specific enough to identify an MR.
+    set -l is_bare (echo $json_str | jq -r '.is_bare // false')
     set -l task_json (task list --json 2>/dev/null)
     if test -n "$task_json"
-        # Look for a task whose cwd matches the checkout path
-        set -l task_id (echo $task_json | jq -r --arg path "$checkout_path" \
-            '[.[] | select(.cwd == $path)] | first | .id // empty')
+        # 1. Exact mr_url match — the only reliable identity.
+        # 2. Fallback (bare repos only, for tasks predating mr_url): cwd match,
+        #    skipping tasks already bound to a different MR, newest touched first.
+        set -l task_id (echo $task_json | jq -r \
+            --arg path "$checkout_path" --arg url "$mr_url" --arg bare "$is_bare" '
+            def pick: sort_by(.touched // .created) | reverse | (first | .id) // "";
+            ([.[] | select(.mr_url == $url)] | pick) as $byUrl
+            | if $byUrl != "" then $byUrl
+              elif $bare == "true" then
+                [.[] | select(.cwd == $path and (.mr_url // "") == "")] | pick
+              else ""
+              end')
 
         if test -n "$task_id"
             set -l task_status (echo $task_json | jq -r --arg id "$task_id" \
@@ -43,6 +60,9 @@ function mr --description 'Pick an MR and check out its branch locally'
                 echo "🔄 Reopening done task: $task_id"
                 task set $task_id status doing
             end
+
+            # Bind the task to this MR so future runs match on identity, not cwd
+            task set $task_id mr_url "$mr_url" >/dev/null
 
             echo "🔀 Switching to task: $task_id"
             task switch $task_id
@@ -61,7 +81,6 @@ function mr --description 'Pick an MR and check out its branch locally'
         set -l new_task_id (echo $new_task_json | jq -r '.id // empty')
         if test -n "$new_task_id"
             # Store MR URL in task metadata
-            set -l mr_url (echo $json_str | jq -r '.mr.web_url')
             task set $new_task_id mr_url "$mr_url"
             echo "🔀 Switching to task: $new_task_id"
             task switch $new_task_id
