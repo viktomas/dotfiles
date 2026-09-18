@@ -386,6 +386,34 @@ cancels the bold inherited from `@function`. Two things this catches:
 - `@function.builtin` inherits `@function`, which made `make` / `len` / `append` /
   `panic` bold, the loudest tier in the theme. It is pinned to `dim`.
 
+### `@constructor` is a call site, not a declaration
+
+It was `bold` on the assumption it meant "the `constructor` method". It does not:
+nvim-treesitter spends it mostly on **instantiation**, so `bold` — the tier
+budgeted for ~1.4% of glyphs — landed on `new CompositeDisposable()` in every TS
+file and on `NewClient()` / `MakeThing()` in every Go file:
+
+| query | node | what it is |
+|---|---|---|
+| `queries/ecma/highlights.scm:67` | `method_definition` name `== "constructor"` | declaration |
+| `queries/ecma/highlights.scm:141` | `(new_expression constructor:)` | **call** |
+| `queries/go/highlights.scm:47,51` | `call_expression` callee `^[nN]ew.+` / `^[mM]ake.+` | **call** |
+
+It is now `base`, the same correction `@function.call` applies to `@function`.
+The one declaration in that table keeps its bold for free: the `constructor`
+method name is *also* captured as `@function.method` underneath (verified with
+`get_captures_at_pos`, and on screen: `[bold+B]constructor`), so §5's "a blank
+group is not a reset" works in our favour for once. In Go the call sites sit on
+`@function.call` instead, which is `base`, so nothing bleeds there.
+
+The first attempt was a stacked `@constructor.call` capture in `after/queries/`,
+mapped to `base`. **It cannot work, and the reason is worth remembering:**
+highlight attributes are OR-ed flags when extmarks combine, so a group layered
+on top can override a *colour* but can never turn `bold` (or italic) back off.
+The capture rendered tokyonight's purple-bold, because the theme only defines
+groups for the captures in its own `captures` list. Weight has to be removed
+where it is added.
+
 ### Custom captures / query overrides
 
 - `after/queries/ecma/highlights.scm` — `((template_substitution) @embedded.code)`
@@ -659,6 +687,12 @@ applied (`tsx` and `typescript` are different languages; both must be in
   hover A/B against the current theme. Dark landed on C\* 10 immediately; light
   at the same C\* 10 read as plain grey, which is how the "equal ΔE is not equal
   appearance" rule (§3.2) got found. Settled at `#a9aa97` / `#676b3b`.
+- **`@constructor` demoted to `base`.** It was reading as a declaration tier but
+  nvim-treesitter spends it on instantiation, so `new Foo()` and Go's
+  `NewFoo()` / `MakeFoo()` calls were painted with the loudest tier in the
+  theme. Measured in both variants: call sites are now `base`, while
+  `constructor` and `func NewClient` declarations are still `bold` from
+  `@function.method` / `@function`. See §4.
 - **next:** live with it. The four things to watch are aqua-free `return`
   (`strong` on every error branch), whether TS types need a tier, whether light
   `bold` (ΔE 33) is too loud, and whether light `quote` (C\* 28) starts

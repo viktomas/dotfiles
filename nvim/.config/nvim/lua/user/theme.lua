@@ -584,7 +584,18 @@ M.presets.attention = vim.tbl_extend("force", M.presets.foreign, {
   ["@function.method"]      = "bold",
   ["@function.method.call"] = "base",
   ["@type.definition"]      = "bold",
-  ["@constructor"]          = "bold",
+  -- `@constructor` is NOT a declaration tier: nvim-treesitter spends it mostly
+  -- on *instantiation sites* -- `(new_expression constructor:)` in ecma, and
+  -- any `^[nN]ew.+` / `^[mM]ake.+` call in go -- so `bold` there made every
+  -- `new CompositeDisposable()` and every `NewClient()` the loudest thing on
+  -- screen, for the same reason `@function.call` has to undo `@function`.
+  -- The one declaration it does cover, the `constructor` method name, is also
+  -- captured as `@function.method` underneath (verified with
+  -- `get_captures_at_pos`), so it keeps white+bold from there -- the "a blank
+  -- group is not a reset" mechanism of THEME.md section 5, used on purpose.
+  -- A stacked capture could not have fixed this: `bold` is an OR-ed attribute
+  -- flag, so nothing layered on top of a bold extmark can turn it off.
+  ["@constructor"]          = "base",
   ["@keyword.return"]       = "strong", -- override the dim inherited from @keyword
   ["@keyword.exception"]    = "strong",
   ["@keyword.coroutine"]    = "strong", -- go / defer / async / await
