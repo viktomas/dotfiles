@@ -82,6 +82,7 @@ require("plugins.treesitter")
 require("plugins.formatter")
 require("plugins.love2d")
 require("plugins.fennel")
+require("plugins.task")
 -- require("plugins.gitlab")
 require("permalink")
 
