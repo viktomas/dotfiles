@@ -77,6 +77,13 @@ in `../kanata/README.md`. The sheet only answers "what does this key do".
 
 When the kanata config changes, update both the diagram and the rule panels.
 
+### zellij.typ
+
+Mirrors `../zellij/.config/zellij/config.kdl`. Panels follow the modes:
+normal → pane (`Ctrl y`), then the sub-modes. The last panel explains the two
+tab features whose names don't say what they do (sync, toggle). When a
+keybind changes in the kdl, change it here and recompile.
+
 ### vim.typ
 
 Panels of `rows()`. Currently mini.surround only (actions, targets, examples,
