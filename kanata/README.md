@@ -110,6 +110,48 @@ tail -f /var/log/kanata.err
 
 Force-quit kanata (physical keys, before remapping): `lctl+spc+esc`
 
+### Troubleshooting: kanata-generated modifiers stop working
+
+**Symptom:** pressing a physical modifier still works (real `ctrl+y` reaches the app),
+but every modifier kanata *synthesises* is silently dropped — HRM `f`+`y` and the
+right-shift tap (`C-y`) arrive as a bare `y`. Looks like the receiving app (zellij,
+nvim, ...) "stopped intercepting" the shortcut, but its config is innocent.
+
+**Cause:** kanata lost the Karabiner virtual-HID output backend (sleep, device
+reconnect, driver restart) and dropped a modifier press mid-flight, leaving the
+virtual keyboard's modifier state desynced. `/var/log/kanata.log` shows:
+
+```
+[WARN] output backend unavailable — releasing input devices
+[WARN] dropping KEY_LEFTCTRL Press: output backend unavailable (will recover)
+[INFO] Input devices released. Keyboard is usable (without remapping)...
+[INFO] output backend recovered — re-grabbing input devices
+```
+
+It recovers the *grab* but not the dropped modifier, so remapping keeps running in
+a half-broken state — which is why it does not look like a kanata problem.
+
+**Fix:** restart the daemon.
+
+```bash
+sudo launchctl kickstart -k system/com.kanata.daemon
+```
+
+**Diagnosing it quickly:** dump raw terminal bytes in a plain Ghostty tab (*not*
+inside zellij — zellij swallows `Ctrl+y` before any app sees it) and compare the
+three input paths; `ctrl+y` must be `0x19`, a bare `y` is `0x79`:
+
+```bash
+python3 -c 'import sys,termios,tty\nfd=sys.stdin.fileno();old=termios.tcgetattr(fd);tty.setraw(fd)\nb=sys.stdin.buffer.read(1)\nwhile b and b[0]!=ord("q"):\n    sys.stdout.write(f"0x{b[0]:02x}\\r\\n");sys.stdout.flush();b=sys.stdin.buffer.read(1)\ntermios.tcsetattr(fd,termios.TCSADRAIN,old)'
+```
+
+If physical `ctrl+y` gives `0x19` while HRM and the shift tap give `0x79`, it is
+this bug and not the target app's keybindings.
+
+**Related noise:** `/var/log/kanata.log` grows unbounded with
+`virtual_hid_keyboard_ready true` lines (it reached 157 MB once). Truncate it when
+it gets large: `sudo truncate -s 0 /var/log/kanata.log`.
+
 ## Config — HRM + symbol layer + extra rules
 
 Config file: `kanata/.config/kanata/kanata.kbd` (stowed to `~/.config/kanata/kanata.kbd`).
