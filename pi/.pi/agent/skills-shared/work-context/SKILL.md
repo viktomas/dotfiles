@@ -13,7 +13,7 @@ If term looks super specific, use (rip) grep to search the folder, otherwise use
 
 ## Semantic search
 
-   **Semantic search across all work notes** — the entire `/Users/tomas/workspace/gl/work` tree (including `references/`, `mrs/`, `board/`, `todo.md`) is indexed by `qmd`. Use it when looking for a past reference, decision, or note by topic rather than by filename:
+   **Semantic search across all work notes** — the entire `/Users/tomas/workspace/gl/work` tree (including `references/`, `mrs/`, `issues/`, `themes/`, `todo.md`) is indexed by `qmd`. Use it when looking for a past reference, decision, or note by topic rather than by filename:
    ```bash
    qmd query "<topic or question>" -c work
    ```
@@ -31,4 +31,4 @@ For semantic search it's better to use a sentence rather than a single word
 List files to find relevant references, or create new ones here when asked to save something for later.
 
 
-8. **Task sessions** — board items can link to zellij task sessions via `$slug` annotations on headings. Full CLI reference and conventions are in the **task-management** skill. Task CLI source and tests live in `/Users/tomas/workspace/gl/task/main/`.
+8. **Task sessions** — work is tracked as task files in `tasks/`, each linked to a zellij session. Full CLI reference and conventions are in the **task-management** skill. Task CLI source and tests live in `/Users/tomas/workspace/gl/task/main/`.
