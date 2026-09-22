@@ -76,7 +76,7 @@ function mr --description 'Pick an MR and check out its branch locally'
     set -l project_name (echo $json_str | jq -r '.mr.project_path | split("/") | last')
 
     echo "📝 Creating task for: $mr_title"
-    set -l new_task_json (task new "$project_name: $mr_title" --cwd "$checkout_path" --json 2>/dev/null)
+    set -l new_task_json (task new "$project_name: $mr_title" --cwd "$checkout_path" --category review --json 2>/dev/null)
     if test $status -eq 0
         set -l new_task_id (echo $new_task_json | jq -r '.id // empty')
         if test -n "$new_task_id"

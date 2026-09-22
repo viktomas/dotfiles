@@ -1,6 +1,8 @@
 source ~/.secrets/secrets
 source ~/.secrets/gdk
 set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
+# Task categories (overrides task's default work,reviews,personal)
+set -gx TASK_CATEGORIES work,review,personal
 # Shared Turborepo cache across git worktrees (each worktree has its own
 # node_modules/.turbo, so without this every fresh worktree rebuilds from scratch)
 # set -gx TURBO_CACHE_DIR ~/.cache/turbo
