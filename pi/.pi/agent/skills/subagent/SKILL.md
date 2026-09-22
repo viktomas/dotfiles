@@ -20,6 +20,7 @@ subagent has its own context; its final answer is the script output.
   - `accounts/fireworks/routers/glm-5p3-fast` - use fast glm5.3 for analysis unless user explicitely said they are away from keyboard, then use sonnet
   - `claude-sonnet-5` use sonnet for implementation and slower analysis
   - `claude-opus-5` use opus for complex subtask delegation where it's expected to resolve higher uncertainty
+  - `claude-fable-5-1` use fable only when user asks you to use it
 - `--timeout <seconds>` — optional, defaults to `600`. Raise it for long
   investigations; the run is killed when it expires.
 - prompt — positional, or piped on stdin for long multi-line tasks:
