@@ -80,6 +80,24 @@ function M.switch_to_task_under_cursor()
   end)
 end
 
+--- Vim-regex twin of the Lua pattern in `task_id_under_cursor`. `\C` forces
+--- case-sensitive matching so 'ignorecase' can't let `$HOME` through.
+local TASK_ID_REGEX = [[\C\$[a-z0-9][a-z0-9-]*]]
+
+--- Move the cursor to the `$` of the next/previous `$task-id` in the buffer.
+--- Honours a count and 'wrapscan'; the start position goes on the jumplist.
+--- @param backward boolean
+function M.jump_to_task(backward)
+  local flags = backward and 'bs' or 's'
+  for _ = 1, vim.v.count1 do
+    if vim.fn.search(TASK_ID_REGEX, flags) == 0 then
+      notify('no more $task-id references', vim.log.levels.INFO)
+      return
+    end
+    flags = backward and 'b' or ''
+  end
+end
+
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'markdown',
   callback = function(ev)
@@ -87,6 +105,12 @@ vim.api.nvim_create_autocmd('FileType', {
       buffer = ev.buf,
       desc = 'Switch to the task under the cursor',
     })
+    vim.keymap.set({ 'n', 'x', 'o' }, ']t', function()
+      M.jump_to_task(false)
+    end, { buffer = ev.buf, desc = 'Next $task-id' })
+    vim.keymap.set({ 'n', 'x', 'o' }, '[t', function()
+      M.jump_to_task(true)
+    end, { buffer = ev.buf, desc = 'Previous $task-id' })
   end,
 })
 
