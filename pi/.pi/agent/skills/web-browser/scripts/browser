@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# Launch/stop a dedicated Chrome for the agent and attach rodney to it.
+#
+# Why not `rodney start`? rodney 0.4.0 rejects --show (flag-parsing bug), and
+# main hardcodes --single-process + --disable-gpu, a combo that segfaults
+# headful Chrome on macOS (verified on Chrome 154). So we launch Chrome
+# ourselves and `rodney connect` to it.
+#
+#   browser start [--show]   start (headless by default); no-op if already running
+#   browser show             switch to a visible window (same profile, same URL)
+#   browser hide             switch back to headless (same profile, same URL)
+#   browser stop             kill Chrome + log watcher, clear rodney state
+#   browser status           running? mode? current URL
+#   browser wait-for <js-expr> [timeout-seconds]
+#                            poll until the JS expression is truthy (default 300s),
+#                            e.g. after asking the user to log in
+set -euo pipefail
+
+PORT="${BROWSER_PORT:-9222}"
+ROOT="${BROWSER_HOME:-$HOME/.cache/agent-browser}"
+PROFILE="$ROOT/profile"
+STATE="$ROOT/state" # "<pid> <mode>"
+CHROME="${CHROME_BIN:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WATCH_PID_FILE="$HOME/.cache/agent-web/logs/.pid"
+
+mkdir -p "$PROFILE"
+
+alive() { curl -sf "http://127.0.0.1:$PORT/json/version" >/dev/null 2>&1; }
+mode() { [[ -f $STATE ]] && awk '{print $2}' "$STATE" || echo unknown; }
+current_url() { rodney --global url 2>/dev/null || true; }
+
+start() {
+  local show="${1:-}"
+  if alive; then
+    echo "already running on :$PORT ($(mode)) — use 'browser show' / 'browser hide' to switch"
+    rodney --global connect "127.0.0.1:$PORT" >/dev/null
+    return 0
+  fi
+  local args=(
+    "--remote-debugging-port=$PORT"
+    "--user-data-dir=$PROFILE"
+    --no-first-run
+    --no-default-browser-check
+    --disable-search-engine-choice-screen
+    --disable-features=ProfilePicker
+    --window-size=1400,1000
+  )
+  local m=headful
+  if [[ $show != --show ]]; then
+    args+=(--headless=new)
+    m=headless
+  fi
+  "$CHROME" "${args[@]}" about:blank >/dev/null 2>&1 &
+  local pid=$!
+  disown
+  echo "$pid $m" >"$STATE"
+  for _ in $(seq 40); do alive && break; sleep 0.25; done
+  alive || { echo "✗ Chrome did not come up on :$PORT" >&2; exit 2; }
+  rodney --global connect "127.0.0.1:$PORT" >/dev/null
+  # console/network logger (rodney has no log capture)
+  nohup node "$SCRIPT_DIR/watch.js" >/dev/null 2>&1 &
+  disown
+  echo "✓ Chrome $m on :$PORT (profile $PROFILE)"
+}
+
+stop() {
+  if [[ -f $STATE ]]; then
+    kill "$(awk '{print $1}' "$STATE")" 2>/dev/null || true
+    rm -f "$STATE"
+  fi
+  [[ -f $WATCH_PID_FILE ]] && { kill "$(cat "$WATCH_PID_FILE")" 2>/dev/null || true; rm -f "$WATCH_PID_FILE"; }
+  for _ in $(seq 40); do alive || break; sleep 0.25; done
+  rodney --global stop >/dev/null 2>&1 || true # PID 0 → only clears state
+  alive && { echo "✗ something else still listens on :$PORT" >&2; exit 2; }
+  echo "✓ stopped"
+}
+
+switch() {
+  local want="$1" url
+  if alive && [[ $(mode) == "$want" ]]; then echo "already $want"; return 0; fi
+  url="$(alive && current_url)"
+  alive && stop >/dev/null
+  if [[ $want == headful ]]; then start --show; else start; fi
+  if [[ -n $url && $url != about:blank ]]; then rodney --global open "$url" >/dev/null && echo "↻ reopened $url"; fi
+}
+
+status() {
+  if alive; then
+    echo "running on :$PORT ($(mode))"
+    rodney --global pages 2>/dev/null || true
+  else
+    echo "not running"
+    exit 1
+  fi
+}
+
+wait_for() {
+  local expr="$1" timeout="${2:-300}" start_ts
+  start_ts=$(date +%s)
+  while (($(date +%s) - start_ts < timeout)); do
+    if rodney --global assert "$expr" >/dev/null 2>&1; then echo "✓ condition met: $expr"; return 0; fi
+    sleep 3
+  done
+  echo "✗ timed out after ${timeout}s waiting for: $expr" >&2
+  return 1
+}
+
+case "${1:-}" in
+  start) start "${2:-}" ;;
+  show) switch headful ;;
+  hide) switch headless ;;
+  stop) stop ;;
+  status) status ;;
+  wait-for) shift; wait_for "$@" ;;
+  *) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+esac

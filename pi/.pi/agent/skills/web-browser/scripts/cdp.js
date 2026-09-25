@@ -1,15 +1,15 @@
 /**
- * Minimal CDP client - no puppeteer, no hangs
+ * Minimal CDP client - no puppeteer, no hangs, no deps (Node 22+ global WebSocket)
  */
 
-import WebSocket from "ws";
+export const PORT = process.env.BROWSER_PORT || "9222";
 
 export async function connect(timeout = 5000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const resp = await fetch("http://localhost:9222/json/version", {
+    const resp = await fetch(`http://127.0.0.1:${PORT}/json/version`, {
       signal: controller.signal,
     });
     const { webSocketDebuggerUrl } = await resp.json();
@@ -22,19 +22,19 @@ export async function connect(timeout = 5000) {
         reject(new Error("WebSocket connect timeout"));
       }, timeout);
 
-      ws.on("open", () => {
+      ws.addEventListener("open", () => {
         clearTimeout(connectTimeout);
         resolve(new CDP(ws));
       });
-      ws.on("error", (e) => {
+      ws.addEventListener("error", (e) => {
         clearTimeout(connectTimeout);
-        reject(e);
+        reject(e.error || new Error("WebSocket error"));
       });
     });
   } catch (e) {
     clearTimeout(timeoutId);
     if (e.name === "AbortError") {
-      throw new Error("Connection timeout - is Chrome running with --remote-debugging-port=9222?");
+      throw new Error(`Connection timeout - is the browser running? (scripts/browser start, port ${PORT})`);
     }
     throw e;
   }
@@ -48,8 +48,8 @@ class CDP {
     this.sessions = new Map();
     this.eventHandlers = new Map();
 
-    ws.on("message", (data) => {
-      const msg = JSON.parse(data.toString());
+    ws.addEventListener("message", (event) => {
+      const msg = JSON.parse(event.data.toString());
       if (msg.id && this.callbacks.has(msg.id)) {
         const { resolve, reject } = this.callbacks.get(msg.id);
         this.callbacks.delete(msg.id);
