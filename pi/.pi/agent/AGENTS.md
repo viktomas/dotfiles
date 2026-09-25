@@ -20,6 +20,10 @@ and retry with what is actually there. Do not fall back to `python` string
 splicing (`s.index(...)`) or `sed -i` to rewrite a block — those edits are
 unreviewable and silently miss neighbouring occurrences.
 
+Write non-ASCII characters (`—`, `§`, `…`, `×`) literally in `oldText`/`newText`,
+never as `\u2014`-style escapes: in `oldText` they fail to match, in `newText`
+they are written into the file verbatim.
+
 ## Git Interactive Commands
 
 Commands like `git rebase --continue`, `git merge --continue`, and `git commit` open an editor and hang when run non-interactively. Always prefix with `GIT_EDITOR=true` to auto-accept the default message:
