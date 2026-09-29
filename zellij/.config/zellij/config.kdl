@@ -22,6 +22,18 @@ keybinds clear-defaults=true {
             };
             SwitchToMode "normal"
         }
+        bind "q" {
+            TogglePaneFrames;
+            Run "bash" "-c" "task next" {
+                floating true
+                close_on_exit true
+                x "40%"
+                y "45%"
+                width "20%"
+                height "10%"
+            };
+            SwitchToMode "normal"
+        }
         bind "a" {
             TogglePaneFrames;
             Run "task" "new-prompt" {
