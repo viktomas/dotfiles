@@ -4,8 +4,9 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 
 function autoOnByClock(now = new Date()): boolean {
-  const day = now.getDay(); // 0 = Sun, 6 = Sat
-  return day >= 1 && day <= 5 && now.getHours() < 13;
+  // const day = now.getDay(); // 0 = Sun, 6 = Sat
+  // return day >= 1 && day <= 5 && now.getHours() < 13;
+  return false
 }
 
 

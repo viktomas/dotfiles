@@ -158,3 +158,46 @@ reports "the tool is not available" rather than showing a denial.
 Keyed `gid://gitlab/User/<id>:Duo CLI:<setting>` with a `{"enabled": bool}`
 value. GDK's root user is `User/1`, so toggling a setting while pointed at GDK
 does not touch the gitlab.com profile's entry.
+
+## CI pipeline/job stuck in `status: "created"` forever, runner online but never dispatched
+
+A workload/CI pipeline (e.g. one created by `Ai::DuoWorkflows::StartWorkflowService`) sits at
+`status: "created"` indefinitely; `GET .../jobs/<id>` shows `status: "created"` (not `pending`),
+`runner: null`, even though the target runner is `online`/`idle` and correctly tagged. Root
+cause: `Ci::InitialPipelineProcessWorker` (the sidekiq job that transitions a freshly created
+pipeline's jobs from `created` → `pending` so runners can pick them up) raised and landed in the
+Sidekiq retry set with `NameError: uninitialized constant <SomeClass>::<SomeOtherClass>`
+(e.g. `DependencyEntity::DependencyMalwareGating`, `Gitlab::SidekiqProcess`) — a **different,
+unrelated constant each time**, across many other unrelated workers too
+(`Ci::PipelineCreationMetricsWorker`, `Users::TrackNamespaceVisitsWorker`, ...). This is a classic
+Rails `config.cache_classes = false` autoload race: something perturbed the long-running
+`rails-background-jobs` (sidekiq) process's autoload/reload state and every job that touches
+autoloading hits a bogus "uninitialized constant" for whatever class happens to load next.
+Bootsnap cache is *not* the cause (clearing `tmp/cache/bootsnap` did not fix it).
+
+Diagnose:
+```bash
+cd /Users/tomas/workspace/gl/gdk/gitlab
+mise exec -- bundle exec rails runner '
+require "sidekiq/api"
+Sidekiq::RetrySet.new.each { |j| puts "#{j.klass} #{j["error_class"]} #{j["error_message"]}" }' | head -20
+```
+Look for `Ci::InitialPipelineProcessWorker` (or `Ci::PipelineProcessWorker`) with a `NameError`.
+
+Fix: restart the sidekiq process, then re-enqueue the stuck job (retries have exponential
+backoff, don't wait):
+```bash
+cd /Users/tomas/workspace/gl/gdk && mise exec -- gdk restart rails-background-jobs
+sleep 15
+cd gitlab && mise exec -- bundle exec rails runner 'Ci::InitialPipelineProcessWorker.perform_async(<pipeline_id>)'
+```
+Then poll `GET /api/v4/projects/:id/jobs/:job_id` — it should flip to `pending` within seconds
+and the online runner picks it up.
+
+Side-effect to watch for: if the pipeline/workflow sat in `created` for a long time before this
+fix (e.g. while debugging), any composite/short-lived OAuth token embedded in the job's CI
+variables at creation time may have expired by the time the job actually runs, causing an
+unrelated `WebSocket upgrade rejected with HTTP 401` / `Invalid token` failure in the job trace.
+That's a real (if secondary) failure — stop/discard that run and create a fresh workflow after
+confirming pipeline processing is healthy again; don't rely on the stale one to reach a clean
+terminal state.

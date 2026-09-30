@@ -10,6 +10,7 @@ pnpm = "latest"
 python = "3.12"
 yarn = "latest"
 "npm:@tobilu/qmd" = "latest"
+"github:simonw/rodney" = "latest"
 "npm:typescript-language-server" = "latest"
 "npm:typescript" = "5"
 
