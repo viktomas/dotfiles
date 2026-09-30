@@ -43,6 +43,26 @@ $S --slug topic-b "Question B" > /tmp/sub_b.txt 2>&1 &
 wait; cat /tmp/sub_a.txt /tmp/sub_b.txt
 ```
 
+## Analyse → implement → review cycle
+
+For "implement X as separate MRs using subagents": one cycle per MR, one MR at
+a time. The parent orchestrates and owns git: worktree, commit, push, MR.
+
+1. **Analyse** (read-only): the subagent returns findings and a concrete plan
+   (files, steps, tests to run). Tell it not to edit anything.
+2. **Implement** (`claude-sonnet-5`, `--timeout 1800`): create the worktree
+   first (`git-worktree` skill), then pass the plan and the worktree path. It
+   edits and runs the tests there, and does not commit. Never two at once.
+3. **Review** (a fresh subagent that never saw the implementer's reasoning):
+   pass the plan and the worktree path. It checks `git diff` against the plan,
+   runs the tests, and reports issues as a list. No edits.
+4. **Parent**: fix small issues yourself, or hand the review to a new implement
+   subagent and repeat 3. After two loops without a clean review, ask the user.
+   Then commit, push and open the MR.
+
+Subagents share no context: pass each one the previous step's output verbatim
+(on stdin) plus the worktree path.
+
 ## Debugging a hung or failed subagent
 
 On failure the script prints the exit reason and the session file path to stderr.
