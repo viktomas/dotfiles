@@ -16,3 +16,4 @@ pi/.pi/agent/trust.json
 /bin/mdreport
 pi/.pi/agent/subagent-sessions
 pi/.pi/agent/models-store.json
+pi/.pi/agent/kickoff-sessions

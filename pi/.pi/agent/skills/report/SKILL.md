@@ -7,11 +7,11 @@ description: Generate a standalone HTML report from a markdown file with d2 diag
 
 A report is a **snapshot of an understanding at a point in time** — an investigation
 write-up with diagrams, for a human to read. Write it as markdown, render it to HTML with
-`mdreport`, and freeze the markdown into the task's memory with `tm artifact` so a later
-session can find it.
+`mdreport`, and, in a task session, keep the markdown next to the task's state file so a
+later session can find it.
 
-Write the markdown wherever the work is happening (the workspace, a scratch dir). There is
-no reserved report path any more: `tm` holds the copy that outlives the session.
+Outside a task, write the markdown wherever the work is happening (the workspace, a
+scratch dir).
 
 ## Rendering
 
@@ -25,30 +25,19 @@ Output defaults to `<filename.md without md suffix>.html` in the system temp fol
 browser. The generated HTML is for the human user only — NEVER read it, NEVER touch it.
 An invalid `d2` or `svg` block aborts with exit 1, naming the block type and line. 
 
-## Freezing the report into task memory
+## Keeping the report with the task
 
-In a session with a `tm` task, freeze the markdown once it is written and rendered:
+When `$TASK_ID` is set, write the report into the state directory, named after the task,
+and list it in the state file (the `task-management` skill) with a one-line note:
 
 ```bash
-tm artifact ./report.md --note "Turn-cancellation: root cause + fix options"
+r="$(dirname "$(task state)")/$TASK_ID-$(date +%Y%m%d)-turn-cancellation.md"
 ```
 
-`tm` copies the file into the task's `artifacts/` dir and prints the absolute path of the
-frozen copy. `tm resume`/`tm show` then list it for every later session, so nobody has to
-remember where the report went.
-
-**Never edit a frozen artifact, and never keep a report as a living document.** A report
+**Never edit a written report, and never keep a report as a living document.** A report
 that is edited in place drifts from reality and nobody can tell whether it still describes
-the current state. When your understanding changes, write a new report and supersede the
-old one:
-
-```bash
-tm artifact ./report-v2.md --note "Revised after the debug-log capture" --supersedes a1
-```
-
-The superseded snapshot stays in the log, honest about what was true when it was written,
-and only the live one shows up in the default views — which is what the hand-written
-"the older report is outdated, don't read it" notes used to do by hand.
+the current state. When your understanding changes, write a new report file and, in the
+state file, point at the new one and mark the old one as superseded (and why).
 
 ## Format
 

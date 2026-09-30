@@ -91,7 +91,8 @@ pi -r --session-dir ~/.pi/agent/subagent-sessions
 
 ## Implementaion details (ignore unless debugging)
 Subagent `pi` runs without extensions and with only the shared skills (`~/.pi/agent/skills-shared`), so it
-cannot spawn further subagents or touch task memory.
+cannot spawn further subagents. Don't ask it to write the task's state file;
+the parent records what matters there.
 
 The script hardcodes the session dir, the isolation flags and `--`, and wraps the
 run in `timeout` so it can never hang forever.

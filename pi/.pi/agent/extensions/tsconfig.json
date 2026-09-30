@@ -25,7 +25,7 @@
     }
   },
   "include": ["*.ts"],
-  // Symlinks into other repos (gl/task, gl/tm); they are type-checked there and
-  // still import the pre-rename `@mariozechner/*` packages.
-  "exclude": ["task.ts", "tm.ts"]
+  // Symlink into another repo (gl/task); it is type-checked there and still
+  // imports the pre-rename `@mariozechner/*` packages.
+  "exclude": ["task.ts"]
 }

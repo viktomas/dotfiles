@@ -13,6 +13,12 @@ what you need from me. Make it exactly one of:
 
 If you leave it out, the task extension asks you for it before the turn ends.
 
+## Task state is your memory
+
+When `$TASK_ID` is set, the file printed by `task state` is your only memory for
+the task across sessions. Read it first if it exists, and bring it up to date
+before your final message. Details: the `task-management` skill.
+
 ## Forbidden Git Operations
 These commands can destroy your's other agents' work
 - `git reset --hard` - destroys uncommitted changes
