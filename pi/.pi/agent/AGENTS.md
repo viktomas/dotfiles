@@ -1,5 +1,18 @@
 My GitLab username is @viktomas.
 
+## End every final message with a marker line
+
+When `$TASK_ID` is set, the last line of your final message tells my attention queue
+what you need from me. Make it exactly one of:
+
+- `GATE: <kind> - <what I must do, one line>`. Kinds: `reply` (answer a question),
+  `decide` (pick between options), `review` (look at your work), `post` (publish
+  drafted comments), `merge`.
+- `FAILED: <why>`: you're stuck and need me to re-prompt.
+- `DONE: <what>`: finished, nothing for me to do. You leave the queue.
+
+If you leave it out, the task extension asks you for it before the turn ends.
+
 ## Forbidden Git Operations
 These commands can destroy your's other agents' work
 - `git reset --hard` - destroys uncommitted changes
