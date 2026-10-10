@@ -1,0 +1,7 @@
+{
+  "providers": {
+    "anthropic": {
+      "compat": { "supportsStrictTools": false }
+    }
+  }
+}
