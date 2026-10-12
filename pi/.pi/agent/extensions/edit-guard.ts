@@ -5,7 +5,7 @@
  *    Anthropic strict-tool encoding bug: a C0 control character, or a literal
  *    `\uXXXX` in a prose/data file, that the target file does not already
  *    contain. Full context: ~/.pi/agent/ANTHROPIC_EDIT_BUG.md
- * 2. Blocks rewriting files with `sed -i`, `perl -i` or a python/node
+ * 2. Warns (does not block) on rewriting files with `sed -i`, `perl -i` or a python/node
  *    read-replace-write script (a separate model habit, same doc).
  *
  * Correctly encoded edits are never blocked: pi decodes valid JSON escapes
@@ -53,6 +53,25 @@ export function isFileRewrite(cmd: string): boolean {
 }
 
 export default function (pi: ExtensionAPI) {
+  // Bash rewrites only warn: remember the call, append the warning to its result.
+  const warned = new Set<string>();
+
+  pi.on("tool_result", async (event) => {
+    if (!warned.delete(event.toolCallId)) return;
+    return {
+      content: [
+        ...event.content,
+        {
+          type: "text" as const,
+          text:
+            `\n\nedit-guard warning: that command rewrote files with sed -i / perl -i / a python|node read-replace-write script. ` +
+            `It was allowed, but prefer the edit tool (several changes to one file = one call with multiple edits[]). ` +
+            `Check the result with git diff. See ${DOC}`,
+        },
+      ],
+    };
+  });
+
   pi.on("tool_call", async (event, ctx) => {
     const input = (event.input ?? {}) as any;
 
@@ -88,15 +107,7 @@ export default function (pi: ExtensionAPI) {
     }
 
     if (event.toolName === "bash" && isFileRewrite(String(input.command ?? ""))) {
-      return {
-        block: true,
-        reason:
-          `edit-guard: blocked. This rewrites files with sed -i / perl -i / a python|node read-replace-write script. ` +
-          `Use the edit tool: put several changes to one file in one call as multiple edits[] entries. If oldText fails ` +
-          `to match, read the region and retry with what is actually there. Don't switch to scripting, because a failed match ` +
-          `usually means the oldText was mangled (see ${DOC}). For a genuinely mechanical change across many files, ask ` +
-          `the user first.`,
-      };
+      warned.add(event.toolCallId);
     }
   });
 }
