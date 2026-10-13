@@ -19,6 +19,12 @@ When `$TASK_ID` is set, the file printed by `task state` is your only memory for
 the task across sessions. Read it first if it exists, and bring it up to date
 before your final message. Details: the `task-management` skill.
 
+The **current prompt outranks the state file.** If the two disagree — the state
+records a different objective, or names a report/file the prompt doesn't need —
+say so in one line, record the redirect at the top of the state file, and get to
+work. Never spend turns hunting for artifacts the stale state references; they
+are not needed to do what you were just asked.
+
 ## Forbidden Git Operations
 These commands can destroy your's other agents' work
 - `git reset --hard` - destroys uncommitted changes
