@@ -1,0 +1,166 @@
+/* EPUB stylesheet: serif, black on white, no colour dependence (e-ink safe). */
+
+@namespace epub "http://www.idpf.org/2007/ops";
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", "Liberation Serif", serif;
+  font-size: 1em;
+  line-height: 1.5;
+  text-align: left;
+  padding: 0 4%;
+  color: #000;
+  background: #fff;
+}
+
+h1, h2, h3, h4 {
+  font-weight: bold;
+  line-height: 1.2;
+  color: #000;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 { font-size: 1.8em; margin: 2em 0 0.7em; }
+h2 { font-size: 1.4em; margin: 1.4em 0 0.7em; padding-bottom: 0.15em; border-bottom: 1px solid #555; }
+h3 { font-size: 1.12em; margin: 1.3em 0 0.4em; }
+h4 { font-size: 1em; margin: 1.1em 0 0.35em; }
+
+p { margin: 0 0 0.75em; }
+
+ul, ol { margin: 0 0 0.9em 0; padding-left: 1.4em; }
+li { margin-bottom: 0.35em; }
+li > ul, li > ol { margin-top: 0.35em; }
+
+blockquote {
+  margin: 1.1em 1.2em;
+  padding: 0.5em 1em;
+  border-left: 3px solid #555;
+  font-style: italic;
+}
+blockquote p { margin: 0 0 0.5em; }
+blockquote p:last-child { margin-bottom: 0; }
+
+/* GitHub-style callouts, restyled as a boxed note with a bold label */
+blockquote.callout {
+  border: 1px solid #000;
+  border-left: 8px solid #000;
+  background: #eeeeee;
+  font-style: normal;
+  padding: 0.8em 1em;
+  margin: 1.2em 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+blockquote.callout .callout-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.25em;
+}
+
+code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.9em;
+  background: #f0f0f0;
+  padding: 0 0.15em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.8em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  border: 1px solid #777;
+  padding: 0.6em;
+  margin: 1em 0;
+}
+pre code { background: none; padding: 0; }
+
+/* unified diff: each line is a block, so +/- can be styled without colour */
+pre.diff code { display: block; }
+pre.diff span { display: block; padding-left: 0.4em; }
+pre.diff .add { font-weight: bold; border-left: 3px solid #000; }
+pre.diff .del { font-style: italic; border-left: 3px dotted #000; }
+pre.diff .hunk { background: #e6e6e6; }
+pre.diff .meta { color: #444; }
+
+/* details are always expanded: e-readers handle <details> inconsistently */
+.details {
+  border-left: 2px solid #555;
+  padding-left: 0.8em;
+  margin: 1em 0;
+}
+.details .summary {
+  font-weight: bold;
+  margin: 0 0 0.6em;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 0.85em;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+/* four or more columns: every column gets the same, predictable width */
+table.many-cols { table-layout: fixed; }
+th, td {
+  border: 1px solid #777;
+  padding: 0.35em 0.5em;
+  vertical-align: top;
+  text-align: left;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+th { background: #e6e6e6; font-weight: bold; }
+tr { page-break-inside: avoid; break-inside: avoid; }
+caption { caption-side: top; font-style: italic; }
+
+a { color: #000; text-decoration: none; border-bottom: 1px dotted #666; }
+
+figure {
+  margin: 1.2em 0;
+  text-align: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+figure img { display: block; margin: 0 auto; width: auto; height: auto; }
+
+/* wide diagrams and screenshots: full column width, capped by page height */
+figure.wide img {
+  max-width: 100%;
+  max-height: 88vh;
+}
+
+/* tall images (phone screenshots, portrait flows): narrower so one fits a page */
+figure.tall img {
+  max-width: 58%;
+  max-height: 86vh;
+}
+
+/* a group of tall images gets its own page(s) and may break between them */
+figure.multi {
+  page-break-inside: auto;
+  break-inside: auto;
+}
+figure.multi img {
+  max-width: 55%;
+  max-height: 84vh;
+  margin: 0.5em auto;
+}
+
+.title-page h1 { margin-top: 3em; }
+.title-page .byline { font-size: 1.15em; font-style: italic; margin-bottom: 2em; }
+.title-page hr { border: 0; border-top: 1px solid #555; margin: 2em 15%; }
+
+nav#toc ol { list-style-type: none; padding-left: 0; }
+nav#toc ol li { margin: 0.45em 0; }
