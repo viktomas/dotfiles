@@ -5,15 +5,21 @@ description: Turn a markdown report (or a plain text file) into a validated EPUB
 
 # Reports → EPUB
 
-`mdreport` produces HTML for a browser. This produces a book for a reader with a
-slow screen and no colour. Same markdown source, different output — the markdown
-stays the single source of truth; never hand-edit the EPUB.
+`mdreport` (the `report` skill) produces HTML for a browser. This produces a book
+for a reader with a slow screen and no colour. Same markdown source, different
+output — the markdown stays the single source of truth; never hand-edit the EPUB.
+Everything a report may contain (d2, svg, diff, code, callouts incl. foldable,
+`<details>`) is supported.
+
+Only build a book when I ask for one; a report alone does not need it.
 
 ## One command
 
 ```sh
-scripts/build_epub.py REPORT.md -o REPORT.epub --title "Report title" --author "lifeos"
+~/.pi/agent/skills-shared/epub/scripts/build_epub.py REPORT.md --shots /tmp/shots
 ```
+
+The defaults suit a report: title from its `# ` heading, output `REPORT.epub` beside it.
 
 | flag | meaning |
 |---|---|
@@ -33,8 +39,17 @@ form feeds split parts. Anything with headings deserves a look at
 `--chapter-level` first.
 
 Put the book next to the report (in a task session, in the task's state
-directory, beside the `.md`). `--work` is worth keeping while you iterate so the
-d2 sources and probe renders survive.
+directory, beside the `.md`) and add it to the report's line in the state file.
+`--work` is worth keeping while you iterate so the d2 sources and probe renders
+survive.
+
+### Fixing the source vs. "never edit a report"
+
+The fixes below ("rewrite in the source", "shorten the cell") apply to a report
+you are writing *now*. A report that was already written and handed over is a
+snapshot (see the `report` skill): do not edit it to please the book. Build it as
+is and tell me what reads badly. If it really must change, write a new report
+file, mark the old one superseded, and build the book from the new one.
 
 ## What the script does
 

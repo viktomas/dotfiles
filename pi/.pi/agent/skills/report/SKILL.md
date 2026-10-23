@@ -39,6 +39,27 @@ that is edited in place drifts from reality and nobody can tell whether it still
 the current state. When your understanding changes, write a new report file and, in the
 state file, point at the new one and mark the old one as superseded (and why).
 
+## As a book (optional)
+
+The HTML is the default. Only when I ask for an epub / a book / something for the
+reader, also build one from the **same markdown** with the `epub` skill — never a
+separate copy of the text:
+
+```bash
+~/.pi/agent/skills-shared/epub/scripts/build_epub.py "$r" --shots /tmp/shots-$TASK_ID
+```
+
+The book lands beside the `.md` (`${r%.md}.epub`); list it on the report's line in the
+state file. Write every report so it *could* become a book; it costs nothing in the
+browser:
+
+- Don't let colour alone carry meaning in d2/svg — use a label, dash pattern or border.
+  The book is grayscale.
+- Keep tables to ~4 short columns; put long text in prose or a list.
+- Link to files with an `https://` URL (GitLab/Forgejo blob) when it should stay
+  clickable; a relative link like `./repro.sh` becomes plain text in the book.
+- Prefer one tall d2 diagram (`direction: down`) over one long row of boxes.
+
 ## Format
 
 Standard GFM markdown, plus fenced blocks by info string:
