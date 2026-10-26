@@ -17,3 +17,4 @@ pi/.pi/agent/trust.json
 pi/.pi/agent/subagent-sessions
 pi/.pi/agent/models-store.json
 pi/.pi/agent/kickoff-sessions
+pi/.pi/agent/duo-runs
