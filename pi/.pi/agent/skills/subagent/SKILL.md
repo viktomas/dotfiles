@@ -16,10 +16,17 @@ subagent has its own context; its final answer is the script output.
 
 - `--slug <slug>` — short descriptive id, `[a-z0-9-]` only (e.g. `lsp-auth`).
   Becomes the session id `sub-<slug>` and the display name.
-- `--model <model>` — optional, defaults to `claude-sonnet-5`.
-  - `accounts/fireworks/routers/glm-5p3-fast` - use fast glm5.3 for analysis unless user explicitely said they are away from keyboard, then use sonnet
-  - `claude-sonnet-5` use sonnet for implementation and slower analysis
-  - `claude-opus-5-5` use opus for complex subtask delegation where it's expected to resolve higher uncertainty
+- `--model <model>` — optional, defaults to `sonnet`. A **family name**, resolved
+  through the `pi-model` alias table (`~/.dotfiles/bin/pi-model`, on `$PATH` as
+  `pi-model`), or a full model id, which passes through unchanged. The ids behind
+  the names live in that one file; bump them there, never here.
+  - `glm` — fast glm; use for analysis unless I explicitly said I'm away from the
+    keyboard, then use `sonnet`
+  - `sonnet` — implementation and slower analysis
+  - `opus` — complex subtask delegation where it's expected to resolve higher
+    uncertainty
+  - `deepseek` — cheap bulk work
+  - `pi-model <family>:<thinking>` also takes a thinking level, e.g. `opus:high`
 - `--timeout <seconds>` — optional, defaults to `600`. Raise it for long
   investigations; the run is killed when it expires.
 - prompt — positional, or piped on stdin for long multi-line tasks:
@@ -50,7 +57,7 @@ a time. The parent orchestrates and owns git: worktree, commit, push, MR.
 
 1. **Analyse** (read-only): the subagent returns findings and a concrete plan
    (files, steps, tests to run). Tell it not to edit anything.
-2. **Implement** (`claude-sonnet-5`, `--timeout 1800`): create the worktree
+2. **Implement** (`sonnet`, `--timeout 1800`): create the worktree
    first (`git-worktree` skill), then pass the plan and the worktree path. It
    edits and runs the tests there, and does not commit. Never two at once.
 3. **Review** (a fresh subagent that never saw the implementer's reasoning):

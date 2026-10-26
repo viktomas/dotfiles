@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# pi-model: turn a model family name into a pi model id.
+#
+# Usage: pi-model <family>[:<thinking>]
+#   pi-model opus         -> anthropic/claude-opus-5-5
+#   pi-model opus:high    -> anthropic/claude-opus-5-5:high
+#   pi-model deepseek     -> accounts/fireworks/routers/deepseek-flash-latest
+#   pi-model glm          -> accounts/fireworks/routers/glm-fast-latest
+#
+# Model ids are printed as-is (the id alone, like `defaultModel` in pi's
+# settings.json); the provider prefix is added only when the same id exists on
+# more than one provider, where it is needed to pick one.
+#
+# Prints `[provider/]id[:thinking]`, ready for `pi --model`. Exits 1 (nothing on
+# stdout) when the family doesn't resolve.
+#
+# ── The aliases ──────────────────────────────────────────────────────────────
+# This is the single place to update when a model gets a new version. Every
+# caller goes through here (review autopilot, `make review`, kickoff, and the
+# model named in a kickoff request), so bumping `opus` below moves all of them.
+# An id ending in `-latest` (a provider router that follows the newest release)
+# never needs bumping.
+pi_model_alias() {
+  case $1 in
+    opus) echo anthropic/claude-opus-5-5 ;;
+    sonnet) echo anthropic/claude-sonnet-5-5 ;;
+    haiku) echo anthropic/claude-haiku-5-5 ;;
+    deepseek) echo accounts/fireworks/routers/deepseek-flash-latest ;;
+    glm) echo accounts/fireworks/routers/glm-fast-latest ;;
+    *) return 1 ;;
+  esac
+}
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# A family with no alias is resolved from `pi --list-models` (providers you're
+# logged in to), so a name you never aliased still works:
+#   1. An exact id or `provider/id` is printed as is.#   2. An id containing <family> and ending in `-latest` wins.
+#   3. Otherwise ids that are <family> followed only by a version
+#      (`claude-opus-5-5`, not `-20251101` snapshots or `-fast` variants),
+#      newest by version sort — so 4-10 beats 4-9.
+#   4. Otherwise any non-snapshot id containing <family>, then any at all.
+# Plain `pi --model opus` can't be used instead: pi sorts ids as strings, so it
+# picks `deepseek-*-spot` routers and ranks opus-4-9 above opus-4-10.
+set -euo pipefail
+
+arg=${1:?usage: pi-model <family>[:<thinking>]}
+family=${arg%%:*}
+thinking=""
+[[ $arg == *:* ]] && thinking=":${arg#*:}"
+
+if [[ $family != */* ]] && id=$(pi_model_alias "$family"); then
+  echo "$id$thinking"
+  exit 0
+fi
+
+lower=$(tr '[:upper:]' '[:lower:]' <<<"$family")
+
+# "provider<TAB>id" for every usable model, in pi's order.
+models=$(pi --list-models 2>/dev/null | awk 'NR > 1 && NF >= 2 { print $1 "\t" $2 }')
+[[ -n $models ]] || { echo "pi-model: pi --list-models returned nothing" >&2; exit 1; }
+
+# Dated snapshots: claude-opus-4-5-20251101, gpt-5.1-2025-11-13.
+SNAPSHOT='-[0-9]{8}$|-[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+
+pick() { # stdin: provider<TAB>id lines; prints the chosen id (provider/id if ambiguous across providers)
+  local line id provider count
+  line=$(awk -F'\t' '{ print $2 "\t" NR "\t" $1 }' | sort -t$'\t' -k1,1V -k2,2nr | tail -1)
+  id=$(cut -f1 <<<"$line") provider=$(cut -f3 <<<"$line")
+  count=$(awk -F'\t' -v id="$id" '$2 == id' <<<"$models" | wc -l | tr -d ' ')
+  if ((count > 1)); then echo "$provider/$id"; else echo "$id"; fi
+}
+
+found=""
+if [[ $family == */* ]] && awk -F'\t' -v m="$family" '$1 "/" $2 == m { f = 1 } END { exit !f }' <<<"$models"; then
+  found=$family
+fi
+[[ -z $found ]] && found=$(awk -F'\t' -v m="$family" '$2 == m' <<<"$models" | pick)
+[[ -z $found ]] && found=$(awk -F'\t' -v f="$lower" 'index(tolower($2), f) && $2 ~ /-latest$/' <<<"$models" | pick)
+[[ -z $found ]] && found=$(awk -F'\t' -v f="$lower" -v snap="$SNAPSHOT" '{
+    id = tolower($2); i = index(id, f)
+    if (i && substr(id, i + length(f)) ~ /^(-[0-9]+(\.[0-9]+)?)*$/ && id !~ snap) print
+  }' <<<"$models" | pick)
+[[ -z $found ]] && found=$(awk -F'\t' -v f="$lower" -v snap="$SNAPSHOT" 'index(tolower($2), f) && $2 !~ snap' <<<"$models" | pick)
+[[ -z $found ]] && found=$(awk -F'\t' -v f="$lower" 'index(tolower($2), f)' <<<"$models" | pick)
+
+[[ -n $found ]] || { echo "pi-model: no model matches '$family'" >&2; exit 1; }
+echo "$found$thinking"

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Run a one-shot subagent: no extensions, only shared skills.
 #
-# Usage: subagent.sh --slug <slug> [--model <model>] [--timeout <seconds>] "<prompt>"
+# Usage: subagent.sh --slug <slug> [--model <family|id>] [--timeout <seconds>] "<prompt>"
 
 set -euo pipefail
 
 SESSION_DIR="$HOME/.pi/agent/subagent-sessions"
 SHARED_SKILLS="$HOME/.pi/agent/skills-shared"
-DEFAULT_MODEL="claude-sonnet-5"
+DEFAULT_MODEL="sonnet"
 DEFAULT_TIMEOUT=600
 
 slug=""
@@ -17,10 +17,11 @@ prompt=""
 
 usage() {
   cat >&2 <<EOF
-Usage: ${0##*/} --slug <slug> [--model <model>] [--timeout <seconds>] "<prompt>"
+Usage: ${0##*/} --slug <slug> [--model <family|id>] [--timeout <seconds>] "<prompt>"
 
   --slug <slug>       short descriptive id, [a-z0-9-] only (e.g. lsp-auth)
-  --model <model>     model pattern (default: $DEFAULT_MODEL)
+  --model <family|id> model family (opus, sonnet, glm, deepseek, …) or a full
+                      model id (default: $DEFAULT_MODEL)
   --timeout <seconds> kill the run after this long (default: $DEFAULT_TIMEOUT)
   <prompt>            self-contained task; read from stdin when omitted
 EOF
@@ -89,6 +90,14 @@ fi
 
 [[ -d $SHARED_SKILLS ]] || die "shared skills dir not found: $SHARED_SKILLS"
 mkdir -p "$SESSION_DIR"
+
+# Families (opus, sonnet, glm, deepseek, …) resolve through the `pi-model` alias
+# table in the dotfiles bin (~/bin), so the model ids live in one place. A full
+# id passes through unchanged; if pi-model can't be found or doesn't know the
+# name, the argument goes to pi as typed (pi's own fuzzy match).
+PI_MODEL=$(command -v pi-model || echo "$HOME/bin/pi-model")
+resolved=$("$PI_MODEL" "$model" 2>/dev/null) || resolved=""
+[[ -n $resolved ]] && model=$resolved
 
 # --- run ---------------------------------------------------------------------
 rc=0
