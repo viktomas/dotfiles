@@ -185,7 +185,8 @@ pi -r --session-dir ~/.pi/agent/subagent-sessions
 ```
 
 ## Implementaion details (ignore unless debugging)
-Subagent `pi` runs without extensions and with only the shared skills (`~/.pi/agent/skills-shared`), so it
+Subagent `pi` runs without extensions and with only the shared skills (`~/.agents/skills`,
+the Agent Skills location both pi and GitLab Duo CLI read), so it
 cannot spawn further subagents. Don't ask it to write the task's state file;
 the parent records what matters there.
 

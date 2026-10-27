@@ -46,7 +46,7 @@ reader, also build one from the **same markdown** with the `epub` skill — neve
 separate copy of the text:
 
 ```bash
-~/.pi/agent/skills-shared/epub/scripts/build_epub.py "$r" --shots /tmp/shots-$TASK_ID
+~/.agents/skills/epub/scripts/build_epub.py "$r" --shots /tmp/shots-$TASK_ID
 ```
 
 The book lands beside the `.md` (`${r%.md}.epub`); list it on the report's line in the

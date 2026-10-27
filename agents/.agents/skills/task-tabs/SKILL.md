@@ -10,7 +10,7 @@ Every task runs in a zellij session named `ts-<task-id>` (the prefix comes from 
 Everything goes through one script, which handles the zellij quirks for you:
 
 ```bash
-T=~/.pi/agent/skills-shared/task-tabs/scripts/tabs.sh
+T=~/.agents/skills/task-tabs/scripts/tabs.sh
 
 $T ls                       # every live task session: tabs and panes, grouped by task
 $T ls -v [<id>...]          # the same, plus the last 4 screen lines of every pane

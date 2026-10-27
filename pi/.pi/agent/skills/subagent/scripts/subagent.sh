@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SESSION_DIR="$HOME/.pi/agent/subagent-sessions"
-SHARED_SKILLS="$HOME/.pi/agent/skills-shared"
+SHARED_SKILLS="$HOME/.agents/skills"
 DEFAULT_MODEL="sonnet"
 DEFAULT_TIMEOUT=600
 

@@ -16,7 +16,7 @@ Only build a book when I ask for one; a report alone does not need it.
 ## One command
 
 ```sh
-~/.pi/agent/skills-shared/epub/scripts/build_epub.py REPORT.md --shots /tmp/shots
+~/.agents/skills/epub/scripts/build_epub.py REPORT.md --shots /tmp/shots
 ```
 
 The defaults suit a report: title from its `# ` heading, output `REPORT.epub` beside it.

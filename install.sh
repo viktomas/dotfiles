@@ -29,6 +29,7 @@ stow karabiner
 stow kanata
 stow ghostty
 stow pi
+stow agents
 stow claude
 stow mise
 
