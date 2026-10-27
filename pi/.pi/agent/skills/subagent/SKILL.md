@@ -20,12 +20,11 @@ subagent has its own context; its final answer is the script output.
   through the `pi-model` alias table (`~/.dotfiles/bin/pi-model`, on `$PATH` as
   `pi-model`), or a full model id, which passes through unchanged. The ids behind
   the names live in that one file; bump them there, never here.
-  - `glm` — fast glm; use for analysis unless I explicitly said I'm away from the
-    keyboard, then use `sonnet`
+  - `glm` — fast glm; use for analysis and cheap bulk work unless I explicitly
+    said I'm away from the keyboard, then use `sonnet`
   - `sonnet` — implementation and slower analysis
   - `opus` — complex subtask delegation where it's expected to resolve higher
     uncertainty
-  - `deepseek` — cheap bulk work
   - `pi-model <family>:<thinking>` also takes a thinking level, e.g. `opus:high`
 - `--timeout <seconds>` — optional, defaults to `600`. Raise it for long
   investigations; the run is killed when it expires.

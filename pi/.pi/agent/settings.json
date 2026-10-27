@@ -1,8 +1,8 @@
 {
-  "lastChangelogVersion": "0.87.1",
+  "lastChangelogVersion": "1.4.0",
   "hideThinkingBlock": true,
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-5-5",
+  "defaultProvider": "fireworks",
+  "defaultModel": "accounts/fireworks/routers/glm-5p3-fast",
   "defaultThinkingLevel": "medium",
   "npmCommand": [
     "mise",

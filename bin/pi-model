@@ -4,8 +4,7 @@
 # Usage: pi-model <family>[:<thinking>]
 #   pi-model opus         -> anthropic/claude-opus-5-5
 #   pi-model opus:high    -> anthropic/claude-opus-5-5:high
-#   pi-model deepseek     -> accounts/fireworks/routers/deepseek-flash-latest
-#   pi-model glm          -> accounts/fireworks/routers/glm-fast-latest
+#   pi-model glm          -> accounts/fireworks/routers/glm-5p3-fast
 #
 # Model ids are printed as-is (the id alone, like `defaultModel` in pi's
 # settings.json); the provider prefix is added only when the same id exists on
@@ -25,8 +24,7 @@ pi_model_alias() {
     opus) echo anthropic/claude-opus-5-5 ;;
     sonnet) echo anthropic/claude-sonnet-5-5 ;;
     haiku) echo anthropic/claude-haiku-5-5 ;;
-    deepseek) echo accounts/fireworks/routers/deepseek-flash-latest ;;
-    glm) echo accounts/fireworks/routers/glm-fast-latest ;;
+    glm) echo accounts/fireworks/routers/glm-5p3-fast ;;
     *) return 1 ;;
   esac
 }
@@ -40,7 +38,7 @@ pi_model_alias() {
 #      newest by version sort — so 4-10 beats 4-9.
 #   4. Otherwise any non-snapshot id containing <family>, then any at all.
 # Plain `pi --model opus` can't be used instead: pi sorts ids as strings, so it
-# picks `deepseek-*-spot` routers and ranks opus-4-9 above opus-4-10.
+# picks spot routers and ranks opus-4-9 above opus-4-10.
 set -euo pipefail
 
 arg=${1:?usage: pi-model <family>[:<thinking>]}

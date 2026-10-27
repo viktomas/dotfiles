@@ -20,7 +20,7 @@ usage() {
 Usage: ${0##*/} --slug <slug> [--model <family|id>] [--timeout <seconds>] "<prompt>"
 
   --slug <slug>       short descriptive id, [a-z0-9-] only (e.g. lsp-auth)
-  --model <family|id> model family (opus, sonnet, glm, deepseek, …) or a full
+  --model <family|id> model family (opus, sonnet, glm, …) or a full
                       model id (default: $DEFAULT_MODEL)
   --timeout <seconds> kill the run after this long (default: $DEFAULT_TIMEOUT)
   <prompt>            self-contained task; read from stdin when omitted
@@ -91,7 +91,7 @@ fi
 [[ -d $SHARED_SKILLS ]] || die "shared skills dir not found: $SHARED_SKILLS"
 mkdir -p "$SESSION_DIR"
 
-# Families (opus, sonnet, glm, deepseek, …) resolve through the `pi-model` alias
+# Families (opus, sonnet, glm, …) resolve through the `pi-model` alias
 # table in the dotfiles bin (~/bin), so the model ids live in one place. A full
 # id passes through unchanged; if pi-model can't be found or doesn't know the
 # name, the argument goes to pi as typed (pi's own fuzzy match).
