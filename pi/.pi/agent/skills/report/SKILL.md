@@ -23,7 +23,13 @@ mdreport report.md
 
 Output defaults to `<filename.md without md suffix>.html` in the system temp folder and opens in the
 browser. The generated HTML is for the human user only — NEVER read it, NEVER touch it.
-An invalid `d2` or `svg` block aborts with exit 1, naming the block type and line. 
+An invalid `d2` or `svg` block aborts with exit 1, naming the block type and line.
+
+**Never pass an explicit output path.** The temp folder is the point: the HTML is an ephemeral,
+browser-only view that dies with the temp dir, while the `.md` is the durable artifact a later
+session can find and re-render. Writing the HTML into the workspace (next to the `.md`, into the
+task state dir, anywhere tracked) doubles the artifact and goes stale the moment the markdown
+moves. Only render somewhere persistent when the user explicitly asks for a keepable HTML file. 
 
 ## Keeping the report with the task
 
@@ -123,6 +129,37 @@ console.log('hello world');
  }
 ```
 ````
+
+## Writing it (avoid LLM tells)
+
+**Every sentence must contain something that could be wrong:** a date, a count, a state
+(merged/open/closed), a named alternative. Cut anything nobody could disagree with.
+
+Banned:
+
+- Antithesis: `not X, but Y`, `isn't just`, `not merely`.
+- Participial significance tails (`, demonstrating…`, `, ensuring…`): delete, state the fact.
+- Excess vocabulary: delve, showcase, underscore, pivotal, crucial, robust, seamless,
+  leverage, holistic, comprehensive, testament, landscape, nuanced, load-bearing.
+- Copula avoidance: `serves as`, `functions as`, `represents a` → `is`.
+- Significance inflation (`transformative`, `game-changing`); rule-of-three on every list.
+- Punchy fragments after a full sentence (`Not a detail. A design decision.`); em-dash pile-ups.
+
+Instead: numbers over adjectives (`72s → 13s`), name the real alternative that existed, one
+claim per sentence, dates from the API/source (not `recently`/`now`), tables for state, not prose.
+Diagrams and tables carry the structure, so prose stays short; never restate a diagram in prose.
+
+Before rendering, grep the finished file, read every hit, and fix by hand:
+
+```bash
+grep -nEi "not (just|only|merely|simply)|isn't just|it's not" "$r"
+grep -nEi ", (ensuring|highlighting|underscoring|showcasing|demonstrating|reflecting|emphasizing|enabling|allowing|driving|fostering|proving)" "$r"
+grep -nEiw "delve|showcase|underscore|pivotal|crucial|intricate|robust|seamless|leverage|holistic|comprehensive|testament|landscape|realm|nuanced|multifaceted|invaluable|load-bearing|significant" "$r"
+grep -nEi "serves as|functions as|stands as|represents a|marks a|emerged as" "$r"
+grep -nEi "transformative|game.?chang|paradigm|recently|currently" "$r"
+```
+
+Fix hollow constructions only; leave dashes and triples that carry a fact.
 
 ## If `mdreport` binary is missing
 
