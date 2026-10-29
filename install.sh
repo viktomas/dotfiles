@@ -37,6 +37,20 @@ stow mise
 stow yabai
 stow skhd
 
+### zellij-hints plugin (github.com/viktomas/zellij-hints)
+# The pane-mode `u` keybind loads the wasm built from this clone:
+if ! [ -d "$HOME/workspace/private/zellij-hints" ]; then
+    mkdir -p "$HOME/workspace/private"
+    git clone git@github.com:viktomas/zellij-hints.git "$HOME/workspace/private/zellij-hints"
+fi
+if command -v cargo >/dev/null 2>&1; then
+    (cd "$HOME/workspace/private/zellij-hints" \
+        && rustup target add wasm32-wasip1 \
+        && cargo build --target wasm32-wasip1 --release)
+else
+    echo "cargo not found - skipped building zellij-hints (needed by the pane-mode u keybind)"
+fi
+
 ### NeoVim
 stow nvim
 # Create files for vim backup/undo
