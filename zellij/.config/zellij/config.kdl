@@ -72,6 +72,27 @@ keybinds clear-defaults=true {
             };
             SwitchToMode "normal"
         }
+        // zellij-hints (kitty-hints / tmux-thumbs style): overlays the
+        // focused pane with letter labels on URLs and paths. Lowercase
+        // label: open URL / copy path. Uppercase: copy URL / copy+paste
+        // path into the pane. Esc cancels. Source: ~/.dotfiles/zellij-hints
+        bind "u" {
+            TogglePaneFrames;
+            LaunchOrFocusPlugin "file:/Users/tomas/.dotfiles/zellij-hints/target/wasm32-wasip1/release/zellij-hints.wasm" {
+                floating true
+                skip_cache true // dev: pick up rebuilt wasm without restarting zellij
+                // defaults shown; uncomment to override:
+                // alphabet "abcdefghijklmnopqrstuvwxyz"
+                // url_fg "#00afff"
+                // path_fg "#50fa7b"
+                // dim true
+                // paste_on_uppercase true
+                // open_command "open"
+                // patterns "url,path"
+                // unique true
+            }
+            SwitchToMode "normal"
+        }
         bind "j" { MoveFocus "down"; }
         bind "k" { MoveFocus "up"; }
         bind "left" { MoveFocus "left"; }
