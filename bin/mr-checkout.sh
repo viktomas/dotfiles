@@ -9,6 +9,21 @@ set -euo pipefail
 #
 # STDOUT: the final worktree/checkout path (machine-readable)
 # STDERR: all human-facing progress messages
+#
+# MR_CHECKOUT_NONINTERACTIVE=1: never prompt on /dev/tty — fail (exit 1) on
+# local changes instead. Automation (review-autopilot.sh → review-mr.sh) runs
+# inside a zellij pane that *has* a controlling tty, so without this the
+# "Discard changes?" prompt blocks the whole run forever.
+
+# confirm_discard <what> — 0 to discard, 1 to keep, exits 1 when non-interactive
+confirm_discard() {
+    if [ "${MR_CHECKOUT_NONINTERACTIVE:-0}" = "1" ]; then
+        echo "error: $1 has uncommitted changes; refusing to prompt (MR_CHECKOUT_NONINTERACTIVE=1)" >&2
+        exit 1
+    fi
+    read -r -p "Discard changes and update? [y/N] " answer </dev/tty >&2
+    [ "$answer" = "y" ] || [ "$answer" = "Y" ]
+}
 
 json=$(cat)
 
@@ -68,8 +83,7 @@ if [ "$is_bare" = "true" ]; then
             git -C "$worktree_path" diff --stat >&2
             git -C "$worktree_path" diff --cached --stat >&2
             echo "" >&2
-            read -r -p "Discard changes and update? [y/N] " answer </dev/tty >&2
-            if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
+            if ! confirm_discard "worktree $worktree_path"; then
                 echo "Keeping existing worktree as-is." >&2
                 echo "$worktree_path"
                 exit 0
@@ -161,8 +175,7 @@ if [ "$current_branch" = "$local_branch" ]; then
         git diff --stat >&2
         git diff --cached --stat >&2
         echo "" >&2
-        read -r -p "Discard changes and update? [y/N] " answer </dev/tty >&2
-        if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
+        if ! confirm_discard "checkout $local_dir"; then
             echo "Keeping as-is." >&2
             echo "$local_dir"
             exit 0
