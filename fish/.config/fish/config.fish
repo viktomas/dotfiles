@@ -22,9 +22,15 @@ if status is-interactive
         bind --mode insert \cf forward-char
         bind --mode default gcc "fish_commandline_prepend '#'"
         bind --mode insert \c_ "fish_commandline_prepend '#'"
-        bind --mode insert ctrl-alt-l fzf_git_log
+        # alt+l = hold s (left ring, HRM alt), tap l (right). Single modifier,
+        # opposite hands — kanata's same-hand rule makes multi-mod or same-hand
+        # chords resolve to plain letters instead.
+        bind --mode insert \el fzf_git_log
         bind --mode insert ctrl-alt-p fzf_process_search
-        bind --mode insert ctrl-alt-f fzf_file
+        # alt+f = hold l (right ring, HRM alt), tap f (left). Single modifier,
+        # opposite hands — kanata's same-hand rule makes multi-mod or same-hand
+        # chords (e.g. ctrl-alt-f) resolve to plain letters instead.
+        bind --mode insert \ef fzf_file
         bind --mode insert \cx zummoner
     end
 
