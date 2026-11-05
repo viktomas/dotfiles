@@ -26,17 +26,13 @@ work. Never spend turns hunting for artifacts the stale state references; they
 are not needed to do what you were just asked.
 
 ## Forbidden Git Operations
-These commands can destroy your's other agents' work
-- `git reset --hard` - destroys uncommitted changes
-- `git checkout .` - destroys uncommitted changes
-- `git clean -fd` - deletes untracked files
-- `git stash` - stashes ALL changes including other agents' work
-- `git add -A` / `git add .` - stages other agents' uncommitted work
-- `git commit --no-verify` - bypasses required checks and is never allowed
-- `git commit` - don't commit unless asked
 
-
-You can only use them on direct user request.
+The `git-guard` extension blocks destructive git ops in agent sessions
+(`reset --hard`, `checkout .`, `clean -fd`, `stash`, `add -A` / `add .`,
+`commit --no-verify`) — they can destroy your or other agents' uncommitted
+work. `git commit` itself is allowed but only on request — don't commit
+unless asked. If a blocked op is genuinely needed, Tomas runs it himself in
+his terminal.
 
 ## Git Interactive Commands
 
