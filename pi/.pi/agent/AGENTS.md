@@ -38,13 +38,6 @@ These commands can destroy your's other agents' work
 
 You can only use them on direct user request.
 
-## Editing Files
-
-Edit files with the `edit` tool. If `oldText` does not match, `read` the region
-and retry with what is actually there. Do not fall back to `python` string
-splicing (`s.index(...)`) or `sed -i` to rewrite a block — those edits are
-unreviewable and silently miss neighbouring occurrences.
-
 ## Git Interactive Commands
 
 Commands like `git rebase --continue`, `git merge --continue`, and `git commit` open an editor and hang when run non-interactively. Always prefix with `GIT_EDITOR=true` to auto-accept the default message:
@@ -54,3 +47,12 @@ GIT_EDITOR=true git rebase --continue
 GIT_EDITOR=true git merge --continue
 ```
 
+## Orbit
+
+Code search, code reading, GitLab reading and graph queries go through the
+`orbit` skill's `glab orbit` commands (`grep` / `context` / `query`) — not
+grep/rg or raw `glab api` — because the graph sees what they can't. Load the
+skill for syntax and rules.
+
+(Replaces the auto-generated `glab orbit setup` block — if setup re-adds it,
+prune again and consider `glab orbit uninstall`.)
