@@ -116,6 +116,75 @@ preflight() {
 }
 preflight
 
+# --- fleet registration ----------------------------------------------------------
+# runs/<runId>.json (contract v1, same as subagent.sh): written now, rewritten on
+# exit with endedAt/rc/timedOut. rc is this script's exit status (0/2/3);
+# timedOut reflects Duo's own exit (124/137 = hard timeout). Never deleted,
+# pruned after 7 days. Best-effort: a failed write never changes the exit status.
+# Installed after preflight(), which uses (and resets) its own EXIT trap.
+FLEET_DIR="${TASK_FLEET_DIR:-$HOME/.pi/agent/fleet}"
+PI_MODEL="$(command -v pi-model || echo "$HOME/bin/pi-model")"
+derive_goal() { # one line, <=100 chars, from $goal; haiku with first-line fallback
+  local g="" gm="${FLEET_GOAL_MODEL-haiku}" gid
+  if [[ -n $gm ]]; then
+    gid=$("$PI_MODEL" "$gm" 2>/dev/null) || gid=""
+    [[ -n $gid ]] || gid="$gm"
+    g=$(printf %s "$goal" | head -c 8000 | timeout 10 pi -p --no-session -ne -ns -np -nc -nt \
+      --no-themes --thinking off --model "$gid" \
+      "The piped text is a task given to an AI agent. Reply with ONE line (at most 100 characters) summarizing what the agent is asked to do. Do not do the task and do not answer it; output only the summary line." \
+      2>/dev/null) || g=""
+    g=$(printf '%s\n' "$g" | awk 'NF {print; exit}') || g=""
+  fi
+  if [[ -z ${g//[[:space:]]/} ]]; then
+    g=$(printf '%s\n' "$goal" | awk 'NF {print; exit}') || g=""
+  fi
+  g="${g#"${g%%[![:space:]]*}"}"
+  g="${g%"${g##*[![:space:]]}"}"
+  printf '%s' "${g:0:100}"
+}
+fleet_epoch=$(date +%s)
+fleet_runid="$slug-$fleet_epoch-$$"
+FLEET_RUN_FILE="$FLEET_DIR/runs/$fleet_runid.json"
+fleet_write() { # $1 = jq filter applied on top of the current record; extra args go to jq
+  local f="$1" tmp="$FLEET_RUN_FILE.tmp"
+  shift
+  { jq "$@" "$f" "$FLEET_RUN_FILE" >"$tmp" && mv "$tmp" "$FLEET_RUN_FILE"; } 2>/dev/null || rm -f "$tmp" 2>/dev/null || true
+}
+fleet_start() {
+  local pane="" goal_line
+  mkdir -p "$FLEET_DIR/runs"
+  find "$FLEET_DIR/runs" -maxdepth 1 -name '*.json' -mtime +7 -delete 2>/dev/null || true
+  [[ -n ${ZELLIJ_PANE_ID:-} ]] && pane="terminal_$ZELLIJ_PANE_ID"
+  goal_line="$(derive_goal || true)"
+  jq -n \
+    --arg runId "$fleet_runid" --arg slug "$slug" --arg model "$model_id" --arg goal "$goal_line" \
+    --arg cwd "$cwd" --arg dir "$dir" --arg log "$E" \
+    --argjson epoch "$fleet_epoch" --argjson timeoutS "$timeout_s" --argjson pid "$$" \
+    --argjson resumed "$([[ -n $resume ]] && echo true || echo false)" \
+    --arg task "${TASK_ID:-}" --arg psession "${PI_SESSION_ID:-}" \
+    --arg psfile "${PI_SESSION_FILE:-}" --arg zsession "${ZELLIJ_SESSION_NAME:-}" \
+    --arg pane "$pane" --arg prunId "${FLEET_RUN_ID:-}" \
+    '{v: 1, runId: $runId, kind: "duo", slug: $slug, model: $model, goal: $goal,
+      cwd: $cwd, runDir: $dir, logFile: $log, sessionId: "", startedAt: ($epoch | todate),
+      timeoutS: $timeoutS, deadline: ($epoch + $timeoutS | todate), scriptPid: $pid,
+      resumed: $resumed,
+      parent: {task: $task, session: $psession, sessionFile: $psfile,
+               zellijSession: $zsession, pane: $pane, runId: $prunId}}' \
+    >"$FLEET_RUN_FILE.tmp" && mv "$FLEET_RUN_FILE.tmp" "$FLEET_RUN_FILE"
+}
+fleet_finish() { # $1 = this script's exit status
+  [[ -f $FLEET_RUN_FILE ]] || return 0
+  local duo_rc="${rc:-0}"
+  [[ $duo_rc =~ ^[0-9]+$ ]] || duo_rc=0
+  fleet_write '. + {endedAt: (now | floor | todate), rc: $ec, timedOut: ($duo == 124 or $duo == 137)}
+               | if $sid != "" then .sessionId = $sid else . end' \
+    --argjson ec "$1" --argjson duo "$duo_rc" --arg sid "${sid:-}"
+}
+fleet_start 2>/dev/null || true
+trap 'ec=$?; fleet_finish "$ec" || true; exit "$ec"' EXIT
+# The checker subagent.sh inherits FLEET_RUN_ID and records it as parent.runId.
+export FLEET_RUN_ID="$fleet_runid"
+
 # --- goal ----------------------------------------------------------------------
 if ((read_only)); then
   goal="READ-ONLY TASK: do not create, edit or delete any files and do not run commands that change the repository or system state. Only read, search and run read-only commands.

@@ -11,11 +11,12 @@ subagent has its own context; its final answer is the script output.
 ## Invocation
 
 ```bash
-~/.pi/agent/skills/subagent/scripts/subagent.sh --mode <model> --slug <slug> "<task>"
+~/.pi/agent/skills/subagent/scripts/subagent.sh --slug <slug> [--model <model>] "<task>"
 ```
 
 - `--slug <slug>` — short descriptive id, `[a-z0-9-]` only (e.g. `lsp-auth`).
-  Becomes the session id `sub-<slug>` and the display name.
+  Becomes the display name and part of the session id `sub-<slug>-<epoch>`
+  (unique per run; reusing a slug no longer appends to an old session).
 - `--model <model>` — optional, defaults to `sonnet`. A **family name**, resolved
   through the `pi-model` alias table (`~/.dotfiles/bin/pi-model`, on `$PATH` as
   `pi-model`), or a full model id, which passes through unchanged. The ids behind
@@ -34,8 +35,15 @@ subagent has its own context; its final answer is the script output.
 echo "$long_prompt" | ~/.pi/agent/skills/subagent/scripts/subagent.sh --slug lsp-auth
 ```
 
-A `Warning: No project session found with id ...; creating a new session` line on
-stderr is expected and harmless.
+- `--resume <sessionId>` — optional. Continues an earlier session on purpose
+  (new prompt, full previous context). Pass the id from the `session:` line of
+  that run. Fails fast (exit 1) if no such session exists. Without it every run
+  starts a fresh session, even with a reused `--slug`.
+
+Every run ends with `subagent.sh: session: sub-<slug>-<epoch> (<file>)` on
+stderr (success or failure), so capture stderr (`2>&1` or a file) when you may
+want to resume or inspect it. The goal shown in the fleet view is derived
+automatically (haiku summary of the prompt); callers pass nothing extra.
 
 ## Parallel research
 
@@ -164,7 +172,7 @@ On failure the script prints the exit reason and the session file path to stderr
 Inspect that transcript — the last entry is the step it hung on:
 
 ```bash
-F=$(ls -t ~/.pi/agent/subagent-sessions/*sub-<slug>.jsonl | head -1)
+F=$(ls -t ~/.pi/agent/subagent-sessions/*_sub-<slug>-*.jsonl | head -1)  # or the path on the `session:` line
 
 # timeline: role / tool calls, no bulky text
 jq -rc 'select(.type=="message") | [.timestamp, .message.role,
@@ -190,5 +198,42 @@ the Agent Skills location both pi and GitLab Duo CLI read), so it
 cannot spawn further subagents. Don't ask it to write the task's state file;
 the parent records what matters there.
 
+Each run registers itself in `~/.pi/agent/subagent-sessions/active/<pid>.json`
+(slug, model, parent task from `$TASK_ID`, goal, start time) and removes the
+file on exit — so the file's presence means "running". `work/scripts/fleet.sh`
+renders the fleet from those files plus `task list --json`.
+
 The script hardcodes the session dir, the isolation flags and `--`, and wraps the
-run in `timeout` so it can never hang forever.
+run in `timeout -k 30` so it can never hang forever.
+
+**Session ids.** `subagent.sh` passes `--session-id sub-<slug>-<epoch>` (epoch =
+launch time), so each run is a new session file
+`<session-dir>/<timestamp>_sub-<slug>-<epoch>.jsonl`. pi's `No project session
+found with id …; creating a new session` stderr warning is filtered out (only
+that line). `--resume <id>` checks that `*_<id>.jsonl` exists, then reuses the
+id; the run record gets `resumed: true`. `duo-subagent.sh` is unchanged here: it
+already has unique run dirs and its own numeric `--resume`.
+
+**Fleet record** (observability, contract v1). Both scripts write
+`${TASK_FLEET_DIR:-~/.pi/agent/fleet}/runs/<runId>.json`, `runId =
+<slug>-<epoch>-<pid>`, atomically (tmp + mv):
+`{v, runId, kind: "pi-sub"|"duo", slug, model (resolved id), goal, cwd, sessionId,
+startedAt, timeoutS, deadline, scriptPid, resumed, parent: {task, session,
+sessionFile, zellijSession, pane ("terminal_<n>"), runId}}`; duo adds `runDir`
+and `logFile` (`<runDir>/stderr.log`; `sessionId` is `""` until the run ends,
+then the scraped Duo id). Timestamps are ISO-8601 UTC strings; unset values are
+`""`, never null. An exit trap adds `endedAt`, `rc`, `timedOut` (pi-sub: timedOut when rc is
+124 or 137; duo: Duo's own exit was 124/137, `rc` is the script's 0/2/3). A run
+SIGKILLed with its process group (parent Esc/timeout) never gets those fields.
+Files are never deleted by the script, except records older than 7 days at
+launch. Fleet writes are best-effort and never change the exit status.
+
+The `goal` is derived at launch, synchronously (~1s): the prompt (first 8000
+chars) is piped to `pi -p --no-session -ne … --model $(pi-model haiku)` with an
+instruction to summarize in one line (≤100 chars), falling back to the prompt's
+first non-empty line on any failure. `FLEET_GOAL_MODEL=<family>` changes the
+model; `FLEET_GOAL_MODEL=` (empty) skips the model call. The scripts export
+`FLEET_RUN_ID`, `FLEET_PARENT_SESSION` and `FLEET_DEADLINE` (subagent.sh) to pi;
+a nested run records the inherited `FLEET_RUN_ID` as `parent.runId` (duo → its
+checker). `subagent.sh` adds `-e ~/.pi/agent/extensions/fleet.ts` only when that
+file exists.
