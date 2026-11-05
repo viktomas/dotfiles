@@ -1,6 +1,6 @@
 ---
 name: mr-review
-description: Review a GitLab merge request — read diffs, analyze changes, present findings, and optionally post comments on the MR
+description: Use when asked to review a GitLab merge request right here — by IID, URL, or the current branch's MR, ad-hoc in any session or repo — and optionally post the findings as MR comments. Not for local, uncommitted or pasted diffs (`review`), launching a dedicated review-task session (`gitlab-mr-review`), or comment/note mechanics alone (`gitlab-mr-comments`).
 ---
 
 # MR Review
@@ -27,6 +27,8 @@ Run the context script. Pass `--mr <IID>` if the user provided one, otherwise om
 ```
 
 The script outputs structured sections (`=== TOOLS ===`, `=== BRANCH_STATE ===`, `=== MR_METADATA ===`, `=== REVIEW_INSTRUCTIONS ===`, `=== DIFFS ===`). Read the output and follow any `hint:` instructions — the script tells you when data is missing and what to do (e.g. use DWS tools, ask the user to choose a diff source, re-run with `--diff-source local` or `--diff-source remote`).
+
+**Re-review** (the author responded to an earlier round): also run `glab mr note list --state unresolved` and check whether each of your earlier threads was addressed before adding new findings.
 
 ### 2. Analyze the diffs
 
