@@ -193,15 +193,19 @@ pi -r --session-dir ~/.pi/agent/subagent-sessions
 ```
 
 ## Implementaion details (ignore unless debugging)
-Subagent `pi` runs without extensions and with only the shared skills (`~/.agents/skills`,
+Subagent `pi` runs without extensions (except `fleet.ts`, see below) and with only the shared skills (`~/.agents/skills`,
 the Agent Skills location both pi and GitLab Duo CLI read), so it
 cannot spawn further subagents. Don't ask it to write the task's state file;
 the parent records what matters there.
 
-Each run registers itself in `~/.pi/agent/subagent-sessions/active/<pid>.json`
-(slug, model, parent task from `$TASK_ID`, goal, start time) and removes the
-file on exit — so the file's presence means "running". `work/scripts/fleet.sh`
-renders the fleet from those files plus `task list --json`.
+**Watching the fleet:** `task fleet` (or `task fleet --watch 5s` in a zellij
+tab, `--json` for scripts) shows every interactive agent and subagent: goal,
+elapsed/timeout, phase, current command, and derived states (dead, killed,
+frozen, stalled-model, overdue, orphan …). It reads the run records below plus
+`fleet.ts`'s `live/`/`ended/` files and the task registry.
+
+Legacy (until `work/scripts/fleet.sh` is retired): each run also writes
+`~/.pi/agent/subagent-sessions/active/<pid>.json` and removes it on exit.
 
 The script hardcodes the session dir, the isolation flags and `--`, and wraps the
 run in `timeout -k 30` so it can never hang forever.
