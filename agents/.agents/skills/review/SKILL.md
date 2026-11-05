@@ -1,86 +1,108 @@
 ---
 name: review
-description: code changes review, use this skill any time I ask you to review a change
+description: Use when asked to review a change in this session — a pasted diff, uncommitted or local changes, a commit, or a GitLab merge request by IID, URL or current branch — and optionally post the findings as MR comments. Not for launching a dedicated review-task session (`gitlab-mr-review`) or comment/note mechanics alone (`gitlab-mr-comments`).
 ---
 
-## Preparation
+# Review
 
-If the working directory contains changes, first make sure if I want to review only the uncommitted changes or the full diff with main.
+One rubric for every change. Get the diff and its context, review it, present findings. MR reviews may end with posting comments, but only after I confirm.
 
-If the working directory is clean or user wishes to diff with main, find merge base with main and review changes from there.
+## 1. Get the change
 
-For context, use the gitlab-api skill to find the MR description and all relevant/referenced issues and MRs, try to get as much context as you can to understand the changes. If the MR has green pipeline, then don't run tests/compilation.
+- **Pasted diff**: review it as given.
+- **Commit**: `git show <sha>`.
+- **Local changes**: if the working directory has changes, ask whether I want only the uncommitted changes or the full diff with main. If it's clean (or I want the full diff), find the merge base with main and review from there.
+- **GitLab MR** (IID, URL or the current branch's MR): run the context script from the MR's local repo (find it with the `projects` skill; with a URL, pass its IID):
 
-Fish for any relevant architecture.md files that are in the same path as changed files. (`fd -i architecture.md`).
+  ```bash
+  ~/.agents/skills/review/scripts/get-mr-context.sh [--mr <IID>] [--diff-source local|remote]
+  ```
 
-Once you have GitLab context, diff and relevant architecture documentation, do a full change review:
+  It prints `=== TOOLS ===`, `=== BRANCH_STATE ===`, `=== MR_METADATA ===`, `=== REVIEW_INSTRUCTIONS ===`, `=== DIFFS ===`. Follow its `hint:` lines (e.g. dirty branch → ask me local vs remote, re-run with `--diff-source`). Treat `REVIEW_INSTRUCTIONS` as repo rules for this review.
+  **Re-review** (author answered an earlier round): also run `glab mr note list --state unresolved`; for each of my earlier threads decide addressed / partly / ignored before adding new findings, and don't re-raise points I already made.
 
-## Review output
+## 2. Gather context
 
-Lead with a high level explanation of why the MR is need and how it achieves the goal.
+- MR description plus every referenced issue and MR (`glab`, or the `gitlab-api` skill). Get as much context as you can on *why* the change exists.
+- Relevant `architecture.md` files next to the changed paths (`fd -i architecture.md`).
+- If the MR pipeline is green, don't run tests or compilation.
 
-Then show me five key snippets that support best the story of the MR and explain how key parts work.
-
-Identify places with the highest complexity (see dedicated section)
-
-Then give me a list of issues that match the following critiria and in the format according tho the following guidelines
-
-## Issue criteria
+## 3. Issue criteria
 
 Report issues that:
 
-1. Meaningfully impact the accuracy, performance, security, or maintainability of the code.
-2. Are discrete and actionable (not general issues or multiple combined issues).
+1. Meaningfully impact correctness, performance, security, or maintainability (logic/edge cases, races, injection/auth/secrets, N+1, unbounded work, missing error handling).
+2. Are discrete and actionable — one issue per finding.
 3. Don't demand rigor inconsistent with the rest of the codebase.
-4. Were introduced in the changes being reviewed (not pre-existing bugs).
-5. Don't rely on unstated assumptions about the codebase or author's intent.
-6. IMPORTANT: Have provable impact on other parts of the code — it is not enough to speculate that a change may disrupt another part, you must identify the parts that are provably affected.
-7. Be particularly careful with untrusted user input and follow the specific guidelines to review.
-8. Comments in the code that explain WHAT the code does. I only want comments that explain WHY (reason not already obvious in the code)
-9. Unnecessary tests. If a test is duplicate or tests something trivial, let's remove it.
+4. Were introduced by the change being reviewed (not pre-existing bugs).
+5. Don't rely on unstated assumptions about the codebase or author's intent, and are clearly not intentional.
+6. IMPORTANT: Have provable impact — don't speculate that a change may break another part; identify the parts provably affected.
+7. Touch untrusted user input (see below).
+8. Code comments that explain WHAT the code does. I only want comments that explain WHY.
+9. Unnecessary tests — duplicates or tests of something trivial.
 
-## Untrusted User Input
+Don't flag style nits unless they obscure meaning or break documented standards.
 
-When you spot a new user input (CLI flag, Input field, URL parameter, Config file), trace where the input is used and if it can affect execution in any way. Always assume that somebody will try to exploit that input, what is the blast radius? Could it be used to run arbitrary code?
+### Untrusted user input
 
-- If the input comes from user (e.g. CLI args or global settings in the user directory), it's probably OK that that input can run arbitrary code.
-- If the input comes from a project (i.e. loaded from untrusted project settings that could be arbitrary repo on the internet), we cannot let that code trigger arbitrary code without user approval
+For every new input (CLI flag, input field, URL parameter, config file), trace where it's used and whether it can affect execution. Assume someone will try to exploit it: what's the blast radius, can it run arbitrary code?
 
-## Complexity
+- Input from the user (CLI args, global settings in the user's home): running arbitrary code is probably OK.
+- Input from a project (untrusted project settings, any repo from the internet): must not trigger arbitrary code without user approval.
 
-Be on a lookout for (accidental) complexity. The MR doesn't have to introduce it, it can only contribute to it.
+### Complexity
 
-- Could we move some complex algorithm at least partially in datastructures? 
-- Flag parts of the code that seem too complex for what the goal/mental model of the logic is.
-- Feel free to suggest a partial re-architecture if it clealry simplifies the code.
+Look out for (accidental) complexity — the change may only contribute to it.
 
-## Comment guidelines
+- Could part of a complex algorithm move into data structures?
+- Flag code that seems too complex for the goal/mental model of the logic.
+- Suggest a partial re-architecture if it clearly simplifies the code.
 
-1. Be clear about why the issue is a problem.
-2. Communicate severity appropriately - don't exaggerate.
-3. Be brief - at most 1 paragraph.
-4. Keep code snippets under 3 lines, wrapped in inline code or code blocks.
-5. Use \`\`\`suggestion blocks ONLY for concrete replacement code (minimal lines; no commentary inside the block). Preserve the exact leading whitespace of the replaced lines.
-6. Explicitly state scenarios/environments where the issue arises. IMPORTANT: Focus on the impact on the user or app stability
-7. Use a matter-of-fact tone - helpful AI assistant, not accusatory.
-8. Write for quick comprehension without close reading.
-9. Avoid excessive flattery or unhelpful phrases like "Great job...".
+### Review priorities
 
-## Review priorities
-
-1. Call out newly added dependencies explicitly and explain why they're needed.
+1. Call out newly added dependencies and explain why they're needed.
 2. Prefer simple, direct solutions over wrappers or abstractions without clear value.
 3. Favor fail-fast behavior; avoid logging-and-continue patterns that hide errors.
-4. Prefer predictable production behavior; crashing is better than silent degradation.
-5. Ensure that errors are always checked against codes or stable identifiers, never error messages.
+4. Prefer predictable production behavior; crashing beats silent degradation.
+5. Check errors against codes or stable identifiers, never error messages.
 
-## Priority levels
+### Priority levels
 
-Tag each finding with a priority level in the title:
-- [P1] - Urgent. Should be addressed before merging to main.
-- [P2] - Normal. To be fixed eventually.
-- [P3] - Low. Nice to have.
+Tag each finding in its title:
+- **[P1]** Urgent — fix before merging.
+- **[P2]** Normal — fix eventually.
+- **[P3]** Low — nice to have.
+
+## 4. Output
+
+1. **Verdict**: looks good / needs attention. With no qualifying findings, say explicitly that the code looks good.
+2. High-level explanation of why the change is needed and how it achieves the goal.
+3. Five key snippets that best tell the story of the change, explaining how the key parts work.
+4. The places with the highest complexity.
+5. Findings, each as:
+
+   ```
+   **[P1] Title of finding**
+   File: `path/to/file.ext`, lines 42–48
+   Why it's a problem, when it happens, what it affects.
+   ```
+
+### Comment guidelines
+
+1. Be clear about why the issue is a problem.
+2. Communicate severity appropriately — don't exaggerate.
+3. Be brief — at most 1 paragraph.
+4. Keep code snippets under 3 lines, in inline code or code blocks.
+5. Use \`\`\`suggestion blocks ONLY for concrete replacement code (minimal lines, no commentary inside). Preserve the exact leading whitespace of the replaced lines.
+6. State the scenarios/environments where the issue arises. IMPORTANT: focus on the impact on the user or app stability.
+7. Matter-of-fact tone — helpful, not accusatory.
+8. Write for quick comprehension without close reading.
+9. No flattery or filler ("Great job...").
+
+## 5. Posting (MR reviews only)
+
+End an MR review by asking whether to post the findings. **Never post without my confirmation.** To post immediately, use `scripts/post-comment.sh` — see [references/posting.md](references/posting.md). For draft comments I publish myself, use the `gitlab-mr-comments` skill (`note`).
 
 ---
 
-After the review is done, expect that I'll want you to verify the user impact of the reported P1 and P2 errors, I'll ask you to run the code and reproduce them, but don't do that in the initial review.
+After the review, expect me to ask you to verify the user impact of the P1 and P2 findings by running the code and reproducing them — don't do that in the initial review.
