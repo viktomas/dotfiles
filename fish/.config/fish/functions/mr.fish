@@ -19,6 +19,34 @@ function mr --description 'Pick an MR and check out its branch locally'
         return 1
     end
 
+    set -l mr_url (echo $json_str | jq -r '.mr.web_url')
+    set -l section (echo $json_str | jq -r '.mr.section // empty')
+
+    # Reviewing: open the review task, or start a review cycle when there is none
+    # (same path as review-autopilot.sh; the TTY keeps checkout interactive).
+    if test "$section" = reviewing
+        set -l task_json (task list --json 2>/dev/null)
+        if test $status -ne 0
+            echo "❌ task list failed — cannot look up the review task"
+            return 1
+        end
+        set -l review_task (echo $task_json | jq -r --arg url "$mr_url" \
+            '[.[] | select(.mr_url == $url)] | first | .id // empty')
+        if test -z "$review_task"
+            echo "🔍 Starting a review for: "(echo $json_str | jq -r '.mr.title')
+            set -l out (~/workspace/gl/work/scripts/review-mr.sh --launch "$mr_url")
+            set -l rc $status
+            printf '%s\n' $out
+            set -l new_id (string match -rg '✓ Review started: (\S+)' -- $out)
+            if test $rc -eq 0 -a -n "$new_id"
+                echo "🔀 Switching to task: $new_id"
+                task switch $new_id
+                return 0
+            end
+            echo "⚠️  review-mr.sh --launch failed — falling back to plain checkout"
+        end
+    end
+
     # Run checkout script — path on stdout, progress on stderr
     set -l checkout_path (echo $json_str | ~/bin/mr-checkout.sh 2>/dev/tty)
     or return 1
@@ -27,8 +55,6 @@ function mr --description 'Pick an MR and check out its branch locally'
         echo "❌ Checkout script returned no path"
         return 1
     end
-
-    set -l mr_url (echo $json_str | jq -r '.mr.web_url')
 
     # Check for an existing task for THIS MR.
     #

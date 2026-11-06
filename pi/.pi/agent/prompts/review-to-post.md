@@ -76,7 +76,9 @@ If step 1 emptied the file, rewrite it as notes-only first (keep the Notes secti
 Use the `review` skill for gathering context and for the criteria. Read every discussion (`glab mr note list`) and trace the requirements to the linked issue(s).
 
 - **Re-review:** read the notes-only file first, if any. Look at the diff since my last review. For each of my threads decide: addressed, partly addressed, or ignored. Don't re-raise points I already made; draft follow-ups as `reply:` findings. For each note: drop it if resolved, turn it into a finding if the MR should act on it now, otherwise keep it and mention it in the final message.
-- **Refresh:** work from `git diff <reviewed_sha>..HEAD` only:
+- **Refresh:** if `git merge-base --is-ancestor <reviewed_sha> HEAD`, work from `git diff <reviewed_sha>..HEAD`, then apply the untouched/touched/new bullets below. Otherwise the branch was rebased: `git fetch origin <target_branch>` (target from `glab mr view -F json`), make sure `<reviewed_sha>` exists (`git cat-file -e <reviewed_sha>^{commit}` || `git fetch origin <reviewed_sha>`), and run `git range-diff origin/<target_branch> <reviewed_sha> HEAD`.
+  - Every pair is `=`, with no `!`, `<` or `>`: **rebase only**. Keep every finding without re-verifying. Fix each `location:` line against HEAD if the code moved. Skip step 4 and go straight to steps 5–6, which re-anchor the drafts on HEAD. Say "rebase only, drafts re-anchored" in the final message.
+  - Otherwise treat the commits range-diff marks `!` or `>` as the touched/new code. Don't use `git diff <reviewed_sha>..HEAD`, because after a rebase it also contains upstream changes.
   - finding whose code wasn't touched → keep as is, don't re-verify.
   - finding whose code was touched → repeat its **Verified** reproduction. If fixed, remove it and say so in the final message.
   - new code no finding covers → review just that.
@@ -119,6 +121,6 @@ Result: exactly one draft per finding, all on HEAD, and every `draft:` id in the
 **"publish" / "post":**
 1. `git fetch` and compare with the MR head. If it moved past `reviewed_sha`, run the steps again (it will be a refresh) and show me what changed before publishing.
 2. `note draft publish --all`, then check that `note draft list --json` is empty. Stop if it isn't.
-3. Mark the review-request TODO done: `glab api -X POST todos/<todo>/mark_as_done` with the file's `todo`. If empty, find my pending `review_requested` TODO for this MR via `glab api 'todos?state=pending&action=review_requested'`.
+3. If the file's `todo` is set, mark that TODO done: `glab api -X POST todos/<todo>/mark_as_done`. If it's empty, skip this step: publishing already changes my GitLab review state, and that state is what the autopilot reads.
 4. If the file has notes, rewrite it as notes-only; otherwise `rm "$(task state)"`.
 5. End with `DONE: published <n> comments`.
