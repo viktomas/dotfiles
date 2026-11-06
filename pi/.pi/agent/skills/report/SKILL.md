@@ -7,8 +7,8 @@ description: Generate a standalone HTML report from a markdown file with d2 diag
 
 A report is a **snapshot of an understanding at a point in time** — an investigation
 write-up with diagrams, for a human to read. Write it as markdown, render it to HTML with
-`mdreport`, and, in a task session, keep the markdown next to the task's state file so a
-later session can find it.
+`mdreport`, and, in a task session, keep the markdown in the task dir's `reports/` and
+list it in the state file so a later session can find it.
 
 Outside a task, write the markdown wherever the work is happening (the workspace, a
 scratch dir).
@@ -33,12 +33,18 @@ moves. Only render somewhere persistent when the user explicitly asks for a keep
 
 ## Keeping the report with the task
 
-When `$TASK_ID` is set, write the report into the state directory, named after the task,
-and list it in the state file (the `task-management` skill) with a one-line note:
+When `$TASK_ID` is set, write the report into `reports/` beside the state directory
+(`$TASK_DIR/reports/`), named after the task, and list it in the state file (the
+`task-management` skill) with a one-line note:
 
 ```bash
-r="$(dirname "$(task state)")/$TASK_ID-$(date +%Y%m%d)-turn-cancellation.md"
+r="$(dirname "$(dirname "$(task state)")")/reports/$TASK_ID-$(date +%Y%m%d)-turn-cancellation.md"
+mkdir -p "$(dirname "$r")"
 ```
+
+Never put reports in the state directory itself: `task archive` / `task delete` only
+move `<id>.md`, so anything else there is orphaned (and the work repo's `make check`
+flags it as a stray).
 
 **Never edit a written report, and never keep a report as a living document.** A report
 that is edited in place drifts from reality and nobody can tell whether it still describes
