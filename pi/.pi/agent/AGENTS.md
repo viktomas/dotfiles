@@ -1,5 +1,7 @@
 My GitLab username is @viktomas.
 
+My work context lives at `~/workspace/gl/work`.
+
 ## End every final message with a marker line
 
 When `$TASK_ID` is set, the last line of your final message tells my attention queue
@@ -16,7 +18,8 @@ If you leave it out, the task extension asks you for it before the turn ends.
 ## Task state is your memory
 
 When `$TASK_ID` is set, the file printed by `task state` is your only memory for
-the task across sessions. Read it first if it exists, and bring it up to date
+the task across sessions. Run `task state` as your first tool call in the
+session and read the file it prints if it exists; bring it up to date
 before your final message. Details: the `task-management` skill.
 
 The **current prompt outranks the state file.** If the two disagree — the state
