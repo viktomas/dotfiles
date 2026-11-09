@@ -1,0 +1,307 @@
+# Orbit query reference: openCypher 9-based syntax
+
+Orbit accepts a read-only subset of openCypher 9-based syntax. Pass each query
+inline, for example `glab orbit query "MATCH ... RETURN ..."`. See
+[`SKILL.md`](../SKILL.md#running-a-query) for input forms.
+
+## Discover the schema first
+
+```shell
+glab orbit query "CALL db.schema()"
+```
+
+`CALL db.schema()` lists every relationship as `(Source)-[:TYPE]->(Target)`
+and the properties of the core, code review, and planning nodes; call it once
+per session. `CALL db.schema('Node')` adds property types for one node, or lists
+the properties of a node the overview does not. Node names are case
+sensitive. Issues, epics, tasks, and incidents are all the `WorkItem` node.
+
+## Statement shape
+
+```plaintext
+MATCH pattern [WHERE predicates]
+[MATCH pattern [WHERE predicates] ...]
+RETURN projections
+[ORDER BY key [ASC | DESC]]
+[SKIP rows] [LIMIT rows]
+```
+
+- Declare each node's label, and any inline properties, where it first appears:
+  `(mr:MergeRequest {iid: 235291})`. Later parts can reuse the bare variable.
+- Write a relationship type after a colon: `-[:IN_PROJECT]->`. A lowercase
+  name without a colon, such as `-[r]->`, is a variable that matches any
+  relationship type. An uppercase name without a colon, such as
+  `-[IN_PROJECT]->`, rejects.
+- Use `->` or `<-` between labeled nodes. Undirected `--` is for neighbors only.
+- All parts of the pattern must form one connected tree, with no cycles.
+- Traversals are capped at three hops. `-[:CONTAINS*1..3]->` is a bounded
+  variable-length hop.
+- `ORDER BY` takes one sort key.
+- `LIMIT` accepts 1 to 1000 rows. `SKIP` (or `OFFSET`) accepts 0 to 10000
+  rows and must come before `LIMIT`.
+
+## Selectivity
+
+Every query needs at least one node bounded by an ID or a literal property
+filter. Examples are `{id: 278964}`, `{full_path: 'gitlab-org/gitlab'}`, and a
+`WHERE` comparison with a literal value. `LIMIT` does not count, so
+`MATCH (p:Project) RETURN p LIMIT 5` rejects, and so does a node bounded only by
+`NOT` over a list, text match, or group. A neighbors query needs a bounded
+center node, and a shortest path needs both endpoints bounded.
+
+## Predicates
+
+Use at most 16 predicates per query, across all MATCH clauses. Count each
+inline property, WHERE comparison, and relationship filter, including repeats.
+An ID selector or IN list counts as one predicate; an ID range counts as two.
+Relationship patterns do not count. Existing list-size limits still apply.
+If the query exceeds the limit, remove redundant conditions or simplify it.
+Adding another MATCH clause does not reset the count.
+
+`WHERE` combines predicates with `AND` and `NOT`, grouped with parentheses.
+Write `NOT x.state IN [...]`, not `x.state NOT IN [...]`. Supported forms:
+
+- Comparisons: `=`, `<>` or `!=`, `<`, `<=`, `>`, `>=`.
+- Lists: `x.state IN ['opened', 'merged']`.
+- Strings: `STARTS WITH`, `ENDS WITH`, `CONTAINS`. The pattern needs at least
+  3 characters. Matching ignores ASCII case, except on sort-key columns such as
+  `branch`. The server folds ASCII letters only, so `STARTS WITH 'ÄRG'` does
+  not match `ärger` there. Local queries fold Unicode and do match.
+- Nulls: `IS NULL`, `IS NOT NULL`.
+- Relationship types on a one-hop `r`: `type(r) = 'CLOSES'`, `type(r) IN [...]`,
+  and `NOT type(r) = 'CLOSES'`. A `type(r)` condition that can never match
+  rejects instead of returning zero rows.
+
+Values are literals. There are no query parameters, so never splice untrusted
+text into a query.
+
+### Text-token search
+
+`CONTAINS` is indexed on text-indexed properties, such as `MergeRequest.title`
+or `Definition.fqn`. Use it for a word prefix (`'migrat'`) or a phrase with its
+words in order (`'fix flaky'`). Use the token functions when word order does not
+matter. Words are runs of letters and digits, so `token_match(d.file_path,
+'main')` matches `src/main.rs`. Properties without a text index reject the
+token functions.
+
+- `token_match(property, 'token')` matches one whole word; the value is a single word.
+- `all_tokens(property, 'first second')` requires every word, in any order.
+- `any_tokens(property, 'first second')` requires at least one word.
+
+```gql orbit-query
+MATCH (mr:MergeRequest {project_id: 278964})
+WHERE all_tokens(mr.title, 'database migration')
+RETURN mr.iid, mr.title, mr.state
+ORDER BY mr.created_at DESC
+LIMIT 10
+```
+
+## Projections
+
+- `RETURN mr.iid, mr.title` selects properties.
+- `RETURN mr` selects the node's default columns; `properties(mr)` selects all.
+- The response always includes node identity and relationship metadata.
+- Aggregates are `count`, `sum`, `avg`, `min`, and `max`. Other return items
+  become group keys. Alias a metric to sort by it:
+  `RETURN mr.state, count(mr) AS mrs ORDER BY mrs DESC`.
+- Traversals and neighbors accept `AS` on properties but ignore it (no
+  rename). A traversal can `ORDER BY` the alias:
+  `RETURN mr.iid AS number ORDER BY number`. Aliases must be unique, and you
+  cannot order by a node alias; order by one of its properties.
+
+## Pagination
+
+Page with `SKIP` and `LIMIT`, as in Cypher. Start at `SKIP 0` and add the page
+size to `SKIP` for each next page: `SKIP 0 LIMIT 20`, then `SKIP 20 LIMIT 20`.
+Keep the rest of the query the same between pages. Stop when
+`pagination.has_more` is false, or when the table says no more rows are
+available. Write `SKIP` on every page, including the first, so all pages share
+one stable order.
+
+`SKIP` accepts up to 10000. To go deeper, page by key instead: `ORDER BY` a
+unique property such as `id`, and filter past the last value from the previous
+page. Each page costs the same however deep it is:
+
+```gql orbit-query
+MATCH (u:User {username: 'root'})-[:AUTHORED]->(mr:MergeRequest)
+WHERE mr.state = 'merged' AND mr.id > 48211
+RETURN mr.id, mr.iid, mr.title
+ORDER BY mr.id
+LIMIT 1000
+```
+
+Take the last `mr.id` on each page as the next lower bound, and stop when
+`pagination.has_more` is false.
+
+A page can return fewer rows than `LIMIT` when some rows are hidden from you.
+Keep going until `has_more` is false. `SKIP` counts hidden rows too, so pages
+never overlap. Check `pagination.truncated`: when true, the result window is
+incomplete. Do not report the returned rows as a complete list.
+
+## Not supported
+
+Mutations, multiple statements, `OPTIONAL MATCH`, `WITH`, `UNION`, `UNWIND`,
+subqueries, `OR`, `XOR`, `RETURN DISTINCT`, `DISTINCT` inside `sum`, `avg`, `min`, or `max`, `count(*)`, and arbitrary expressions
+all reject. Syntax errors report a line and column.
+Other function calls, such as `collect(x)`, reject with an error that names
+the function.
+
+## Recipes
+
+### Look up a project's numeric ID
+
+```gql orbit-query
+MATCH (p:Project {full_path: 'gitlab-org/gitlab'})
+RETURN p.id, p.full_path
+LIMIT 1
+```
+
+For the repository you are in, `glab api projects/:fullpath | jq -r '.id'`
+needs no query.
+
+### Look up a merge request by IID
+
+```gql orbit-query
+MATCH (mr:MergeRequest {iid: 235291})-[:IN_PROJECT]->(p:Project {full_path: 'gitlab-org/gitlab'})
+RETURN mr.iid, mr.title, mr.state
+LIMIT 1
+```
+
+### Count merge requests per state in a project
+
+```gql orbit-query
+MATCH (mr:MergeRequest)-[:IN_PROJECT]->(p:Project {id: 77960826})
+RETURN mr.state, count(mr) AS mrs
+ORDER BY mrs DESC
+LIMIT 10
+```
+
+### Count distinct values
+
+`count(DISTINCT x)` counts each node or property value once, for example
+`count(DISTINCT pl) AS pipelines, count(j) AS jobs` across a Pipeline to Job
+traversal. `DISTINCT` works only inside `count()`.
+
+### Pipelines that ran for one merge request
+
+Use the MR's internal numeric ID, not its project-scoped IID. The `source`
+filter excludes downstream child pipelines, whose source is `parent_pipeline`.
+
+```gql orbit-query
+MATCH (pl:Pipeline {merge_request_id: 482908721, source: 'merge_request_event'})
+RETURN pl.id, pl.status, pl.ref
+ORDER BY pl.created_at DESC
+LIMIT 10
+```
+
+### Open work items in a project
+
+```gql orbit-query
+MATCH (wi:WorkItem)-[:IN_PROJECT]->(p:Project {id: 77960826})
+WHERE wi.state = 'opened'
+RETURN wi.iid, wi.title, wi.work_item_type
+ORDER BY wi.created_at DESC
+LIMIT 10
+```
+
+### Merge requests that touched a file
+
+Use `HAS_DIFF` for history across all snapshots. `HAS_LATEST_DIFF` misses an MR
+if it touched the file only in an earlier revision. Anchor on `old_path` and
+`project_id` so the same path in another project does not match.
+Group by MR to avoid returning it once per matching snapshot.
+
+```gql orbit-query
+MATCH (mr:MergeRequest)-[:HAS_DIFF]->(d:MergeRequestDiff)-[:HAS_FILE]->(f:MergeRequestDiffFile {project_id: 278964, old_path: 'app/services/base_service.rb'})
+RETURN mr.id, mr.iid, mr.title, count(d) AS snapshots
+ORDER BY snapshots DESC
+LIMIT 100
+```
+
+### Files in a merge request's latest diff
+
+Use `HAS_LATEST_DIFF` for the current revision. Using `HAS_DIFF` instead also
+includes files removed from the diff in later revisions.
+
+```gql orbit-query
+MATCH (mr:MergeRequest {id: 482908721})-[:HAS_LATEST_DIFF]->(d:MergeRequestDiff)-[:HAS_FILE]->(f:MergeRequestDiffFile)
+RETURN f.old_path, f.new_path
+LIMIT 50
+```
+
+`HAS_FILE` edges are sparsely populated. For either recipe, report unexpectedly
+small results as incomplete coverage, not proof that files or MRs are absent.
+
+### Subclasses of a class
+
+`EXTENDS` points from child to parent. Bound the parent by its fully qualified
+name, project, and branch. This query includes descendants up to three hops away.
+
+```gql orbit-query
+MATCH (child:Definition)-[:EXTENDS*1..3]->(parent:Definition {fqn: 'ApplicationRecord', project_id: 278964, branch: 'master'})
+RETURN child.name, child.fqn, child.file_path
+LIMIT 1000
+```
+
+Missing inheritance edges or unindexed code can omit subclasses. Report this
+as indexed coverage, not an exhaustive list.
+
+### Everything connected to one node
+
+The far endpoint has a variable but no label.
+
+```gql orbit-query
+MATCH (mr:MergeRequest {id: 482908721})--(n)
+RETURN n
+LIMIT 20
+```
+
+### Merged merge requests by one author, a page at a time
+
+```gql orbit-query
+MATCH (u:User {username: 'root'})-[:AUTHORED]->(mr:MergeRequest)
+WHERE mr.state = 'merged'
+RETURN mr.iid, mr.title
+ORDER BY mr.created_at DESC
+SKIP 0 LIMIT 20
+```
+
+### Shortest path between two nodes
+
+Name the relationship type and keep the hop range small. An untyped
+`-[*1..3]->` follows every relationship and can time out.
+
+```gql orbit-query
+MATCH path = ANY SHORTEST (g:Group {id: 9970})-[:CONTAINS*1..2]->(p:Project {full_path: 'gitlab-org/gitlab'})
+RETURN path
+```
+
+It returns one outgoing path per endpoint pair. When an endpoint matches more
+than 500 nodes, the search uses only the 500 with the lowest IDs, and does not
+report the rest. Filter each endpoint to 500 nodes or fewer.
+
+## Troubleshooting
+
+### Empty result body
+
+Usually the query matched no rows. Confirm with a known-good probe:
+
+```shell
+glab orbit query "MATCH (p:Project {full_path: 'gitlab-org/gitlab'}) RETURN p.id LIMIT 1"
+```
+
+If this returns a row, the connection works and your other query has no matches.
+
+### Validation errors (HTTP 400, exit 1)
+
+The query text did not parse or validate. Syntax errors report a line and
+column. Common causes:
+
+- No node has an ID or literal filter. Anchor at least one node; `LIMIT` does not count.
+- `-[AUTHORED]->` instead of `-[:AUTHORED]->`. Without the colon the name is a variable.
+- A relationship type that does not connect the two labels, or points the other way. The error names the valid direction.
+- A node label repeated with a different label, or with inline properties twice.
+- Unsupported syntax: `OR`, `XOR`, `RETURN DISTINCT`, `DISTINCT` outside `count()`, `count(*)`, `OPTIONAL MATCH`, `WITH`, or a second `ORDER BY` key.
+- `LIMIT` before `SKIP`. Write `SKIP 20 LIMIT 20`, not `LIMIT 20 SKIP 20`.
+
+Fix: check node and relationship names with `CALL db.schema('Node')`.
