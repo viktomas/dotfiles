@@ -209,6 +209,43 @@ finish() { # $1 = exit status of the script
 }
 trap 'ec=$?; finish "$ec" || true; exit "$ec"' EXIT
 
+# Signals. The EXIT trap alone would record rc 0 on HUP/TERM, and bash defers
+# per-signal traps while a foreground child runs. So the run below is a
+# background job we `wait` on; these traps never read $?, remember the status
+# the launcher was signaled with (128+sig), and forward the signal to timeout,
+# which relays it to pi. The script's final status is the signal status even
+# if pi then exits on its own: "the launcher was signaled" is the fact the
+# fleet record must carry.
+tpid=""
+sig_rc=0
+on_signal() { # $1 = signal name, $2 = number
+  ((sig_rc)) || sig_rc=$((128 + $2))
+  if [[ -n $tpid ]]; then
+    kill -s "$1" "$tpid" 2>/dev/null || true
+    # timeout's `-k` only escalates after the *timeout* expires, not after a
+    # forwarded signal, so a pi that ignores the signal would hang us. Bounded
+    # grace: after $KILL_GRACE s, SIGKILL pi and timeout (same process group
+    # because of --foreground; pgrep -P finds pi, the child of timeout).
+    if [[ -z ${grace_pid:-} ]]; then
+      (
+        sleep "$KILL_GRACE"
+        # shellcheck disable=SC2046
+        kill -KILL $(pgrep -P "$tpid" 2>/dev/null) "$tpid" 2>/dev/null || true
+      ) >/dev/null 2>&1 &
+      grace_pid=$!
+    fi
+  else
+    exit "$sig_rc" # not running yet: EXIT trap records it
+  fi
+}
+KILL_GRACE="${SUBAGENT_KILL_GRACE:-10}"
+grace_pid=""
+trap 'on_signal HUP 1' HUP
+# INT is forwarded as TERM: a background job of a non-interactive shell starts
+# with SIGINT ignored, and pi inherits that, so a forwarded INT would be a no-op.
+trap 'on_signal TERM 2' INT
+trap 'on_signal TERM 15' TERM
+
 export FLEET_RUN_ID="$runid"
 export FLEET_PARENT_SESSION="${PI_SESSION_ID:-}"
 export FLEET_DEADLINE="$deadline_iso"
@@ -220,7 +257,15 @@ ext=()
 # pi warns "No project session found with id …; creating a new session" for
 # every fresh unique id; that one line is filtered, the rest of stderr passes.
 rc=0
-timeout -k 30 "$timeout_s" pi -p \
+# stderr filter as its own process so its pid survives ($! becomes timeout's).
+exec {errfd}> >(grep --line-buffered -v 'No project session found' >&2 || true)
+fpid=$!
+# --foreground: timeout stays in our process group (no setpgid), so the
+# parent's group-wide SIGKILL (pi's bash tool on Esc/abort/SIGHUP) also takes
+# the subagent pi instead of orphaning it. Trade-off: timeout then only
+# signals pi itself, not pi's descendants.
+# `&` in a non-interactive shell would redirect stdin from /dev/null; keep ours.
+timeout --foreground -k 30 "$timeout_s" pi -p \
   --session-dir "$SESSION_DIR" \
   --session-id "$session_id" \
   -n "subagent: $slug" \
@@ -228,13 +273,21 @@ timeout -k 30 "$timeout_s" pi -p \
   -ne -ns \
   ${ext[@]+"${ext[@]}"} \
   --skill "$SHARED_SKILLS" \
-  -- "$prompt" 2> >(grep --line-buffered -v 'No project session found' >&2 || true) || rc=$?
-# let the stderr filter flush before our own lines ($! may be unset)
+  -- "$prompt" 2>&"$errfd" <&0 &
+tpid=$!
+exec {errfd}>&-
+# A trapped signal interrupts `wait` (status >128) while timeout still runs:
+# keep waiting until it is really gone; the last wait carries its status.
+wait "$tpid" && rc=0 || rc=$?
+while kill -0 "$tpid" 2>/dev/null; do
+  wait "$tpid" && rc=0 || rc=$?
+done
+tpid="" # reaped: a late signal must not kill a recycled pid via the watchdog
+[[ -n $grace_pid ]] && { kill "$grace_pid" 2>/dev/null || true; }
+((sig_rc)) && rc=$sig_rc
+# let the stderr filter flush before our own lines
 # Bounded: a background process the agent left behind may hold stderr open.
-fpid="${!:-}"
-if [[ -n $fpid ]]; then
-  for _ in 1 2 3 4 5 6 7 8 9 10; do kill -0 "$fpid" 2>/dev/null || break; sleep 0.1; done
-fi
+for _ in 1 2 3 4 5 6 7 8 9 10; do kill -0 "$fpid" 2>/dev/null || break; sleep 0.1; done
 
 if ((rc)); then
   if ((rc == 124)); then
