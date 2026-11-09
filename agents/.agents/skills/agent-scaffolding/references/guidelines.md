@@ -88,7 +88,7 @@ Measure before changing anything. This phase changes no behavior; it produces a 
 
 Steps:
 
-1. **Inventory always-loaded context.** List every auto-loaded instruction file and its imports, with token counts. Include the skill descriptions: every model-invocable skill's description is always-loaded and together they can outweigh AGENTS.md. Measure them from a live session's system prompt, not from the files ([how](operational-gotchas.md#measuring-always-loaded-context)). Record the total.
+1. **Inventory always-loaded context.** List every auto-loaded instruction file and its imports, with token counts. Include the skill descriptions: every model-invocable skill's description is always-loaded and together they can outweigh AGENTS.md. Measure them from a live session's system prompt, not from the files ([how](operational-gotchas.md#measuring-always-loaded-context)). Record the total. Parent-directory AGENTS.md files ride along in every session of a nested repo — measure the whole stack. Findings outside the pass's scope (global skills, parent files, cross-harness duplicates) are recorded in the audit for a dedicated later pass, not fixed mid-scope; re-verify them against a live session before acting on them — they go stale.
 2. **Inventory skills in every scope** the harness loads (global and repo). For each: name, scope, description length, body size, reference files, scripts, and whether anything triggers it. Flag same-name skills across scopes: the narrower one shadows the broader, so each is a hidden dependency of the other.
 3. **Inventory mechanisms.** Hooks, git hooks, CI jobs, lint configs, and the commands an agent must run to verify work.
 4. **Classify every line of every AGENTS.md** into one category:
@@ -100,7 +100,7 @@ Steps:
 5. **Record baseline metrics** where available: always-loaded tokens, rule count, CI pass rate on agent PRs, median review rounds per agent PR, and cost or turns for a few typical tasks.
 6. **Seed the eval set.** Pick 5 to 10 recent merged PRs or issues that represent typical work. Record base commit, task statement and acceptance check. Don't build a runner yet.
 
-Output: `.agents/AUDIT.md` (or the PR description), with the classification table and metrics. Keep appending a dated outcomes section to it after each phase (commits, gate results, findings, cost); for work that spans sessions it becomes the effort's memory. For the same reason, write a repo-local plan: a phased checklist adapted from this document, with gate results ticked off as phases complete.
+Output: `.agents/AUDIT.md` (or the PR description), with the classification table and metrics. Keep appending a dated outcomes section to it after each phase (commits, gate results, findings, cost); for work that spans sessions it becomes the effort's memory. For the same reason, write a repo-local plan: a phased checklist adapted from this document, with gate results ticked off as phases complete. The plan doubles as the effort's memory across sessions: resolve owner decisions in place as they land, and keep a next-agent quickstart at the top — first task, open decisions, rules of engagement — so the next session starts there instead of re-reading history.
 
 **Cost:** low, one session, no behavior change. **Benefit:** every later step becomes measurable, and the M, I, S and T lists are the work queue for Phases 1 to 3. **Risk:** none. **Gate:** a human reviews the classification, since misclassifying a K line as I is the main way Phase 2 goes wrong.
 
@@ -141,7 +141,7 @@ Steps:
    - **Where to look**: pointers to docs, ADRs and skills.
    - **Working agreement**: how to record lessons (the journal) and that sessions must not edit scaffolding directly.
 5. **Write each rule as condition plus action**, for example `When adding a DB migration, run X; never edit applied migrations`. Avoid vague lines like "be careful with" or "remember to".
-6. **Add provenance to every rule**: `(why: <reason or ADR link>; added YYYY-MM-DD)`. Undated rules are first in line for review.
+6. **Add provenance to every rule**: `(why: <reason or ADR link>; added YYYY-MM-DD)`. Undated rules are first in line for review. Provenance may also live outside AGENTS.md — in the audit, git history, or a pointer to the system-of-record doc — which keeps its always-loaded cost at zero.
 7. **Nested files** hold only package-local constraints and never repeat root rules.
 
 **Cost:** low, a few short PRs. **Benefit:** lower per-session cost (the ETH study measured 20%+ overhead from context files) and better adherence to the rules that remain (IFScale). **Risk:** deleting a load-bearing line. Small PRs, reviewer sign-off, and watching the next few agent sessions or eval runs contain this; revert is one commit. **Gate:** the budget check is in CI and passing, and every remaining rule has provenance.
@@ -152,7 +152,7 @@ Skills are where detailed, task-specific knowledge belongs, because only the des
 
 Steps:
 
-1. **Merge overlaps.** Prefer one skill with a reference file per scenario over many small related skills. Overlapping descriptions cause wrong triggers.
+1. **Merge overlaps.** Prefer one skill with a reference file per scenario over many small related skills. Overlapping descriptions cause wrong triggers. When deduplicating across harnesses, symlink the shared skill instead of copying it, and sweep for the old paths afterwards — moves leave dangling references and duplicate skills behind.
 2. **Rewrite descriptions for triggering.** The description's only job is to say when to load the skill. Use imperative phrasing, name the triggers, keep it to roughly 30 to 55 words, and don't summarize the contents, or the agent may act on the summary and skip the body. [Skill pitfalls](https://smcleod.net/2026/07/writing-and-reviewing-agent-skills-common-pitfalls/)
 3. **Layer the body.** SKILL.md holds only what every use needs; the spec recommends under 5,000 tokens. Scenario detail goes to `references/`. Deterministic steps go to `scripts/`.
 4. **Hide manual-only skills.** If a skill is only invoked by name, disable model invocation so its description isn't loaded into every session. A disabled skill still shadows same-name skills in broader scopes, and deleting it un-shadows them. Before deleting a disabled or apparently dead skill, check the other scopes: a stub may be a deliberate guard against a stale global copy.
@@ -163,7 +163,7 @@ Steps:
    - terse prompts, because eval files in the repo are readable by the agent under test.
 
    Run each case in an isolated session: no inherited stdin or session environment, no durable writes ([runner gotchas](operational-gotchas.md#isolating-the-agent-under-test)). Read failures by type, which means checking the answer as well as which skills loaded:
-   - **wrong skill loaded**: fix the descriptions or merge the overlap;
+   - **wrong skill loaded**: fix the descriptions or merge the overlap; if two description changes don't flip it, the winning skill is probably in another scope — stop tuning and route the fix to that scope's pass;
    - **nothing loaded, answer wrong**: a real miss; fix the description;
    - **nothing loaded, answer correct**: the agent found its way without the skill. Record it and don't tune the description for it; the skill may be unnecessary for that case.
 6. **Delete instructions that don't change behavior.** Remove a line, rerun the skill's evals, and keep the deletion if results hold. [Skills without evals](https://www.ai.engineer/talks/0vphxNt4wyk-dont-ship-skills-without-evals)
@@ -185,11 +185,11 @@ This phase adds the missing selection step. Working sessions propose lessons int
 - proposed fix type: code, mechanism, skill, AGENTS.md, doc, or none;
 - fingerprint: a short stable key, so repeats can be matched.
 
-Add a Working agreement line to AGENTS.md: record lessons in the journal and don't edit scaffolding mid-task. Back it with a hook or CI check that rejects scaffolding edits outside gardener branches.
+Add a Working agreement line to AGENTS.md: record lessons in the journal and don't edit scaffolding mid-task. Back it with a hook or CI check that rejects scaffolding edits outside gardener branches — or a confirm-to-proceed guard lifted by a gardener token, failing closed with a remediation message in headless runs.
 
 **2. Recurrence counting.** A repeated fingerprint increments a counter rather than creating a duplicate entry. Promotion threshold: 3 or more occurrences across distinct sessions within about 30 days. A single occurrence qualifies only if a human tags it high severity (data loss, security, broken main).
 
-**3. The gardener pass.** A dedicated session, run weekly or every N agent PRs. Inputs: the journal, CI failure logs from agent PRs, eval results, and the audit metrics. For each qualifying lesson, take the first option that works:
+**3. The gardener pass.** A dedicated session, run weekly or every N agent PRs. Inputs: the journal, CI failure logs from agent PRs, eval results, session logs (skill loads and cost per session — also the usage evidence for retiring a skill nobody loads), and the audit metrics. For each qualifying lesson, take the first option that works:
 
 1. fix the code or tooling so the lesson is no longer needed;
 2. add a mechanism (lint rule, test, hook, script);
@@ -218,11 +218,11 @@ Give scaffolding changes a fitness function, so they are accepted or reverted on
 
 Steps:
 
-1. **Build the replay set.** Grow the Phase 0 seed to 10 to 30 tasks taken from real history. Each task has a base commit, the task statement, and a hidden acceptance check (a test or script). Hidden means out of the agent's reach too: run tasks from a checkout of the base commit, not a working tree that contains the eval files. Cover the main task types, and include a few cases where the right behavior is to ask or refuse.
+1. **Build the replay set.** Grow the Phase 0 seed to 10 to 30 tasks taken from real history. Each task has a base commit, the task statement, and a hidden acceptance check (a test or script). Hidden means out of the agent's reach too: run tasks from a clone pruned to the base commit — agents read git history, so nothing above the base may be reachable ([how](operational-gotchas.md#eval-corpus-leakage)) — with the scaffolding under test overlaid from the working tree; a plain base checkout measures the old scaffolding. Cover the main task types, and include a few cases where the right behavior is to ask or refuse.
 2. **Add the skill trigger evals** from Phase 3 to the same runner.
 3. **Track these metrics:** pass rate, cost (tokens or money), turns, wall time, and how often CI catches a violation after the agent claimed done. For measured cost ranges and how to cap them, see [cost calibration](operational-gotchas.md#cost-calibration).
 4. **Run with repeats.** At least 3 runs per task, because agent variance is large. Compare against a stored baseline with a noise tolerance, not a single number.
-5. **Gate scaffolding PRs.** Any PR touching AGENTS.md, skills, hooks or the harness config runs the suite. It must not lower the pass rate beyond noise, and must not raise cost by more than an agreed margin (for example 10%) without a matching pass-rate gain. Results go in a PR comment.
+5. **Gate scaffolding PRs.** Any PR touching AGENTS.md, skills, hooks or the harness config runs the suite. It must not lower the pass rate beyond noise, and must not raise cost by more than an agreed margin (for example 10%) without a matching pass-rate gain. Results go in a PR comment. Split the task set — a cheap gate subset runs on every scaffolding change, the full set is measured quarterly — with a cumulative spend cap enforced by the runner ([cost](operational-gotchas.md#cost-calibration)).
 6. **Keep a hold-out.** Reserve about a third of tasks that the gardener never sees results for, and check it monthly. Otherwise the gardener overfits the visible set.
 7. **Refresh quarterly.** Add tasks from recent work; retire ones that no longer reflect the codebase.
 
