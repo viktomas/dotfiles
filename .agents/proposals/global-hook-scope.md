@@ -1,5 +1,9 @@
 # Pre-commit hook + check.sh: extend to the global scope (proposal)
 
+**Accepted and landed 2026-11-09** (owner decision 3; commit 72b0d83,
+including the four prerequisites; global budget set at 60 lines, owner
+delegated the number). This file is retained as the decision record.
+
 Global pass, 2026-11-09 (finding: the live hook at `.agents/hooks/pre-commit`
 scopes `^(AGENTS\.md|\.pi/|\.agents/)` — the global-scope paths
 `agents/`, `pi/.pi/agent/`, `claude/` do NOT trigger it, so a bad

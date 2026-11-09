@@ -1,5 +1,12 @@
 # Global skills budget + description rewrites (proposal)
 
+**Landed 2026-11-09** (owner decisions): the 8 rewrites + gitlab-api in
+commits 230d021/426119a, smoke-verified 12/12; the git-guard trim in
+94d98a2. Deferred by the gardener's own call (decision 7, delegated):
+trimming the in-band keyword tails (fj, pdf, projects) below the
+5,600-byte budget — no eval evidence they're removable, and the budget
+is met. This file is retained as the decision record.
+
 Global pass, 2026-11-09. Applies the agent-scaffolding Phase 2/3 budgets to
 the global agent scope (`agents/.agents/skills/`, `pi/.pi/agent/skills/`,
 `pi/.pi/agent/AGENTS.md`). Nothing here is merged without the owner; each

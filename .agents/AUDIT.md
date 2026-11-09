@@ -416,3 +416,42 @@ Commit everything (suggested split: verified fixes / rewrites+docs /
 check.sh+PLAN); purge deletion; hook+check.sh extension (4 prerequisites,
 budget placeholder 60); git-guard prose trim; the stale gitlab-api
 description in `~/.gitlab/duo/AGENTS.md` (outside this repo).
+
+## Global-scope pass, session 3 — 2026-11-09 (owner decisions executed)
+
+Tomas's decisions, 2026-11-09: 1 commit (yes), 2 delete purge, 3 hook+
+check extension (yes), 4 budget number (delegated → 60), 5 git-guard
+trim (yes), 6 delete the stale duo description, 7 further tightening
+(delegated). Landed as six commits, one concern each:
+
+- `38a51d7` fix(agents): global-scope dead pointers + claude gitlab-api
+  dedupe (symlinks repaired, wait-for path, merge) — session 1 work.
+- `230d021` refactor(skills): the 8 trigger-style description rewrites.
+- `0b36f06` docs(agents): audit, proposals, journal, plan update.
+- `426119a` fix(skills): web-browser back under 55 words — caught by the
+  NEW validator while staging the mechanism commit; 230d021 had slipped
+  through the old hook's scope gap (agents/ wasn't covered), which is
+  the incident proving decision 3's worth. The hook + extended check.sh
+  landed next:
+- `72b0d83` feat(agents): pre-commit + check.sh cover the global scopes
+  (regex extension, three-scope validator, keyword allowlist, manual-only
+  skip, anchor strip, colon-space guard — negative-tested; global
+  AGENTS.md budget 60).
+- `94d98a2` refactor(agents): git-guard prose trim (57 → 52 lines; the
+  revised text keeps the reason clause per the opus review).
+- `843d3fb` chore(agents): purge/ deleted (never scanned, zero
+  references, zero token impact; unique content recoverable in history).
+
+Out-of-repo: `~/.gitlab/duo/AGENTS.md`'s stale gitlab-api description
+deleted (bullet now defers to the skill's own frontmatter as source of
+truth); the dangling `~/.claude/token.sh` was removed in session 1.
+
+Gardener's own call on decision 7: leave the in-band keyword tails
+(fj, pdf, projects) alone — the 5,600-byte budget is met and removing
+working triggers without eval evidence violates the selection
+principle. Recorded in the proposal's decision note.
+
+Gate: closed for the 2026-11-09 global pass. Open for the next gardener
+pass: PLAN decision 6 (nvim-theme zero-use — deliberately deferred), and
+re-measuring the description block after a few weeks of the new
+validator in force.
