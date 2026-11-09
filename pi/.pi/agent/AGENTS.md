@@ -28,14 +28,9 @@ say so in one line, record the redirect at the top of the state file, and get to
 work. Never spend turns hunting for artifacts the stale state references; they
 are not needed to do what you were just asked.
 
-## Forbidden Git Operations
+## Git discipline
 
-The `git-guard` extension blocks destructive git ops in agent sessions
-(`reset --hard`, `checkout .`, `clean -fd`, `stash`, `add -A` / `add .`,
-`commit --no-verify`) — they can destroy your or other agents' uncommitted
-work. `git commit` itself is allowed but only on request — don't commit
-unless asked. If a blocked op is genuinely needed, Tomas runs it himself in
-his terminal.
+Destructive git ops can destroy your or other agents' uncommitted work — the `git-guard` extension blocks the common ones; apply the same caution to anything it doesn't block (e.g. `git checkout -- <file>`). `git commit` is allowed but only on request — don't commit unless asked. If a blocked op is genuinely needed, Tomas runs it himself in his terminal.
 
 ## Git Interactive Commands
 
