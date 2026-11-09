@@ -14,8 +14,6 @@
 #   - turn disposition read from the log (the exit code ignores it)
 #   - deterministic prechecks: failed commands, loops, error elements, git state
 #   - full transcript via `glab duo cli export` (incl. Duo subagents)
-#   - user-level Duo subagents from ~/.pi/agent/duo-agents/*.md merged with the
-#     repo's .agents/agents/*.md (Duo only reads the repo dir)
 #   - --read-only: no headless plan mode, so the goal says so and the worktree
 #     content is snapshotted before/after
 #
@@ -29,7 +27,6 @@ set -euo pipefail
 trap 'echo "${0##*/}: crashed at line $LINENO" >&2; exit 3' ERR
 
 RUNS_DIR="$HOME/.pi/agent/duo-runs"
-USER_AGENTS_DIR="${DUO_AGENTS_DIR:-$HOME/.pi/agent/duo-agents}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SUBAGENT="$SCRIPT_DIR/subagent.sh"
 CHECKER_PROMPT="$SCRIPT_DIR/duo-checker-prompt.md"
@@ -197,53 +194,6 @@ if [[ -n $prev_dir ]]; then
     cp "$prev_dir/goal.txt" "$dir/original-goal.txt"
 fi
 
-# --- subagents: user-level + repo-level, repo wins on name clash --------------
-# Frontmatter keys: name, description (plain or `>`/`|` block), tools (comma
-# list, [a, b] or YAML list). Body = prompt. Not a full YAML parser: files that
-# yield no valid agent are reported and listed in agents-dropped.txt.
-agent_md_to_json() {
-  awk '
-    function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); gsub(/^["\x27]|["\x27]$/, "", s); return s }
-    NR == 1 && /^---[ \t]*$/ { fm = 1; next }
-    fm && /^---[ \t]*$/ { fm = 0; body = 1; next }
-    fm {
-      if (block != "" && $0 ~ /^[ \t]+[^ \t]/) { v = trim($0); val[block] = val[block] (val[block] == "" ? "" : " ") v; next }
-      block = ""
-      if ($0 ~ /^[ \t]*-[ \t]+/ && key == "tools") { t = $0; sub(/^[ \t]*-[ \t]+/, "", t); val["tools"] = val["tools"] (val["tools"] ? "," : "") trim(t); next }
-      if (match($0, /^[A-Za-z_]+:/)) {
-        key = substr($0, 1, RLENGTH - 1); v = trim(substr($0, RLENGTH + 1))
-        if (v ~ /^[>|][-+]?$/) { block = key; val[key] = ""; next }
-        if (key == "tools") gsub(/[\[\]]/, "", v)
-        val[key] = v
-      }
-      next
-    }
-    body { prompt = prompt $0 "\n" }
-    END { printf "%s\x1f%s\x1f%s\x1f%s", val["name"], val["description"], val["tools"], prompt }
-  ' "$1" | jq -Rs 'split("\u001f") | {name: .[0], description: .[1],
-        toolset: (.[2] | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0))),
-        prompt: (.[3] | gsub("^\\s+|\\s+$"; ""))}
-      | select(.name != "" and .description != "" and .prompt != "")'
-}
-agents_json=""
-shopt -s nullglob
-agent_files=("$USER_AGENTS_DIR"/*.md)
-if ((${#agent_files[@]})); then
-  # --agents replaces the repo's agents entirely, so they must be merged in here.
-  agent_files+=("$cwd"/.agents/agents/*.md)
-  : >"$dir/agents.jsonl"
-  for f in "${agent_files[@]}"; do
-    a="$(agent_md_to_json "$f")"
-    if [[ -n $a ]]; then printf '%s\n' "$a" >>"$dir/agents.jsonl"
-    else log "agent file skipped (missing name/description/body or unsupported YAML): $f"; echo "$f" >>"$dir/agents-dropped.txt"; fi
-  done
-  agents_json="$(jq -sc 'reverse | unique_by(.name)' "$dir/agents.jsonl")" # reverse: later (repo) files win
-  rm -f "$dir/agents.jsonl"
-  [[ $agents_json == "[]" ]] && agents_json=""
-fi
-shopt -u nullglob
-if [[ -n $agents_json ]]; then printf '%s\n' "$agents_json" | jq . >"$dir/agents.json"; fi
-
 # --- worktree snapshot: content-level, so edits to already-dirty files count ---
 snapshot() { # prints HEAD and a tree id of the full working tree (incl. untracked)
   local idx head tree
@@ -260,9 +210,11 @@ snapshot() { # prints HEAD and a tree id of the full working tree (incl. untrack
 }
 
 # --- run -----------------------------------------------------------------------
+# No --agents: AGENTS.md (user ~/.gitlab/duo/AGENTS.md + repo AGENTS.md) and the
+# shared ~/.agents skills are the only instruction sources; agent-definition
+# files were removed 2026-11-06 as unused.
 args=(-C "$cwd" --log-level info --no-color run --model "$model_id" --output-format json --goal "$goal")
 [[ -n $resume ]] && args+=(--existing-session-id "$resume")
-[[ -n $agents_json ]] && args+=(--agents "$agents_json")
 printf '%q ' glab duo cli "${args[@]}" >"$dir/cmd.txt"
 
 base="$(git -C "$cwd" rev-parse HEAD 2>/dev/null || true)"

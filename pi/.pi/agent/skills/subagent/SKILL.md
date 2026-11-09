@@ -142,16 +142,14 @@ In the analyse → implement → review cycle, a Duo run can replace any step. T
 built-in checker audits the *run* (infra, tool failures, claims vs diff); for MR
 quality still use a separate review subagent.
 
-**Duo's own subagents:** put personal agents in `~/.pi/agent/duo-agents/<name>.md`
-(frontmatter `name`, `description`, `tools` as list or comma string; body =
-prompt). The script merges them with the repo's `.agents/agents/*.md` (repo wins
-on name clashes) and passes them via `--agents`; Duo itself only reads the repo
-dir. All Duo subagents use the run's model (Duo has no per-agent model). Ask
-Duo to "delegate to the <name> subagent" in the goal.
+**Duo's own subagents:** none are configured. Agent-definition files
+(`~/.pi/agent/agents/*.md`, the `--agents` merge) were removed 2026-11-06 as
+unused — AGENTS.md (`~/.gitlab/duo/AGENTS.md` + repo `AGENTS.md`) and the shared
+`~/.agents` skills are the only instruction sources. If a goal needs a
+specialist protocol, describe it in the goal text or in AGENTS.md.
 
 **Run artifacts** in `~/.pi/agent/duo-runs/<timestamp>-<slug>.XXXX/`: `goal.txt`,
-`original-goal.txt` (resumed runs), `model.txt`, `cmd.txt`, `agents.json`,
-`agents-dropped.txt` (agent files that failed to parse), `head.before.txt`, `commits.txt`, `stderr.log` (Duo's log; headless Duo writes no log file itself),
+`original-goal.txt` (resumed runs), `model.txt`, `cmd.txt`, `head.before.txt`, `commits.txt`, `stderr.log` (Duo's log; headless Duo writes no log file itself),
 `result.json`, `export.json` (full transcript incl. subagents, with `summary`),
 `precheck.json`, `diff.stat`, `git-status*.txt`, `check.md`, `verdict.json`. The
 checker's prompt is `checker-prompt.md`; its pi transcript is
@@ -163,8 +161,7 @@ eventually, then drop the workaround): exit 0 on lost stream tail / bad turn
 disposition (read from the log); silent fallback on an unknown `--model`
 (watchdog kills the run); no timeout or progress events (hard timeout + idle
 watchdog, session id scraped from stderr); failed shell commands reported as
-tool success (precheck greps `Exit code: N`); no plan mode (`--read-only`); no
-user-level agents (merged from `~/.pi/agent/duo-agents`).
+tool success (precheck greps `Exit code: N`); no plan mode (`--read-only`).
 
 ## Debugging a hung or failed subagent
 
