@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+# duo: pi-flavored shim over `glab duo cli`.
+#
+# Mirrors pi's invocation surface so the two harnesses share muscle memory:
+#
+#   duo                            interactive TUI (passthrough)
+#   duo '/template args'           interactive, template expanded → -g "<goal>"
+#   duo -p '<prompt | /tmpl args>' headless → glab duo cli run --goal … --output-format json
+#   duo --model sonnet …           family names mapped (see duo_model_id)
+#   duo --resume <sessionId>       → --existing-session-id <sessionId>
+#   duo version|help|run|export…   full passthrough to glab duo cli
+#
+# Templates resolve from $PWD/.pi/prompts/<name>.md then ~/.pi/agent/prompts/<name>.md
+# (project wins, like pi) and use pi's substitution syntax: $1, ${1:-default},
+# $@ / $ARGUMENTS, ${@:-default}, ${@:N}, ${@:N:L}.
+#
+# Headless runs print the assistant's final message (like `pi -p`), exit non-zero
+# when the run failed, and append "ts <sessionId> <cwd> <goal>" to
+# ~/.pi/agent/duo-sessions.log for later --resume. When $TASK_ID is set, the
+# response's last line must be a GATE:/DONE:/FAILED: marker (pi's task extension
+# enforces this; here the shim does) — override with DUO_NO_GATE_CHECK=1.
+#
+# Env: DUO_DRY_RUN=1 prints the composed command instead of running it.
+set -euo pipefail
+
+USER_PROMPTS=$HOME/.pi/agent/prompts
+SESSIONS_LOG=$HOME/.pi/agent/duo-sessions.log
+DRY=${DUO_DRY_RUN:+1} # DUO_DRY_RUN=1 prints the composed command instead of running it
+
+die() { echo "duo: $*" >&2; exit 2; }
+
+# Model family → gitlab_identifier. Bump when new versions ship.
+duo_model_id() {
+  local family=${1%%:*} # strip a pi-style :thinking suffix (duo has no thinking knob)
+  case $family in
+    opus) echo claude_opus_5_5 ;;
+    sonnet) echo claude_sonnet_5_5 ;;
+    haiku) echo claude_haiku_5_5 ;;
+    *) echo "$1" ;; # full ids pass through unchanged
+  esac
+}
+
+# Expand a pi prompt template. $1=template name (without /), $2…=args.
+# Emits the template body with substitutions applied; frontmatter is stripped.
+expand_template() {
+  local name=$1; shift
+  local f
+  for f in "$PWD/.pi/prompts/$name.md" "$USER_PROMPTS/$name.md"; do
+    [[ -f $f ]] && break
+    f=""
+  done
+  [[ -n $f ]] || die "unknown template /$name (looked in .pi/prompts and $USER_PROMPTS)"
+
+  local body
+  # Strip leading frontmatter (--- … ---) if present, like pi.
+  if [[ $(head -n 1 "$f") == '---' ]]; then
+    body=$(awk 'NR == 1 { fm = 1; next } fm && /^---[[:space:]]*$/ { fm = 0; next } !fm' "$f")
+  else
+    body=$(cat "$f")
+  fi
+
+  local args=("$@")
+  local out="" line
+  while IFS= read -r line || [[ -n $line ]]; do
+    # ${@:N:L} and ${@:N}
+    while [[ $line =~ \$\{@:([0-9]+):([0-9]+)\} ]]; do
+      local from=${BASH_REMATCH[1]} len=${BASH_REMATCH[2]}
+      local slice=()
+      ((from > 0)) && slice=("${args[@]:from-1:len}")
+      line=${line/"${BASH_REMATCH[0]}"/"${slice[*]}"}
+    done
+    while [[ $line =~ \$\{@:([0-9]+)\} ]]; do
+      local from=${BASH_REMATCH[1]}
+      local slice=()
+      ((from > 0)) && slice=("${args[@]:from-1}")
+      line=${line/"${BASH_REMATCH[0]}"/"${slice[*]}"}
+    done
+    # ${N:-default}, ${@:-default}
+    while [[ $line =~ \$\{([0-9@]+):-([^}]*)\} ]]; do
+      local ref=${BASH_REMATCH[1]} def=${BASH_REMATCH[2]} val
+      if [[ $ref == @ ]]; then val=${args[*]:-$def}; else val=${args[ref-1]:-$def}; fi
+      line=${line/"${BASH_REMATCH[0]}"/"$val"}
+    done
+    # $@ / $ARGUMENTS
+    line=${line//\$ARGUMENTS/${args[*]}}
+    line=${line//\$@/${args[*]}}
+    # $1 … $9 (build the pattern with the digit, not the letter!)
+    local i pat
+    for i in 1 2 3 4 5 6 7 8 9; do
+      pat='$'"$i" # e.g. $1 — dollar + digit, built so the digit actually expands
+      [[ $line == *"$pat"* ]] || continue
+      local val=${args[i-1]-}
+      line=${line//"$pat"/$val}
+    done
+    out+="$line"$'\n'
+  done <<<"$body"
+  printf '%s' "$out"
+}
+
+# --- parse arguments -----------------------------------------------------------
+headless=0 goal="" dry=${DRY:-0}
+declare -a pass=() # args forwarded to glab duo cli
+while (($#)); do
+  case $1 in
+    -p | --print | --headless) headless=1 ;;
+    --dry-run) dry=1 ;;
+    # glab duo cli subcommands pass straight through: `duo version` etc.
+    run | export | version | help | config | settings | log | plugin)
+      exec glab duo cli "$@"
+      ;;
+    --model)
+      shift
+      pass+=(--model "$(duo_model_id "${1:?}")")
+      ;;
+    --model=*)
+      pass+=("--model=$(duo_model_id "${1#*=}")")
+      ;;
+    --resume)
+      shift
+      pass+=(--existing-session-id "${1:?}")
+      ;;
+    -g | --goal)
+      shift
+      goal=${1:?}
+      ;;
+    -*)
+      pass+=("$1")
+      ;;
+    *)
+      [[ -z $goal ]] || die "multiple prompts given: '$goal' and '$1'"
+      goal=$1
+      ;;
+  esac
+  shift
+done
+
+run_cmd() { # prints the command; DUO_DRY_RUN stops here
+  if ((dry)); then printf '%q ' glab duo cli "$@" >&2; printf '\n' >&2; exit 0; fi
+}
+
+# --- interactive ----------------------------------------------------------------
+if ((!headless)); then
+  if [[ -n $goal ]]; then
+    if [[ $goal == /* ]]; then
+      tmpl=${goal%% *}
+      rest=${goal:${#tmpl}}
+      read -r -a targs <<<"$rest" # shell-like quoting not supported; simple words
+      goal=$(expand_template "${tmpl#/}" "${targs[@]}")
+    fi
+    [[ -n $goal ]] || die "template expanded to an empty goal"
+    run_cmd "${pass[@]}" -g "$goal"
+    exec glab duo cli "${pass[@]}" -g "$goal"
+  fi
+  run_cmd "${pass[@]}"
+  exec glab duo cli "${pass[@]}"
+fi
+
+# --- headless --------------------------------------------------------------------
+[[ -n $goal ]] || die "headless (-p) needs a prompt"
+if [[ $goal == /* ]]; then
+  tmpl=${goal%% *}
+  rest=${goal:${#tmpl}}
+  read -r -a targs <<<"$rest"
+  goal=$(expand_template "${tmpl#/}" "${targs[@]}")
+fi
+[[ -n $goal ]] || die "template expanded to an empty goal"
+
+tmp=$(mktemp); err=$(mktemp)
+trap 'rm -f "$tmp" "$err"' EXIT
+run_cmd run --goal "$goal" --output-format json "${pass[@]}"
+glab duo cli run --goal "$goal" --output-format json "${pass[@]}" >"$tmp" 2>"$err" || true
+
+doc=$(cat "$tmp")
+if [[ $doc != *\{* ]]; then
+  cat "$tmp" "$err" >&2
+  die "no JSON result document (see stderr above / 'glab duo cli log')"
+fi
+
+sid=$(jq -r '.sessionId // empty' <<<"$doc")
+resp=$(jq -r '.response // empty' <<<"$doc")
+st=$(jq -r '.status // empty' <<<"$doc")
+[[ -n $sid ]] && printf '%s %s %s %s\n' "$(date '+%F %T')" "$sid" "$PWD" "${goal:0:120}" >>"$SESSIONS_LOG"
+
+printf '%s\n' "$resp"
+if [[ $st != success ]]; then
+  jq -r '"error: " + (.error // "run failed with status " + (.status // "unknown"))' <<<"$doc" >&2
+  exit 1
+fi
+
+# GATE marker check: pi's task extension enforces this; the shim stands in.
+if [[ -n ${TASK_ID:-} && ${DUO_NO_GATE_CHECK:-} != 1 ]]; then
+  last=$(grep -v '^[[:space:]]*$' <<<"$resp" | tail -1 || true)
+  if [[ $last != GATE:* && $last != DONE:* && $last != FAILED:* ]]; then
+    echo "duo: no GATE:/DONE:/FAILED: marker on the last line (task $TASK_ID)." \
+      "pi's task extension would ask for one — re-prompt or set DUO_NO_GATE_CHECK=1." >&2
+    exit 1
+  fi
+fi
