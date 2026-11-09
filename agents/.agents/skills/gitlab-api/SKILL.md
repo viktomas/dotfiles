@@ -1,6 +1,6 @@
 ---
 name: gitlab-api
-description: Interact with GitLab REST API using GITLAB_TOKEN - use for TODOs, projects, issues, and other API queries
+description: Interact with the GitLab REST API via the glab CLI and GITLAB_TOKEN — pipelines, jobs, merge requests, issues, TODOs, merge trains. Use for any GitLab API query, TODO management, or endpoint without a dedicated glab subcommand.
 ---
 
 # GitLab API
@@ -78,11 +78,29 @@ The combined check exits 0 when either:
 
 ### Create an issue
 
-```bash
-glab issue create --title "..." --description ":robot: AI-generated
+Always use this format for issue descriptions:
 
-Issue body here..." -R OWNER/REPO
+```bash
+glab issue create --title "..." --description "$(cat <<'EOF'
+:robot: AI-generated
+
+## Problem
+
+Describe the problem or motivation.
+
+## Solution/Investigation
+
+Proposed solution if known, or investigation steps if not.
+
+## Resources
+
+Optional additional links and facts.
+EOF
+)" -R OWNER/REPO
 ```
+
+- Use "## Solution" when the fix is known, "## Investigation" when it needs exploration
+- Omit "## Resources" if there are no relevant links/facts to include
 
 ## glab — Merge Requests
 

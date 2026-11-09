@@ -39,7 +39,7 @@ paths** (the scripts live in the skill folder). `wait-for.sh` passes its
 working directory through to the check, satisfying both:
 
 ```bash
-SKILL="$HOME/.pi/agent/skills/wait-for/scripts"
+SKILL="$HOME/.agents/skills/wait-for/scripts"
 
 # latest pipeline for the current branch
 "$SKILL/wait-for.sh" "$SKILL/pipeline-succeeded.sh" \
