@@ -1,0 +1,12 @@
+#!/bin/sh
+# pre-commit - run the scaffolding check only when scaffolding paths are
+# staged, so data/config commits stay fast and are never blocked.
+# Activated by: git config core.hooksPath .agents/hooks
+# Revert:      git config --unset core.hooksPath && rm -r .agents/hooks
+
+changed=$(git diff --cached --name-only |
+  grep -E '^(AGENTS\.md|\.pi/|\.agents/)' || true)
+[ -n "$changed" ] || exit 0
+
+echo "scaffolding paths staged - running .agents/check.sh" >&2
+sh .agents/check.sh
