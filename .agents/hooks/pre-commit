@@ -5,7 +5,7 @@
 # Revert:      git config --unset core.hooksPath && rm -r .agents/hooks
 
 changed=$(git diff --cached --name-only |
-  grep -E '^(AGENTS\.md|\.pi/|\.agents/)' || true)
+  grep -E '^(AGENTS\.md|\.pi/|\.agents/|agents/\.agents/skills/|pi/\.pi/agent/(AGENTS\.md$|skills/|prompts/)|claude/\.claude/)' || true)
 [ -n "$changed" ] || exit 0
 
 echo "scaffolding paths staged - running .agents/check.sh" >&2
