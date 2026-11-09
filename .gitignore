@@ -17,3 +17,7 @@ pi/.pi/agent/subagent-sessions
 pi/.pi/agent/models-store.json
 pi/.pi/agent/kickoff-sessions
 pi/.pi/agent/duo-runs
+pi/.pi/agent/duo-sessions.log
+pi/.pi/agent/fleet
+*.orbit-backup
+.orbit-managed
