@@ -13,6 +13,7 @@ yarn = "latest"
 "github:simonw/rodney" = "latest"
 "npm:typescript-language-server" = "latest"
 "npm:typescript" = "5"
+uv = "0.12.22"
 
 [settings]
 idiomatic_version_file_enable_tools = []
