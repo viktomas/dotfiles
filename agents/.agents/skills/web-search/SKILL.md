@@ -1,6 +1,6 @@
 ---
 name: web-search
-description: use this skill when you need to search the web, think google search for agents
+description: Search the web — general queries, current events, documentation lookups, anything not answerable from local files or the repo. Use when a question needs information from the internet rather than the local context. Think Google Search for agents.
 ---
 
 # Web Search

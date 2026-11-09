@@ -1,6 +1,6 @@
 ---
 name: tui-testing
-description: Run an interactive CLI/TUI app in tmux, send it input, and read its output. Use to test interactive apps.
+description: Run an interactive CLI/TUI app in tmux, send it input, and read its output. Use when you need to exercise an interactive terminal app — testing it, driving its prompts, or capturing what it renders.
 ---
 
 # Testing Interactive CLI Applications

@@ -1,6 +1,6 @@
 ---
 name: web-browser
-description: "Drive a real Chrome browser - open pages, click, fill forms, read the accessibility tree, take screenshots, capture console/network logs. Can hand the window to the user to log in to a service, then continue with the saved session. Use for JS-heavy or authenticated pages, UI testing, and anything curl/web-search can't read. Keywords - browser, chrome, rodney, click, screenshot, login, headless, CDP. Never for gitlab.com (use gitlab-api) unless explicitly asked."
+description: Drive a Chrome browser — open pages, click, fill forms, take screenshots, capture console/network logs; can hand the window to the user to log in and continue with the saved session. Use for JS-heavy or authenticated pages, UI testing, and anything curl/web-search can't read. Never for gitlab.com (use gitlab-api) unless asked. Keywords - rodney, headless, CDP.
 license: Apache-2.0, see LICENSE.md
 ---
 

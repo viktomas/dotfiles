@@ -1,6 +1,6 @@
 ---
 name: gdk
-description: GitLab Development Kit is a folder and set of utilities that contain most of the GitLab production systems. This skill is useful for testing with local GitLab deployment and when researching how feature works in the GitLab monolith, AIGW, workhorse and other services
+description: Use the local GitLab Development Kit (GDK) — a folder and utilities running most GitLab production systems. Use when testing against a local GitLab deployment or researching how a feature works in the monolith, AI Gateway, workhorse and other services.
 ---
 
 GDK lives in /Users/tomas/workspace/gl/gdk

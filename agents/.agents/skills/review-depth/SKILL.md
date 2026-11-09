@@ -1,6 +1,6 @@
 ---
 name: review-depth
-description: Deep opt-in checks for an MR review — validate the problem behind an MR (who sanctioned it, internal or external, how it ranks against other work, is the MR needed at all) or challenge the solution (a blind subagent proposes 3 alternative designs from the requirements alone, compared against the MR's design). Use when asked to validate the problem, challenge the solution, question whether an MR is needed, find alternative designs, or cut requirements to reduce complexity.
+description: Deep opt-in checks for an MR review - validate the problem behind an MR or challenge the solution with alternative designs a blind subagent proposes from the requirements alone. Use when asked to validate the problem, challenge the solution, question whether an MR is needed, find alternative designs, or cut requirements to reduce complexity.
 ---
 
 # Review Depth

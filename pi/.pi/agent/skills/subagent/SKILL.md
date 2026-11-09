@@ -1,6 +1,6 @@
 ---
 name: subagent
-description: Spawn a one-shot subagent in a separate session to investigate or research something without polluting the main context. Use when answering a question obviously doesn't need your current full context. Also runs GitLab Duo CLI (glab duo cli) headless as a subagent, auto-checked by a pi Sonnet reviewer - use whenever I say duo subagent, run duo, send duo, delegate to duo.
+description: Spawn a one-shot subagent in a separate session to investigate or research without polluting the main context. Use when a question obviously doesn't need your current full context. Also runs GitLab Duo CLI headless, auto-checked by a pi Sonnet reviewer — use whenever I say duo subagent, run duo, send duo, delegate to duo.
 ---
 
 # Subagent

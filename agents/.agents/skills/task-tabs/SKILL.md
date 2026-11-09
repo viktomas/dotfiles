@@ -1,6 +1,6 @@
 ---
 name: task-tabs
-description: Inspect and drive the zellij tabs inside task sessions — see what is open and running in each task, read a pane's screen, suggest tabs or sessions to close, open new tabs, run commands in existing tabs. Use when the user asks what's open or running in a task, wants to tidy up tabs or sessions, or wants something started or typed into another task's session. Keywords - tabs, panes, zellij, close tabs, clean up sessions, open a tab, run in that tab, what's running.
+description: Inspect and drive the zellij tabs in task sessions — see what's open or running, read a pane's screen, open/close tabs, run commands in another task's session. Use when the user asks what's running in a task, wants to tidy or clean up tabs or sessions, or wants something started or typed into another session.
 ---
 
 # Task Tabs

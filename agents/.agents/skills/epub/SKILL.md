@@ -1,6 +1,6 @@
 ---
 name: epub
-description: Turn a markdown report (or a plain text file) into a validated EPUB 3 book for an e-ink reader. Use whenever I ask for an epub, a book, something to read on the PocketBook/Kobo, or "make this a book". Renders d2 diagrams, SVG, diffs and images to e-ink-friendly grayscale. Keywords - epub, ebook, e-ink, pocketbook, kobo, kindle, epubcheck, mobi, convert report to book.
+description: Turn a markdown report (or plain text file) into a validated EPUB 3 book for an e-ink reader — renders d2 diagrams, SVG, diffs and images to grayscale. Use whenever I ask for an epub, a book, something to read on the PocketBook/Kobo, or "make this a book". Keywords - epub, ebook, e-ink, pocketbook, kobo.
 ---
 
 # Reports → EPUB
