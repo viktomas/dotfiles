@@ -20,6 +20,28 @@ types come from the mise pi install via its version-independent `latest` symlink
   references in the two fish functions and `pi/.pi/agent/settings.json`.
 - Do **not** `npm i -g` these — it bypasses mise and installs a duplicate.
 
+### pi-guard: fail sessions on the wrong pi
+
+`extensions/pi-guard.ts` kills any session whose pi is not the mise-managed
+install: `process.argv[1]` must run through
+`mise/installs/npm-earendil-works-pi-coding-agent/`. A pi from anywhere else
+(a stale `npm i -g` duplicate under a mise node version is the classic — its
+bin dir shadows the backend on PATH inside node-pinned projects) lacks the
+extension API the other extensions target: old pis fire `agent_start` but
+never `agent_settled`, so task registries stick at "working", and APIs like
+`pi.getSettings` are missing entirely (2026-11-09: pi 0.76.0 under
+node/22.22.1 broke bash-timeout and every bash call in gitlab-lsp worktrees).
+
+- Interactive: a blocking dialog explains the mismatch, then the session
+  exits. Headless (`pi -p`/json/rpc): stderr message + `process.exit(1)` —
+  `ctx.shutdown()` is not bound outside the TUI.
+- `PI_GUARD_BACKEND` overrides the backend name (path-segment match);
+  `PI_GUARD_ANY=1` skips the check (e.g. pi from a checkout on purpose).
+- Tests: `node --test pi/tests/pi-guard.test.ts` (kept outside
+  `extensions/` because pi auto-discovers every `*.ts` there and fails on
+  files without a factory export). Type-check as usual with
+  `npx tsc --noEmit` in `extensions/`.
+
 ## qmd: better-sqlite3 native binding
 
 `qmd` needs a `better-sqlite3` binding matching the Node ABI. If it errors with
