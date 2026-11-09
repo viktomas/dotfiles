@@ -1,8 +1,9 @@
 # Agent-scaffolding plan — dotfiles (repo-local scope)
 
 Scoped to this repo's own scaffolding. The global scope (`agents/`,
-`pi/.pi/agent/`, `claude/`, `purge/`) gets its own pass later — findings are
-recorded as data in `AUDIT.md`, nothing global is touched from here.
+`pi/.pi/agent/`, `claude/`, `purge/`) got its own pass on 2026-11-09 —
+outcomes and proposals in `AUDIT.md` ("Global-scope pass" section); the
+repo-local phases below never touched global paths.
 
 - [x] **Phase 0 — baseline audit** (2026-11-06). See `AUDIT.md`.
       Gate: human reviews classification — **pending**.

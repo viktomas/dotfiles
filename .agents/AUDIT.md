@@ -4,8 +4,10 @@ Running log for the agent-scaffolding effort (skill:
 `~/.agents/skills/agent-scaffolding`) **scoped to this repo's own
 scaffolding** — `AGENTS.md`, `.pi/skills/*`, repo mechanisms. The global
 agent scope (`agents/` = `~/.agents`, `pi/.pi/agent/` = global pi skills and
-extensions, `claude/`, and `pi/.pi/agent/purge/`) is deliberately excluded:
-it gets its own pass later. Global findings are recorded below as data.
+extensions, `claude/`, and `pi/.pi/agent/purge/`) was excluded from the
+repo-local phases and got its own pass on 2026-11-09 — outcomes in the
+**Global-scope pass** section at the bottom. The findings recorded below
+as data were verified there.
 
 **`.agents/` here is repo state, not a stow package** — never add it to
 `install.sh` (the check script asserts this). `~/.agents` is a symlink to
@@ -237,3 +239,180 @@ Phase 0 gate (human reviews classification): **pending**.
   invocation (hides the description entirely, manual-only use) or delete
   the skill outright. Principles 1 (selection on human signal + usage
   data), 7. Revert: `git checkout -- .pi/skills/nvim-theme/SKILL.md`.
+
+## Global-scope pass — 2026-11-09
+
+Phases 0–1 applied to the global agent scope (`agents/` = `~/.agents`,
+`pi/.pi/agent/`, `claude/`). Repo-local pass (1c74b45..c70c0e2) untouched.
+
+### Phase 0 — inventory and measurements (live session, 2026-11-09)
+
+- **Always-loaded (pi, any repo):** global `pi/.pi/agent/AGENTS.md` 2,482
+  chars (~620 tok) + skill descriptions 21 model-invocable skills, 5,773
+  chars (~1,443 tok) + harness-owned skills XML wrapper ~877 tok. The
+  description block is the largest curatable item in every session —
+  finding 3 confirmed, with drift since the 2026-11-05 curation (orbit and
+  review-depth added, mr-review merged away).
+- **Scopes:** `agents/.agents/skills/` 18 (17 model-invocable;
+  agent-scaffolding is manual-only, costs nothing standing);
+  `pi/.pi/agent/skills/` 3 (report, subagent, web-browser); repo
+  `.pi/skills/` 1 (nvim-theme — done, hands off); `claude/.claude/skills/`
+  2 (gitlab-api, orbit). **No same-name collisions in any live scope.**
+- **Claude always-loaded:** `~/.claude/CLAUDE.md` carries the orbit-managed
+  setup block (~400 tok), outside this repo — orbit owns it, record only.
+
+### Global findings 1–5, verified
+
+1. **purge/ — shadow claim WRONG, dead-weight claim stands.** Verified
+   from the live session's 21-skill list: pi does not scan
+   `pi/.pi/agent/purge/`, so purged skills shadow nothing. The real risk
+   was dangling references — swept: none live (only `.agents/` records).
+   Decision proposal: delete the 380K dir (git history keeps it) — see
+   `proposals/global-skills-budget.md`.
+2. **CONFIRMED, acted on.** `claude/.claude/skills/gitlab-api` was a real
+   duplicate, stale since Mar 18, diverged both ways (claude copy held the
+   issue-description format; shared copy held early-failure detection,
+   fork-remote `--head`, duo-workflows reference). Merged and deduped —
+   outcomes below.
+3. **CONFIRMED** (see measurement above). Mechanism proposed so it stops
+   depending on memory: extend check.sh to global descriptions
+   (`proposals/global-hook-scope.md`).
+4. **STALE.** `~/workspace/gl/work/ai/AGENTS.md` no longer exists; the
+   parent `~/workspace/gl/work/AGENTS.md` (3,540 chars) was restructured
+   by that repo's own 2026-11-05 scaffolding pass. Nothing to do here.
+5. **CONFIRMED, two more casualties found and fixed** (outcomes below);
+   the claude-scope `orbit` symlink had been broken since the Oct 27
+   shared-dir restructure (75ec6c3) — claude silently had no orbit skill.
+
+### Outcomes (proposed, uncommitted — one concern per change)
+
+- **2026-11-09 gitlab-api dedupe (finding 2):** ported the claude copy's
+  unique content (structured `:robot: AI-generated`
+  Problem/Solution/Investigation/Resources issue format) into
+  `agents/.agents/skills/gitlab-api/SKILL.md`; description rewritten
+  17 → 36 words trigger-style, absorbing the claude copy's better trigger
+  terms (pipelines, jobs, MRs, merge trains); `claude/.claude/skills/`
+  gitlab-api dir replaced with a symlink to
+  `../../../agents/.agents/skills/gitlab-api` (scripts were identical;
+  nothing lost). Principles 4, 6. Revert: `git checkout -- agents/
+  .agents/skills/gitlab-api/SKILL.md claude/.claude/skills/`.
+- **2026-11-09 broken symlinks (finding 5):**
+  `claude/.claude/skills/orbit` pointed at `../../.agents/skills/orbit`,
+  which resolves to nonexistent `claude/.agents` — broken since 75ec6c3
+  moved the shared dir; claude had no orbit skill. Relinked to
+  `../../../agents/.agents/skills/orbit`, verified via
+  `readlink -f ~/.claude/skills/orbit`. Also removed the dangling
+  `~/.claude/token.sh` (target file never existed in git, gone from
+  disk). Principles 6, 9. Revert: relink / recreate the symlink.
+- **2026-11-09 wait-for dead path (finding 5):** SKILL.md hardcoded
+  `$HOME/.pi/agent/skills/wait-for/scripts` — dead since the skill moved
+  to `~/.agents/skills/`; the wait examples were un-runnable. Fixed to
+  `$HOME/.agents/skills/wait-for/scripts`. Principle 6. Revert: one line.
+- **2026-11-09 proposals drafted:** `proposals/global-skills-budget.md`
+  (description budgets, 8 rewrites before/after, global AGENTS.md budget
+  + git-guard prose trim, purge deletion decision, cheap smoke-eval plan)
+  and `proposals/global-hook-scope.md` (extend pre-commit regex + check.sh
+  to the global scopes, sequenced after the description fixes land).
+  Eval spend capped at ~$5 total for the pass (owner directive,
+  2026-11-09) — smoke-runs only, ~$1 for the eight rewrites, anything
+  beyond deferred. Principles 2, 3, 4.
+- **Dead-pointer sweep, global scope:** all absolute skill-path references
+  in every global skill body checked for existence — only the wait-for hit
+  (fixed). The gitlab-mr-comments README's `~/.claude/...` mentions are
+  upstream install docs, not local pointers. No live references to
+  `purge/` or to the researcher/reviewer/worker agents deleted in 43f2f37
+  (the subagent skill records the removal as history, correctly).
+
+### Recorded as data, no action
+
+- `pi/.pi/agent/extensions/task.ts` is a symlink into the external `task`
+  repo (gitignored, deliberate — that repo owns it); the always-loaded
+  task rules in the global AGENTS.md reference a mechanism implemented
+  elsewhere. Known setup, not a defect.
+- `agents/.agents/skills/gitlab-mr-comments` is a git submodule of the
+  published skill; its description edits go upstream.
+- `pi/.pi/agent/ANTHROPIC_EDIT_BUG.md` is a doc (not auto-loaded),
+  correctly referenced by `edit-guard.ts`.
+
+### Gate
+
+Global Phase 0 gate (human reviews classification/proposals): **pending** —
+the two proposals above plus the purge decision are the owner's calls.
+
+## Global-scope pass, session 2 — 2026-11-09 (opus review, decisions, evals)
+
+### Opus review (sub-global-scaffold-review-1794227145)
+
+Verdict: the finished fixes (symlinks, wait-for, gitlab-api merge) all
+verified correct; the proposals had real defects. Everything it found was
+fixed this session:
+
+- **P1** three rewrites over the 55-word ceiling (task-tabs 56, web-browser
+  57, subagent 57 by `wc -w` — a standalone em dash counts as a word);
+  tightened to 55/55/54.
+- **P2** task-tabs had dropped "close tabs" / "clean up sessions" /
+  "what's open" — restored; web-browser keeps rodney/headless/CDP keywords.
+- **P2** wrong numbers corrected: 10 (not 8/11) descriptions out of band;
+  end state ~5,630 bytes (not ~5,300) — block budget set at 5,600 instead
+  of pretending 5,000 is reached; purge deletion saves **zero** tokens
+  (never scanned — "headroom" claim removed); git-guard trim saves 3 lines
+  (57 → 54), and the revised text keeps the reason clause ("can destroy
+  your or other agents' uncommitted work"), which also covers ops the
+  extension doesn't block.
+- **P1** hook sequencing was wrong: rewrites alone leave the extended
+  validator failing on 6 skills. The proposal now lists 4 prerequisites
+  (keyword-trigger allowlist, skip `disable-model-invocation`, strip
+  `#anchor` in the link check, YAML-parse frontmatter) — a simulation of
+  the extended validator over all three scopes now passes.
+- **P3** PLAN.md stale scope line fixed; purge note now lists the unique
+  archived content (mr-issue-standards, windows-testing, work-context,
+  html-report, mermaid, 8 extensions — no live replacement).
+
+### Decisions made (delegated "obvious", per the review's OBVIOUS list)
+
+- **8 description rewrites applied** to the skill files (uncommitted):
+  task-tabs 85→55, review-depth 77→53, web-browser 70→55, epub 63→54,
+  subagent 62→54, gdk 43→40 trigger-style, web-search 15→38,
+  tui-testing 19→35. gitlab-api was already done in session 1.
+- **check.sh anchor-strip fix** applied (straight bug: `file.md#anchor`
+  links were reported dead; affects the repo-local check today).
+- **Trigger smoke evals run** (decision e, ~$5 cap honored — ~33
+  case-sessions ≈ $1.5–2 total, including one wasted re-run of the suite
+  after I passed an arg the runner ignores; the valid results are the
+  12-case suite + 1 follow-up):
+
+  | case | result |
+  |---|---|
+  | task-tabs-1 / task-tabs-2 | load task-tabs ✓ (incl. near-miss: task-management not loaded) |
+  | task-mgmt-near | task-management ✓, task-tabs correctly not loaded |
+  | web-browser-1 | load web-browser ✓ |
+  | downloads-near | downloads ✓, web-browser correctly not loaded |
+  | epub-1 | load epub ✓ |
+  | review-depth-1 | review + review-depth both loaded ✓ |
+  | subagent-1 | load subagent ✓ |
+  | gdk-1 | load gdk ✓ |
+  | web-search-1 | nothing loaded, answer correct (GitHub API via curl) — recorded, not tuned (guidelines) |
+  | web-search-2 (follow-up) | load web-search ✓ — the rewrite does trigger on a real web-search case |
+  | tui-testing-1 | load tui-testing ✓ |
+  | gitlab-api-1 | load gitlab-api ✓ |
+
+  No wrong-skill loads, no wrong-answer misses → Phase 3 smoke gate met
+  for the rewrites.
+
+### Incident + fix (recorded in the journal)
+
+The first rewrite batch put `: ` (colon+space) inside unquoted YAML plain
+scalars ("Keywords: …", "an MR review: validate") — invalid frontmatter;
+pi refused to load those three skills and headless eval sessions died
+before starting. Tomas hit it live in his session. Fixed same session
+(colons → " - "); all 22 SKILL.md files now parse as YAML; validator
+prerequisite 4 (YAML-parse frontmatter) added to the hook proposal so the
+check would have caught it. Journal:
+`2026-11-09-skill-frontmatter-colon-space.md`.
+
+### Still the owner's call (see proposals)
+
+Commit everything (suggested split: verified fixes / rewrites+docs /
+check.sh+PLAN); purge deletion; hook+check.sh extension (4 prerequisites,
+budget placeholder 60); git-guard prose trim; the stale gitlab-api
+description in `~/.gitlab/duo/AGENTS.md` (outside this repo).
