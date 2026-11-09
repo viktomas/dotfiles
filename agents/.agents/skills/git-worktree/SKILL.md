@@ -41,6 +41,18 @@ Then it _quietly_ runs package manger to install dependencies (`mise trust` then
 
 If you pass MR URL, it will create worktree for the MR branch.
 
+### Fork MRs
+
+For MRs from forks, `git-mr-worktree.sh` deliberately renames the local branch
+to `fork/<remote>/<branch>` so it can't collide with the remote-tracking ref.
+The MR's real `source_branch` on the remote is just `<branch>` — keep that in
+mind when filtering GitLab API queries by branch name.
+
+## Implementation
+
+`git wta`/`git wtu` are defined in `~/.config/fish/functions/git.fish`, which
+calls `~/bin/git-mr-worktree.sh`.
+
 ## Update
 
 ```bash

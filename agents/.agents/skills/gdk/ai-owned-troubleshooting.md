@@ -201,3 +201,17 @@ unrelated `WebSocket upgrade rejected with HTTP 401` / `Invalid token` failure i
 That's a real (if secondary) failure — stop/discard that run and create a fresh workflow after
 confirming pipeline processing is healthy again; don't rely on the stale one to reach a clean
 terminal state.
+
+## `gdk update` fails at `_postgresql-seed-praefect`: psql connection refused, postgres crash-loops
+
+`gdk update` (or `make postgresql`) fails with `psql: error: connection to server on
+socket ".../postgresql/.s.PGSQL.5432" failed: Connection refused` / `postgres not
+ready`, and `gdk status` shows postgresql flapping `down (want up)`. Cause: a stale
+postmaster socket lock — `postgresql/.s.PGSQL.5432.lock` names a dead PID, but macOS
+has *recycled* that PID to an unrelated process (e.g. `AUCrashHandlerService`), so it
+looks alive. Every new postmaster start dies with `FATAL: lock file ... already
+exists`, leaving a socket file that nothing serves. Fix: verify the PID in the lock
+is not actually a `postgres -D` process (`pgrep -fl "postgres -D"`), then
+`rm -f postgresql/.s.PGSQL.5432.lock postgresql/.s.PGSQL.5432` and rerun
+`gdk update`. Don't trust `ps -p <pid>` alone — check the command name too.
+Seen 2026-10-29 after two consecutive failed updates.

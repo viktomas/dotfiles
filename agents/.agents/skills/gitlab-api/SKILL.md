@@ -102,6 +102,15 @@ glab mr list --reviewer=@me -F json
 glab mr list --source-branch=my-branch -F json
 ```
 
+### Create an MR
+
+**⚠️ Repos with several fork remotes (e.g. gitlab-vscode-extension has `gitlab-renovate-forks`, `renovate`, ...):** `glab mr create` may pick a fork as the source project and fail with `source_branch: [does not exist]`, even with `-R`. Pass both `-R` and `--head`:
+
+```bash
+glab mr create -R gitlab-org/gitlab-vscode-extension --head gitlab-org/gitlab-vscode-extension \
+  --source-branch <branch> --target-branch main --title "..." --description "..." --assignee viktomas --yes
+```
+
 ### Merge an MR
 
 ```bash
