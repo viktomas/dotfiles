@@ -43,7 +43,7 @@ https://rhodesmill.org/brandon/2009/commands-with-comma/ .
 
 ## Crontab
 
-Edit crontab by running `./bin/edit-crontab.sh`.
+Edit crontab by running `./bin/,edit-crontab`.
 
 ## Git
 
