@@ -18,7 +18,10 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
-const SKILLS_DIR = join(homedir(), ".pi", "agent", "skills");
+const SKILL_DIRS = [
+  join(homedir(), ".pi", "agent", "skills"),
+  join(homedir(), ".agents", "skills"),
+];
 
 type Rule = {
   id: string;
@@ -67,14 +70,19 @@ const RULES: Rule[] = [
     promptPatterns: [/\bworktree\b/i, /\b(create|make|start)\s+(?:a|an|the)?\s*(new\s+)?branch\b/i],
   },
   {
-    id: "subagents",
+    id: "subagent",
     patterns: [/\bsubagents?\b/i],
     promptPatterns: [/\bsubagents?\b/i],
   },
 ];
 
 function skillPath(rule: Rule): string {
-  return rule.skill ?? join(SKILLS_DIR, rule.id, "SKILL.md");
+  const id = rule.skill ?? rule.id;
+  for (const dir of SKILL_DIRS) {
+    const path = join(dir, id, "SKILL.md");
+    if (existsSync(path)) return path;
+  }
+  return join(SKILL_DIRS[0], id, "SKILL.md");
 }
 
 /** Text the agent is about to run/write, for pattern matching. */
