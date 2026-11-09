@@ -455,3 +455,19 @@ Gate: closed for the 2026-11-09 global pass. Open for the next gardener
 pass: PLAN decision 6 (nvim-theme zero-use — deliberately deferred), and
 re-measuring the description block after a few weeks of the new
 validator in force.
+
+## Skill update from the three landed implementations — 2026-11-09
+
+Task `review-scaffold-m9s9d`. Compared the skill's guidelines against the
+dotfiles (local + global), work and lifeos implementations; proposed updates
+(`.agents/proposals/skill-update-from-implementations.md`), got an Opus
+second opinion (subagent `sub-skill-update-review-1794231378` — caught one
+wrong citation, one evidence-free item, ~14 missed lessons), applied both.
+Landed as itemized edits to `references/guidelines.md` (Phase 0 plan-as-memory
++ parent-stack measurement; Phase 2 provenance-may-live-outside; Phase 3
+symlink-dedupe + cross-scope wrong-skill routing; Phase 4 session-log inputs +
+confirm-to-proceed guard; Phase 5 pruned-clone + overlay + gate/seed split)
+and `references/operational-gotchas.md` (YAML-parse validator rule,
+keyword-allowlist, runner isolation/hygiene, true prompts, gate/seed cost
+guard, new Replay-acceptance and Guard-design sections). The skill stays
+manual-only. Principles 1, 7, 9. Revert: the two commits.
