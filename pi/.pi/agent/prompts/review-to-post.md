@@ -94,7 +94,7 @@ Initial and re-review: the whole MR. Refresh: only touched or new code.
 
 ### 5. Write the review file
 
-Write the whole file: frontmatter (`todo` from the arguments, else keep the existing value; `reviewed_sha` = HEAD), Summary, one section per finding (comment guidelines from the `review` skill), and the Notes section carried over and extended (e.g. out-of-scope simplifications).
+Write the whole file: frontmatter (`todo` from the arguments, else keep the existing value; `reviewed_sha` = HEAD), Summary, one section per finding (comment guidelines from the `review` skill), and the Notes section carried over and extended (e.g. out-of-scope simplifications). Carry over any `## Problem validation` / `## Solution validation` sections (review-depth skill output) unchanged — they are never posted.
 
 Never write a review summary for GitLab: I write the posted summary myself.
 
@@ -110,6 +110,7 @@ Result: exactly one draft per finding, all on HEAD, and every `draft:` id in the
 
 - One line per finding: priority, location, the finding in one sentence, and reproduced / re-verified / carried over.
 - What you dropped or found fixed, what you couldn't verify, and notes I should act on (e.g. "open an issue for X").
+- After an **initial** review only: if the MR is large (≳500 changed lines), adds a new subsystem or abstraction, or its requirements can't be traced to an issue, add one line: "Consider `validate the problem` / `challenge the solution` (review-depth skill) in this session." Nothing more — it's my call.
 - The very last line is exactly one of:
   - `GATE: post - <n> draft comments on <short MR title>`
   - `GATE: post - no findings, ready to approve`
