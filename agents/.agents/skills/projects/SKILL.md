@@ -16,4 +16,4 @@ All my local checkouts for GitLab projects live under `/Users/tomas/workspace/gl
 | `viktomas/dotfiles` | 80375203 | `/Users/tomas/.dotfiles` | ✅ | Configuration for all my local tools, shell, vim, AI agents, everything |
 
 
-For GitLab monolith (`gitalb-org/gitlab`) and AI Gatway (AIGW) use the GDK skill
+GitLab monolith (`gitlab-org/gitlab`) source: `/Users/tomas/workspace/gl/gitlab/main` (bare repo + worktrees). AI Gateway (AIGW/DWS) source: `/Users/tomas/workspace/gl/ai-assist/main`. For running a local GitLab instance (Caproni, replaced GDK) use the `local-gitlab` skill.

@@ -237,7 +237,7 @@ Projects with merge trains: `gitlab-org/cli` (34675721), `gitlab-org/editor-exte
 
 ## API Documentation
 
-For exploring GitLab API endpoints and parameters, check the local GDK docs at `/Users/tomas/workspace/gl/gdk/gitlab/doc/api/`. These are the source `.md` files for the official GitLab API docs.
+For exploring GitLab API endpoints and parameters, check the local monolith docs at `/Users/tomas/workspace/gl/gitlab/main/doc/api/`. These are the source `.md` files for the official GitLab API docs.
 
 ## References
 
