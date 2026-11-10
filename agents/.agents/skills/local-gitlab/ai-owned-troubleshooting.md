@@ -135,3 +135,55 @@ After fixing it, re-enqueue the pipeline:
 in the toolbox. If the pipeline sat for a long time, short-lived OAuth tokens in its CI vars
 may have expired (`WebSocket upgrade rejected with HTTP 401`). Start a fresh workflow
 instead of reusing it.
+
+## `caproni run` in tmux: hook fails with `uninitialized constant Gem::Resolver::APISet::GemParser`
+
+Seen 2026-11-10 on A. The stack trace mixes mise's bundler with `/System/Library/.../ruby/2.6`:
+a tmux session started with `bash -lc` doesn't get the mise PATH, so the edit-mode hooks
+(`db_migrate.sh` → `bundle exec rake db:migrate`) hit macOS system ruby. Launch `caproni run`
+from a small script that exports your current `PATH` (and `ANTHROPIC_API_KEY`,
+`CAPRONI_ACTIVATE_LICENSE=1`) before calling it. The `op signin` prompt that the license step
+shows times out ("authorization prompt dismissed") when nobody approves it, so Tomas must be
+at the desk for the first `caproni run` with the AI Gateway fragment.
+
+## Running a Duo remote flow (DAP session) on A in edit mode — 2026-11-10 checklist
+
+What it took to get a `@duo-developer-gitlab-duo` mention to complete on instance A with a
+monolith branch in `repos/gitlab` and the AI Gateway fragment:
+
+- **License lives in two DBs.** The stock pods use `gitlabhq_production`, edit mode uses
+  `gitlabhq_development`. A license activated in the UI before `caproni run` lands in production
+  only. Copy it: dump `License.last.data` in the toolbox (`-e production`), then
+  `License.create!(data: …)` through `.gitlab/caproni/exec.sh bundle exec rails runner`.
+  After that, run with `CAPRONI_ACTIVATE_LICENSE=0`, so `op` doesn't prompt.
+- **Two edit-mode instances share host ports.** If another agent runs `caproni run` on B, Vite's
+  3036 is taken. Export `VITE_RUBY_PORT=3037` for A.
+- **DWS waits for `gitlab.caproni.test`.** `wait-for-gitlab.sh` uses `CAPRONI_PRIMARY_HOSTNAME`,
+  which the reloader process doesn't get. Export `CAPRONI_PRIMARY_HOSTNAME=gitlab.a.caproni.test`
+  before `caproni run`.
+- **In-cluster DNS doesn't resolve `gitlab.a.caproni.test`, and pods have no IPv6 egress.** The
+  `kube-system/coredns-custom` ConfigMap on A now has
+  `rewrite name exact gitlab.a.caproni.test traefik.kube-system.svc.cluster.local` and an
+  `anthropic.com` server block that answers AAAA with an empty NOERROR. Without the second part,
+  DWS under mirrord picks Anthropic's IPv6 address and fails with `anthropic.APIConnectionError`
+  (the mirrord intproxy log shows `NetworkUnreachable … [2607:6bc0::10]:443`). Restart CoreDNS
+  after you edit the ConfigMap.
+- **Stock Workhorse (chart image) is older than master Rails.** Two skews broke DAP on
+  19.5.3 Workhorse with 19.6 Rails: (1) Rails `verify_api_request!` requires `iat`, but old
+  Workhorse duoworkflow actions don't send it (`JWT::InvalidIatError` / 403 on `…/authorize`).
+  (2) Rails passes the agent token as `GitlabToken`, but old Workhorse reads
+  `Service.Headers["x-gitlab-oauth-token"]`. DWS's GraphQL is then anonymous, so you see
+  `No workflow found for workflow ID: N` and 401s on `audit_events`. For a test run, patch both
+  locally (drop `iat_after` in `lib/gitlab/workhorse.rb#verify_api_request!`, and merge
+  `'x-gitlab-oauth-token' => gitlab_token` into `grpc_headers`). Revert them afterwards. The real
+  fix is a matching Workhorse (bump the chart image or run Workhorse from the checkout).
+- **Runner privileged.** A's `caproni.local.yaml` sets `privileged = true` in the runner TOML.
+  With it, `SRT sandbox test successful` shows up for custom images that install bubblewrap and srt.
+- **Stopping `caproni run`.** Send `C-c` to it (tmux send-keys) and don't pipe it through `tee`.
+  `tmux kill-session` or a dead `tee` leaves the `*-caproni` copy deployments and local Vite
+  processes behind. Then you have to `kubectl delete deploy <x>-caproni` and kill the orphans,
+  and wait for the originals to roll out before the next `caproni run`. Otherwise `setup.sh`
+  fails with `No Running webservice pod`.
+- Launcher and restart scripts: `/tmp/caproni-a-run.sh` and `/tmp/caproni-a-restart.sh`
+  (they're ephemeral and export PATH, the env vars above and `ANTHROPIC_API_KEY`).
+- glab `api -X POST …/repository/files` returns 403 through Workhorse in this state. Use `git push`.

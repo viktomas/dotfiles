@@ -226,3 +226,8 @@ Consider giving the VM more memory first: `colima stop && colima start --cpu 8 -
 
 See [ai-owned-troubleshooting.md](./ai-owned-troubleshooting.md). Add an entry every time
 you debug a problem with a local instance.
+
+## License activation
+
+EE license + `duo_enterprise` add-on, needed before any Duo testing:
+[license-activation.md](./license-activation.md).
