@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Trust the Dev CA of every local Caproni instance (~/workspace/gl/caproni-agent-*).
+#
+#   caproni-trust               # bundle + git config + System keychain (asks for sudo)
+#   caproni-trust --no-keychain # only the parts that need no sudo
+#
+# Each cluster has its own CA (~/.local/share/caproni/<cluster>/pki/current/ca.crt),
+# regenerated when the cluster is recreated, so rerun this after `caproni destroy && caproni up`
+# or after adding an instance.
+#
+# What uses what:
+#   keychain  -> /usr/bin/curl (SecureTransport), glab/Go tools, browsers, node --use-system-ca
+#   bundle    -> NODE_EXTRA_CA_CERTS (set in fish config.fish), git http.<url>.sslCAInfo
+set -euo pipefail
+shopt -s nullglob
+
+ROOT="$HOME/.local/share/caproni"
+BUNDLE="$ROOT/ca-bundle.pem"
+INSTANCES=("$HOME"/workspace/gl/caproni-agent-*)
+
+cas=("$ROOT"/*/pki/current/ca.crt)
+[ ${#cas[@]} -gt 0 ] || { echo "no Caproni CAs under $ROOT" >&2; exit 1; }
+cat "${cas[@]}" > "$BUNDLE.tmp" && mv "$BUNDLE.tmp" "$BUNDLE"
+echo "bundle: $BUNDLE (${#cas[@]} CAs)"
+
+for dir in "${INSTANCES[@]}"; do
+  cfg="$dir/caproni.local.yaml"
+  [ -f "$cfg" ] || continue
+  domain=$(sed -n 's/^[[:space:]]*BASE_DOMAIN:[[:space:]]*//p' "$cfg" | head -1)
+  port=$(sed -n 's/.*"\([0-9]*\):443@loadbalancer".*/\1/p' "$cfg" | head -1)
+  url="https://gitlab.$domain"
+  [ "${port:-443}" = 443 ] || url="$url:$port"
+  git config --global "http.$url/.sslCAInfo" "$BUNDLE"
+  echo "git: $url -> sslCAInfo"
+done
+
+[ "${1:-}" = "--no-keychain" ] && exit 0
+
+for dir in "${INSTANCES[@]}"; do
+  [ -f "$dir/caproni.yaml" ] || continue
+  echo "keychain: $(basename "$dir")"
+  (cd "$dir" && caproni ca trust)
+done

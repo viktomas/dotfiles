@@ -79,6 +79,7 @@
 [rerere]
 	enabled = true
 	autoupdate = true
-[maintenance]
-	repo = /Users/tomas/workspace/gl/gdk
-	repo = /Users/tomas/workspace/gl/gdk/gitlab
+[http "https://gitlab.a.caproni.test/"]
+	sslCAInfo = /Users/tomas/.local/share/caproni/ca-bundle.pem
+[http "https://gitlab.b.caproni.test:8443/"]
+	sslCAInfo = /Users/tomas/.local/share/caproni/ca-bundle.pem

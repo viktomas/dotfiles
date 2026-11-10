@@ -1,5 +1,7 @@
 source ~/.secrets/secrets
-source ~/.secrets/gdk
+source ~/.secrets/caproni
+# Caproni Dev CAs for node (additive to the default roots); rebuilt by `caproni-trust`
+test -f ~/.local/share/caproni/ca-bundle.pem; and set -gx NODE_EXTRA_CA_CERTS ~/.local/share/caproni/ca-bundle.pem
 set -gx RIPGREP_CONFIG_PATH ~/.ripgreprc
 # Task categories (overrides task's default work,reviews,personal)
 set -gx TASK_CATEGORIES work,review,personal
