@@ -1,0 +1,28 @@
+diff --git i/ee/app/services/ai/duo_workflows/connection_config_service.rb w/ee/app/services/ai/duo_workflows/connection_config_service.rb
+index 8cdefd2cb37f..d4c25511b81b 100644
+--- i/ee/app/services/ai/duo_workflows/connection_config_service.rb
++++ w/ee/app/services/ai/duo_workflows/connection_config_service.rb
+@@ -98,7 +98,8 @@ def grpc_headers
+ 
+         # Forwarded last so a caller-sent header wins, matching the previous behaviour
+         # for x-gitlab-client-type.
+-        headers.merge(request_metadata.forwarded_grpc_metadata)
++        # LOCAL-ONLY: stock chart Workhorse reads the agent token from this header
++        headers.merge(request_metadata.forwarded_grpc_metadata).merge('x-gitlab-oauth-token' => gitlab_token)
+       end
+ 
+       def cloud_connector_headers
+diff --git i/lib/gitlab/workhorse.rb w/lib/gitlab/workhorse.rb
+index 824ea4973d18..5c480c7bbddc 100644
+--- i/lib/gitlab/workhorse.rb
++++ w/lib/gitlab/workhorse.rb
+@@ -380,8 +380,7 @@ def version
+       # regardless of secret rotation.
+       def verify_api_request!(request_headers)
+         decode_jwt(request_headers[INTERNAL_API_REQUEST_HEADER],
+-          issuer: 'gitlab-workhorse',
+-          iat_after: API_REQUEST_JWT_VALIDITY.ago)
++          issuer: 'gitlab-workhorse') # LOCAL-ONLY: stock chart Workhorse sends no iat
+       end
+ 
+       # Issuer-only JWT decode. Used by callers that handle other Workhorse
