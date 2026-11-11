@@ -10,6 +10,11 @@ still says `gdk`, `gdk.test`, `GDK_TOKEN` or `172.16.123.1` is stale. Its unpush
 branches and stashes are bundled in `~/workspace/gl/work/backups/gdk-2026-11-10/`
 (the README there explains how to restore them).
 
+**Before debugging any symptom on a local instance**, run
+`grep -n -i '<error text or component>' ~/.agents/skills/local-gitlab/*.md`. The Workhorse skew
+("No workflow found"/anonymous), the CoreDNS rewrite (DWS OIDC timeout), the Duo CLI in tmux
+and the persisted CLI mode are all already written up.
+
 [Caproni](https://gitlab-org.gitlab.io/caproni/) runs GitLab as a real Kubernetes cluster:
 the GitLab Helm chart plus `gitlab-dev-stack` (CNPG Postgres, Valkey, NATS, Garage S3,
 ClickHouse), Gitaly and a gitlab-runner. It's configured by
@@ -42,8 +47,13 @@ Both are k3d clusters on **one shared Colima VM** (profile `default`, docker run
 - **B caveat:** the chart has no external-port setting, so B's web UI builds links and
   redirects for `:80`, which is instance A. The API, git over HTTP, glab and the runner work.
   Use A for browser flows.
-- No fragments are enabled (no AI Gateway or Duo) and there's no edit mode: both run the
-  stock chart images. `repos/` is empty in both.
+- **Current setup (2026-11-10).** **A** has the AI Gateway fragment, edit mode
+  (`repos/gitlab` = worktree of the MR !268004 branch, `repos/ai-gateway`), a privileged
+  runner, a `coredns-custom` DNS fix, an EE license and Duo seeded in the dev DB. See
+  [duo-remote-flows.md](./duo-remote-flows.md). **B** has the same fragment + edit mode on
+  port-shifted processes (+10) and its own CoreDNS rewrite, so A and B can be in edit mode
+  at once ([edit-mode.md](./edit-mode.md#a-and-b-in-edit-mode-at-the-same-time)). Another task may use it. Check `tmux ls` and `kubectl --context caproni-b get deploy -A | grep caproni`
+  before touching it.
 
 ## Source code (read here, not in Caproni)
 
@@ -118,6 +128,11 @@ GITLAB_HOST=gitlab.b.caproni.test:8080 GITLAB_TOKEN=$CAPRONI_B_TOKEN glab api us
 GITLAB_TOKEN=$CAPRONI_A_TOKEN GITLAB_BASE_URL=$CAPRONI_A_URL duo …   # override any gitlab.com GITLAB_TOKEN
 ```
 
+The Duo CLI is `glab duo cli --gitlab-base-url <url> --gitlab-auth-token <pat>`. Its source is
+`~/workspace/gl/gitlab-lsp/main` (auto mode: `packages/cli/app/src/backend/gitlab/`). It
+remembers the last mode in `~/.gitlab/storage.json`, so press Tab until the pane shows
+`<mode> (tab to switch)` instead of counting presses.
+
 ## TLS / certificates
 
 GitLab's external URL is **http**, so use the `http://` URLs by default. Traefik also serves
@@ -167,24 +182,28 @@ instance A's pods with DiskPressure.
 
 ## Edit mode (run your branch's code)
 
-The stock instances run released images. To test unmerged monolith code:
+The stock instances run released images. To test unmerged monolith code, check the branch out
+at `<instance>/repos/gitlab`, add `edit_reloaders: [gitlab, sidekiq]`, `caproni up`, then:
 
-1. Put a checkout at `<instance>/repos/gitlab`, either a clone or a worktree of
-   `~/workspace/gl/gitlab` on your branch. It must exist before `caproni up`.
-2. In `caproni.local.yaml`: `repositories: { gitlab: { edit_reloaders: [gitlab, sidekiq] } }`.
-   Always include sidekiq along with puma, or CI jobs stay in `created` forever.
-3. `caproni up`, then `caproni run`. It's a long-lived foreground process, so run it in tmux
-   (`tui-testing` skill) or a separate zellij tab. Puma and Vite run locally through mirrord
-   with hot reload. A green favicon means edit mode is serving the requests.
-4. Rails commands now go through the local checkout:
-   `cd repos/gitlab && .gitlab/caproni/exec.sh bundle exec rails runner '…'`.
-   Seeds: `RAILS_ENV=development .gitlab/caproni/exec.sh bundle exec rake db:seed_fu`.
-5. Specs: `mise run gitlab:rspec spec/…` from the instance dir.
+```bash
+~/.agents/skills/local-gitlab/scripts/caproni-run.sh a    # starts in tmux, waits until the API answers
+~/.agents/skills/local-gitlab/scripts/caproni-stop.sh a   # clean stop (never just kill the tmux session)
+```
+
+Rails then goes through the checkout:
+`cd repos/gitlab && .gitlab/caproni/exec.sh bundle exec rails runner '…'`. Specs:
+`mise run gitlab:rspec spec/…` from the instance dir.
+
+**Read [edit-mode.md](./edit-mode.md) first.** It covers the worktree setup, why raw
+`caproni run` breaks in tmux, the separate `gitlabhq_development` DB (license, users, flags
+differ from the stock pods), and the version skew between your branch and the chart's Workhorse.
 
 ## Duo / AI Gateway
 
-This isn't enabled on either instance. GDK used to have duo_workflow and AIGW with a Duo
-Enterprise license. To enable it on an instance:
+Enabled on A (see Current setup above). For remote flows / DAP sessions (mention a flow
+service account, CI workload job, SRT sandbox, inspecting what DWS received), read
+[duo-remote-flows.md](./duo-remote-flows.md). It has the trigger script, the DNS and runner
+prerequisites and the Workhorse skew patch. To enable the fragment on another instance:
 
 ```yaml
 # caproni.local.yaml (keep the existing variables/cluster keys)
@@ -197,9 +216,9 @@ repositories:
     edit_reloaders: [ai-gateway]
 ```
 
-Then `caproni up`, `export ANTHROPIC_API_KEY=…`, `op signin` (for the EE license via
-1Password, `mise set -E local CAPRONI_ACTIVATE_LICENSE=1`) and `caproni run`. The first
-`caproni run` creates the API-key secret, activates EE, starts local AIGW and DWS, and seeds the
+Then `caproni up`, activate the license ([license-activation.md](./license-activation.md),
+in the **dev** DB for edit mode) and `scripts/caproni-run.sh <x>` (`ANTHROPIC_API_KEY` from
+your env). The first run creates the API-key secret, activates EE, starts local AIGW and DWS, and seeds the
 feature flags, the AI catalog, a Duo Enterprise group and the `gitlab-duo/test` project.
 AIGW needs edit mode. Details:
 `gitlab-caproni/docs/fragments/gitlab.md#ai-gateway` and `docs/fragments/ai-gateway.md`.
@@ -227,7 +246,13 @@ Consider giving the VM more memory first: `colima stop && colima start --cpu 8 -
 See [ai-owned-troubleshooting.md](./ai-owned-troubleshooting.md). Add an entry every time
 you debug a problem with a local instance.
 
-## License activation
+## Reference files (read when the task needs them)
 
-EE license + `duo_enterprise` add-on, needed before any Duo testing:
-[license-activation.md](./license-activation.md).
+| File | When |
+|---|---|
+| [edit-mode.md](./edit-mode.md) | running a branch's code (`caproni run`), the dev DB, version skew |
+| [duo-remote-flows.md](./duo-remote-flows.md) | DAP sessions / flows via mentions, SRT sandbox, DWS prompt inspection |
+| [license-activation.md](./license-activation.md) | EE license + `duo_enterprise` add-on (needed before any Duo testing) |
+| [ai-owned-troubleshooting.md](./ai-owned-troubleshooting.md) | symptom → fix log |
+| `scripts/` | `caproni-run.sh`, `caproni-stop.sh`, `dap-mention.sh` (header comments explain usage) |
+| `patches/` | local-only monolith patches (never commit them to the branch) |

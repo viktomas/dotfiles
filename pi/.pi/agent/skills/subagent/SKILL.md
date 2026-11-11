@@ -8,6 +8,10 @@ description: Spawn a one-shot subagent in a separate session to investigate or r
 Run a headless `pi` for work that need not live in the main conversation. The
 subagent has its own context; its final answer is the script output.
 
+When the user says "use subagents" for a task, it holds for the whole task: hand every
+multi-file code investigation (more than ~3 reads/greps) to a subagent that returns a
+short answer with file:line refs, not just the opening research.
+
 ## Invocation
 
 ```bash

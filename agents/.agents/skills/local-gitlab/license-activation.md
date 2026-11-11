@@ -5,11 +5,16 @@ AI catalog) needs an EE Ultimate license **plus** a `duo_enterprise` add-on purc
 so activate before any Duo testing. Recorded here after doing it manually on both
 instances on 2026-11-10.
 
+If `op whoami` fails, don't trigger `op signin` yourself (the biometric prompt gets
+dismissed). Ask the user right away to drop the `activation_code` from
+Engineering/`GitLab_self_managed_ultimate_Duo_enterprise` into `/tmp/activation`, then
+use the manual script.
+
 ## Where the activation code lives
 
 1Password, account `gitlab.1password.com`, vault **Engineering**, item
 **`GitLab_self_managed_ultimate_Duo_enterprise`**, field `activation_code`
-(a ~3 KB single-line JWT). Tomas can paste it to a file (e.g. `/tmp/activation`)
+(a ~3 KB single-line JWT). The user can paste it to a file (e.g. `/tmp/activation`)
 instead of signing `op` in — that is often the fastest path for agents.
 
 ## Automatic path (edit mode only)
@@ -17,13 +22,13 @@ instead of signing `op` in — that is often the fastest path for agents.
 `repos/gitlab/.gitlab/caproni/activate-license.sh` (an `edit_mode_start` hook) fetches
 the code from 1Password and activates via a mirrord Rails runner. Requirements:
 
-- `op` signed in (`op signin --account gitlab.1password.com` — biometric, only Tomas).
+- `op` signed in (`op signin --account gitlab.1password.com` — biometric, only the user).
 - `CAPRONI_ACTIVATE_LICENSE=1` (else the hook skips; `0` skips explicitly).
 
 The hook is fatal on 1Password failure *for its own sake*, but
 `setup-ai-gateway.sh` calls it with `|| true`, so `caproni run` continues either way —
 the license just stays inactive. With no `op` session the hook may pop a biometric
-prompt on Tomas's screen before failing.
+prompt on the user's screen before failing.
 
 ## Manual path (works on stock instances too, no op needed)
 
@@ -74,6 +79,12 @@ rm /tmp/activate-license.rb
 is written, so the code lands in the script, not on any command line.)
 
 ## Notes
+
+- **Edit mode has its own DB** (`gitlabhq_development`). The toolbox script above only
+  licenses `gitlabhq_production`. For edit mode, feed the same Ruby to
+  `cd <instance>/repos/gitlab && .gitlab/caproni/exec.sh bundle exec rails runner - < /tmp/activate-license.rb`,
+  or copy the existing row (`License.last.data` from the toolbox → `License.create!(data: …)` via
+  `exec.sh`; a cloud license validates fine in dev). See [edit-mode.md](./edit-mode.md#two-databases).
 
 - Activation is pure DB state: it survives `caproni run`, migrations and redeploys,
   but not `caproni destroy`. Re-run after a rebuild.
