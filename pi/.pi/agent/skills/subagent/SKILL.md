@@ -25,8 +25,10 @@ short answer with file:line refs, not just the opening research.
   through the `pi-model` alias table (`~/.dotfiles/bin/pi-model`, on `$PATH` as
   `pi-model`), or a full model id, which passes through unchanged. The ids behind
   the names live in that one file; bump them there, never here.
-  - `glm` — fast glm; use for analysis and cheap bulk work unless I explicitly
-    said I'm away from the keyboard, then use `sonnet`
+  - `glm` — full glm 5p3 (never the fast variant); use for analysis and cheap
+    bulk work unless I explicitly said I'm away from the keyboard, then use
+    `sonnet`. `glm-fast` exists but is interactive-only (my own bare `pi`
+    sessions via settings.json defaultModel) — never pass it here
   - `sonnet` — implementation and slower analysis
   - `opus` — complex subtask delegation where it's expected to resolve higher
     uncertainty

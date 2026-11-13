@@ -46,6 +46,22 @@ kill the orphan helm process (`pgrep -fl 'helm (install|upgrade)'`), roll back a
 `pending-upgrade` or uninstall a `pending-install` (never the `gitlab` or `gitlab-dev-stack`
 releases), then rerun `caproni up` in the background.
 
+## After `caproni up` on an edit-mode instance the web returns 502
+
+Seen on instance A on 2026-11-12, after the cluster (and laptop processes) had been stopped
+for ~33 h. `caproni up` reports `cluster is ready`, migrations complete, the webservice pod
+(whose name ends in `-caproni`, the edit-mode copy deployment) is 2/2 Running — but every
+request 502s, in-cluster too, and the webservice container has **empty logs**. Cause: with
+`edit_reloaders: [gitlab, sidekiq]`, Rails runs host-side; the old `caproni-<x>-run` tmux
+session is stale, so no puma is listening behind workhorse. Fix:
+
+```bash
+~/.agents/skills/local-gitlab/scripts/caproni-stop.sh <x>   # cleans stale session + copy deployments
+~/.agents/skills/local-gitlab/scripts/caproni-run.sh <x>     # edit mode up (api 200, DWS) in ~100 s
+```
+
+`caproni-run.sh` refuses to start while the stale tmux session exists, hence the stop first.
+
 ## Instance B redirects to port 80 (instance A)
 
 This is by design: the GitLab chart has no external-port setting. Use A for browser

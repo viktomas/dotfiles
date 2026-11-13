@@ -471,3 +471,15 @@ and `references/operational-gotchas.md` (YAML-parse validator rule,
 keyword-allowlist, runner isolation/hygiene, true prompts, gate/seed cost
 guard, new Replay-acceptance and Guard-design sections). The skill stays
 manual-only. Principles 1, 7, 9. Revert: the two commits.
+
+## New skill - socratic-tutor (manual-only) - 2026-11-12
+
+Task `analyse-lsp-iss-8pc7w`. Installed the downloaded third-party
+`socratic-tutor` SKILL.md into `agents/.agents/skills/socratic-tutor/`
+as a manual-only skill, same pattern as agent-scaffolding: body kept
+verbatim from the download, frontmatter rewritten (unquoted trigger
+description with a "Manual only, invoked via /skill:socratic-tutor"
+note, `disable-model-invocation: true`). The skill's own confirm-intent
+guard stays as belt-and-braces even though model invocation is disabled.
+check.sh green. Third-party text installed as instructions on explicit
+human request. Uncommitted, awaiting review.

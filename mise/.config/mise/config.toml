@@ -18,5 +18,10 @@ kubectl = "1.37.2"
 helm = "4.3.1"
 
 [settings]
+# Always use the global (homebrew) glab: gitlab-lsp's committed mise/config.toml
+# pins `gitlab:gitlab-org/cli`, shadowing the global glab inside lsp worktrees.
+# Disabling the mise tool makes the shim fall through to PATH in every directory.
+# (Update the id below if lsp ever switches backends, e.g. aqua:gitlab-org/cli.)
+disable_tools = ["gitlab:gitlab-org/cli"]
 idiomatic_version_file_enable_tools = []
 minimum_release_age = "0"

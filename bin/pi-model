@@ -4,7 +4,14 @@
 # Usage: pi-model <family>[:<thinking>]
 #   pi-model opus         -> anthropic/claude-opus-5-5
 #   pi-model opus:high    -> anthropic/claude-opus-5-5:high
-#   pi-model glm          -> accounts/fireworks/routers/glm-5p3-fast
+#   pi-model glm          -> accounts/fireworks/models/glm-5p3
+#   pi-model glm-fast     -> accounts/fireworks/routers/glm-5p3-fast
+#
+# glm is the full glm 5p3 and the default for everything pi starts
+# programmatically (subagents, kickoff, review/feedback runs). glm-fast is
+# cheaper and interactive-only: it lives in settings.json's defaultModel (a
+# bare `pi` I start myself) and nowhere else — never pass it to a subagent or
+# a task run.
 #
 # Model ids are printed as-is (the id alone, like `defaultModel` in pi's
 # settings.json); the provider prefix is added only when the same id exists on
@@ -24,7 +31,8 @@ pi_model_alias() {
     opus) echo anthropic/claude-opus-5-5 ;;
     sonnet) echo anthropic/claude-sonnet-5-5 ;;
     haiku) echo anthropic/claude-haiku-5-5 ;;
-    glm) echo accounts/fireworks/routers/glm-5p3-fast ;;
+    glm) echo accounts/fireworks/models/glm-5p3 ;;
+    glm-fast) echo accounts/fireworks/routers/glm-5p3-fast ;;
     *) return 1 ;;
   esac
 }
