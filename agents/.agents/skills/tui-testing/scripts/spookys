@@ -1,0 +1,283 @@
+#!/bin/bash
+# spookys — drive interactive terminal apps through the `spooky` binary (spooky-check).
+#
+# A session is a directory in $SPOOKYS_DIR (default ~/.cache/spookys/<name>) holding:
+#   in.fifo    spooky's stdin (a holder process keeps its write end open, so the
+#              session survives across separate spookys invocations)
+#   out.log    spooky's stdout: replies ({"id":N,...}) and events ({"event":...})
+#   err.log    spooky's stderr
+#   spooky.pid / holder.pid / cmd
+#
+# spooky kills the child's process group when its stdin closes or on `close`,
+# so killing a session never leaves orphans (except setsid-daemonised grandchildren).
+#
+# Requires: bash, jq, and the spooky binary ($SPOOKY_BIN, PATH, or a local
+# ~/workspace/gl/spooky-check build).
+
+set -u
+
+SPOOKYS_DIR="${SPOOKYS_DIR:-$HOME/.cache/spookys}"
+
+usage() {
+  cat <<'EOF'
+spookys — tmux-style session control over spooky-check
+
+  spookys new NAME [-x COLS] [-y ROWS] [--cwd DIR] [--cast FILE] [--scrollback N] -- CMD [ARGS...]
+                                  start CMD in a session (default 80x24)
+  spookys ls                      list sessions (running/dead)
+  spookys send NAME TEXT          type raw text into the app
+  spookys paste NAME TEXT         bracketed paste (falls back to raw text)
+  spookys key NAME KEY [KEY...]   press keys: Enter Escape C-c M-x Tab BSpace Up Down
+                                  Left Right PgUp PgDn Home End Del Ins Space F1..F12,
+                                  or any single character
+  spookys signal NAME SIGNAL      send SIGINT SIGTERM SIGHUP ... to the child
+  spookys screen NAME [-b]        visible screen as text (-b: with scrollback)
+  spookys vt NAME [-b]            screen with ANSI styles, like tmux capture-pane -e
+  spookys resize NAME COLS ROWS   resize the terminal
+  spookys watch NAME [SECONDS]    read-only live mirror of the screen (Ctrl-C to stop)
+  spookys kill NAME               kill the session (child process group) and clean up
+  spookys dir NAME                print the session directory (out.log, err.log, ...)
+
+Env: SPOOKYS_DIR (session dir), SPOOKY_BIN (spooky binary path).
+EOF
+}
+
+spooky_bin() {
+  local p
+  if [ -n "${SPOOKY_BIN:-}" ] && [ -x "${SPOOKY_BIN:-}" ]; then printf '%s\n' "$SPOOKY_BIN"; return 0; fi
+  if p=$(command -v spooky 2>/dev/null); then printf '%s\n' "$p"; return 0; fi
+  for p in "$HOME/workspace/gl/spooky-check/zig-out/bin/spooky"; do
+    if [ -x "$p" ]; then printf '%s\n' "$p"; return 0; fi
+  done
+  echo "spookys: spooky binary not found — set SPOOKY_BIN or build spooky-check" >&2
+  return 1
+}
+
+sess_dir() { printf '%s/%s\n' "$SPOOKYS_DIR" "$1"; }
+
+alive() { [ -f "$1" ] && kill -0 "$(cat "$1" 2>/dev/null)" 2>/dev/null; }
+
+check_session() {
+  local d
+  d=$(sess_dir "$1")
+  [ -p "$d/in.fifo" ] || { echo "spookys: no session '$1' (spookys ls)" >&2; exit 1; }
+}
+
+# call NAME PAYLOAD -> prints spooky's reply JSON; fails if no reply in ~10 s.
+# The fifo is opened O_RDWR so a dead spooky cannot make us block on open.
+call() {
+  local name=$1 payload=$2 d id before reply i
+  check_session "$name"
+  d=$(sess_dir "$name")
+  alive "$d/spooky.pid" || { echo "spookys: session '$name' is dead (see $d/err.log)" >&2; exit 1; }
+  id=$(( (RANDOM * 32768 + RANDOM + $$) ))
+  before=0
+  [ -f "$d/out.log" ] && before=$(wc -l < "$d/out.log")
+  exec 3<>"$d/in.fifo" || { echo "spookys: cannot open $d/in.fifo" >&2; exit 1; }
+  printf '{"id":%d,%s}\n' "$id" "$payload" >&3
+  exec 3<&- 3>&-
+  reply=
+  for i in $(seq 1 100); do
+    reply=$(tail -n +$((before + 1)) "$d/out.log" 2>/dev/null | jq -c "select(.id == $id)" 2>/dev/null | head -n 1)
+    [ -n "$reply" ] && break
+    sleep 0.1
+  done
+  [ -n "$reply" ] || { echo "spookys: no reply from '$name' in 10 s (see $d/err.log)" >&2; exit 1; }
+  printf '%s\n' "$reply"
+}
+
+call_ok() {
+  local reply
+  reply=$(call "$1" "$2") || exit 1
+  if [ "$(printf '%s' "$reply" | jq -r '.ok // empty')" != true ]; then
+    echo "spookys: $(printf '%s' "$reply" | jq -r '.error // "request failed"')" >&2
+    exit 1
+  fi
+  printf '%s\n' "$reply"
+}
+
+json_str() { jq -Rn --arg s "$1" '$s'; }
+
+# tmux-style key name -> press payload fragment
+press_payload() {
+  local k=$1 mods=''
+  case $k in
+    C-*) mods='"ctrl":true' ; k=${k#C-} ;;
+    M-*) mods='"alt":true'  ; k=${k#M-} ;;
+  esac
+  case $k in
+    Enter|Return)   k=enter ;;
+    Escape|Esc)     k=escape ;;
+    BSpace|BS)      k=backspace ;;
+    Up)             k=up ;;
+    Down)           k=down ;;
+    Left)           k=left ;;
+    Right)          k=right ;;
+    PgUp|PageUp)    k=pageup ;;
+    PgDn|PageDown)  k=pagedown ;;
+    Home)           k=home ;;
+    End)            k=end ;;
+    Delete|Del)     k=delete ;;
+    Insert|Ins)     k=insert ;;
+    Space)          k=space ;;
+    Tab)            k=tab ;;
+  esac
+  k=$(printf '%s' "$k" | tr '[:upper:]' '[:lower:]')
+  printf '"op":"press","key":%s%s\n' "$(json_str "$k")" "${mods:+,$mods}"
+}
+
+cmd_new() {
+  local name=$1; shift
+  local cols=80 rows=24 cwd='' cast='' scrollback='' d spooky p
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -x)            cols=$2; shift 2 ;;
+      -y)            rows=$2; shift 2 ;;
+      --cwd)         cwd=$2; shift 2 ;;
+      --cast)        cast=$2; shift 2 ;;
+      --scrollback)  scrollback=$2; shift 2 ;;
+      --)            shift; break ;;
+      *)             echo "spookys new: unknown option '$1'" >&2; exit 1 ;;
+    esac
+  done
+  [ $# -gt 0 ] || { echo "spookys new: missing command after --" >&2; exit 1; }
+  case $name in *[!A-Za-z0-9._-]*)
+    echo "spookys new: bad session name '$name'" >&2; exit 1 ;; esac
+
+  d=$(sess_dir "$name")
+  if [ -d "$d" ]; then
+    if alive "$d/spooky.pid"; then
+      echo "spookys new: session '$name' already exists (spookys ls)" >&2; exit 1
+    fi
+    rm -rf "$d"   # dead session leftover
+  fi
+  spooky=$(spooky_bin) || exit 1
+  mkdir -p "$d"
+  mkfifo "$d/in.fifo"
+
+  local args=(--cols "$cols" --rows "$rows")
+  [ -n "$cwd" ]        && args+=(--cwd "$cwd")
+  [ -n "$cast" ]       && args+=(--cast "$cast")
+  [ -n "$scrollback" ] && args+=(--scrollback "$scrollback")
+
+  nohup "$spooky" "${args[@]}" -- "$@" <"$d/in.fifo" >"$d/out.log" 2>"$d/err.log" &
+  echo $! >"$d/spooky.pid"
+  # Holder: keeps a write end of the fifo open so spooky does not see EOF
+  # (and kill the app) between spookys invocations.
+  nohup sh -c 'exec 3>"$1"; sleep 31536000' holder "$d/in.fifo" >/dev/null 2>&1 &
+  echo $! >"$d/holder.pid"
+  printf '%s\n' "$*" >"$d/cmd"
+
+  # Readiness probe: a screen request must answer.
+  if ! call_ok "$name" '"op":"screen"' >/dev/null; then
+    tail -n 3 "$d/err.log" >&2 2>/dev/null
+    cmd_kill "$name" >/dev/null 2>&1
+    exit 1
+  fi
+}
+
+cmd_ls() {
+  local d name st
+  [ -d "$SPOOKYS_DIR" ] || exit 0
+  for d in "$SPOOKYS_DIR"/*/; do
+    [ -d "$d" ] || continue
+    name=${d%/}; name=${name##*/}
+    if alive "$d/spooky.pid"; then st=running; else st=dead; fi
+    printf '%-24s %-8s %s\n' "$name" "$st" "$(cat "$d/cmd" 2>/dev/null)"
+  done
+}
+
+cmd_kill() {
+  local name=$1 d p i
+  d=$(sess_dir "$name")
+  [ -d "$d" ] || { echo "spookys kill: no session '$name'" >&2; exit 1; }
+  if alive "$d/spooky.pid" && [ -p "$d/in.fifo" ]; then
+    # plain `call` (not call_ok): a failed close must not abort the cleanup below
+    call "$name" '"op":"close"' >/dev/null 2>&1 || true
+  fi
+  for p in "$d/spooky.pid" "$d/holder.pid"; do
+    if [ -f "$p" ] && kill -0 "$(cat "$p")" 2>/dev/null; then
+      kill "$(cat "$p")" 2>/dev/null || true
+    fi
+  done
+  for i in $(seq 1 20); do
+    alive "$d/spooky.pid" || break
+    sleep 0.1
+  done
+  if alive "$d/spooky.pid"; then
+    kill -9 "$(cat "$d/spooky.pid")" 2>/dev/null || true
+  fi
+  rm -rf "$d"
+}
+
+cmd_screen() {
+  local name=$1; shift
+  local extra='' reply
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -b) extra=',"scrollback":true'; shift ;;
+      *)  echo "spookys screen: unknown option '$1'" >&2; exit 1 ;;
+    esac
+  done
+  reply=$(call_ok "$name" "\"op\":\"screen\"$extra") || exit 1
+  printf '%s' "$reply" | jq -r '.text'
+}
+
+cmd_vt() {
+  local name=$1; shift
+  local extra='' reply
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -b) extra=',"scrollback":true'; shift ;;
+      *)  echo "spookys vt: unknown option '$1'" >&2; exit 1 ;;
+    esac
+  done
+  reply=$(call_ok "$name" "\"op\":\"vt\"$extra") || exit 1
+  printf '%s' "$reply" | jq -r '.text' | tr -d '\r'
+}
+
+cmd_watch() {
+  local name=$1 interval=${2:-0.2}
+  # SIGINT cannot be trapped when this script was started in the background from a
+  # non-interactive shell (POSIX: inherited-ignored signals stay ignored), so accept
+  # TERM too; in an interactive terminal Ctrl-C (INT) works normally.
+  trap 'exit 0' INT TERM
+  trap 'printf "\033[?25h\n" >&2' EXIT
+  printf '\033[?25l'
+  while true; do
+    d=$(sess_dir "$name")
+    alive "$d/spooky.pid" || { printf '\nsession ended\n' >&2; exit 0; }
+    printf '\033[2J\033[H'
+    printf 'watching %s (Ctrl-C or SIGTERM to stop)\n\n' "$name"
+    reply=$(call_ok "$name" '"op":"screen"') || exit 0
+    printf '%s' "$reply" | jq -r '.text'
+    sleep "$interval"
+  done
+}
+
+[ $# -ge 1 ] || { usage >&2; exit 1; }
+cmd=$1; shift
+case $cmd in
+  new)    [ $# -ge 1 ] || { usage >&2; exit 1; }; cmd_new "$@" ;;
+  ls)     cmd_ls ;;
+  send)   [ $# -eq 2 ] || { echo "usage: spookys send NAME TEXT" >&2; exit 1; }
+          call_ok "$1" "\"op\":\"type\",\"text\":$(printf '%s' "$2" | jq -Rs .)" >/dev/null ;;
+  paste)  [ $# -eq 2 ] || { echo "usage: spookys paste NAME TEXT" >&2; exit 1; }
+          call_ok "$1" "\"op\":\"paste\",\"text\":$(printf '%s' "$2" | jq -Rs .)" >/dev/null ;;
+  key)    [ $# -ge 2 ] || { echo "usage: spookys key NAME KEY [KEY...]" >&2; exit 1; }
+          name=$1; shift
+          for k in "$@"; do call_ok "$name" "$(press_payload "$k")" >/dev/null; done ;;
+  signal) [ $# -eq 2 ] || { echo "usage: spookys signal NAME SIGNAL" >&2; exit 1; }
+          call_ok "$1" "\"op\":\"signal\",\"signal\":$(json_str "$2")" >/dev/null ;;
+  screen) [ $# -ge 1 ] || { usage >&2; exit 1; }; cmd_screen "$@" ;;
+  vt)     [ $# -ge 1 ] || { usage >&2; exit 1; }; cmd_vt "$@" ;;
+  resize) [ $# -eq 3 ] || { echo "usage: spookys resize NAME COLS ROWS" >&2; exit 1; }
+          call_ok "$1" "\"op\":\"resize\",\"cols\":$2,\"rows\":$3" >/dev/null ;;
+  watch)  [ $# -ge 1 ] || { usage >&2; exit 1; }; cmd_watch "$@" ;;
+  kill)   [ $# -eq 1 ] || { echo "usage: spookys kill NAME" >&2; exit 1; }; cmd_kill "$1" ;;
+  dir)    [ $# -eq 1 ] || { echo "usage: spookys dir NAME" >&2; exit 1; }
+          d=$(sess_dir "$1"); [ -d "$d" ] || { echo "spookys dir: no session '$1'" >&2; exit 1; }
+          printf '%s\n' "$d" ;;
+  -h|--help|help) usage ;;
+  *)      usage >&2; echo "spookys: unknown command '$cmd'" >&2; exit 1 ;;
+esac
