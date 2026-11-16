@@ -571,6 +571,11 @@ attention {
     startup_card "never"
 }
 
+// Same story for the bar's right-side session indicator ("need you ▾" /
+// "N running") that opens the session card/manager: `task`'s attention
+// queue, picker and fleet already show everything it would.
+session_indicator false
+
 // The same two palettes ghostty and nvim use -- Tomorrow Night on ghostty's
 // default background, and Tomorrow. See ../../../nvim/THEME.md.
 themes {
