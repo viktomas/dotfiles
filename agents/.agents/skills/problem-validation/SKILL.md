@@ -1,9 +1,9 @@
 ---
-name: business-need-review
+name: problem-validation
 description: Deep opt-in MR check - validate the problem behind an MR by tracing requirements to their issue, who sanctioned the problem, and how it ranks against the team's other work. Use when asked to validate the problem, question whether an MR is needed, or check that requirements are issue-backed.
 ---
 
-# Business need review
+# Problem validation
 
 Deep opt-in check, triggered **on demand** — never part of the default review
 flow. Run it inside an MR review session (e.g. at the post gate) or from any

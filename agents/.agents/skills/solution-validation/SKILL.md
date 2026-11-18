@@ -1,9 +1,9 @@
 ---
-name: alternative-solutions
+name: solution-validation
 description: Deep opt-in MR check - challenge the MR's design with 3 alternative solutions a blind subagent proposes from the requirements alone, including a minimal subset that cuts requirements. Use when asked to challenge the solution, find alternative designs, question the design, or reduce an MR's complexity.
 ---
 
-# Alternative solutions
+# Solution validation
 
 Deep opt-in check, triggered **on demand** — never part of the default review
 flow. Run it inside an MR review session (e.g. at the post gate) or from any

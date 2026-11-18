@@ -499,3 +499,11 @@ addressed: single combined GATE line in the template, single-check hint
 restored in review-to-post, template slimmed to skill references, preamble
 rewrap, task id fixed here. check.sh green.
 Uncommitted, awaiting review.
+
+## Rename business-need-review / alternative-solutions to problem-validation / solution-validation - 2026-11-18
+
+Task `split-review-depth-skill`. Tomas's call: skill names should match the
+review-file sections they write (`## Problem validation` / `## Solution
+validation`). git mv of both directories, frontmatter names, H1 titles,
+and the references in `/review-depth` template + review-to-post.md updated.
+check.sh green.
