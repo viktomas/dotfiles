@@ -507,3 +507,10 @@ review-file sections they write (`## Problem validation` / `## Solution
 validation`). git mv of both directories, frontmatter names, H1 titles,
 and the references in `/review-depth` template + review-to-post.md updated.
 check.sh green.
+
+## Rename /review-depth template to /deep-review - 2026-11-18
+
+Task `split-review-depth-skill`. The template now outlives the old skill
+name; `/deep-review` reads as what it does. git mv of
+pi/.pi/agent/prompts/review-depth.md -> deep-review.md, review-to-post.md
+hint updated.

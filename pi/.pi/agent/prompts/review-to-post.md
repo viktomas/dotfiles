@@ -110,7 +110,7 @@ Result: exactly one draft per finding, all on HEAD, and every `draft:` id in the
 
 - One line per finding: priority, location, the finding in one sentence, and reproduced / re-verified / carried over.
 - What you dropped or found fixed, what you couldn't verify, and notes I should act on (e.g. "open an issue for X").
-- After an **initial** review only: if the MR is large (≳500 changed lines), adds a new subsystem or abstraction, or its requirements can't be traced to an issue, add one line: "Consider `/review-depth`, or just the `problem-validation` / `solution-validation` skills, in this session." Nothing more — it's my call.
+- After an **initial** review only: if the MR is large (≳500 changed lines), adds a new subsystem or abstraction, or its requirements can't be traced to an issue, add one line: "Consider `/deep-review`, or just the `problem-validation` / `solution-validation` skills, in this session." Nothing more — it's my call.
 - The very last line is exactly one of:
   - `GATE: post - <n> draft comments on <short MR title>`
   - `GATE: post - no findings, ready to approve`
