@@ -483,3 +483,19 @@ note, `disable-model-invocation: true`). The skill's own confirm-intent
 guard stays as belt-and-braces even though model invocation is disabled.
 check.sh green. Third-party text installed as instructions on explicit
 human request. Uncommitted, awaiting review.
+
+## Split review-depth into business-need-review + alternative-solutions - 2026-11-18
+
+Task `split-review-depth-skill`. The review-depth skill held two
+independent modules; split them into two single-purpose skills in
+`agents/.agents/skills/` — business-need-review (problem validation) and
+alternative-solutions (blind-subagent design challenge) — each carrying its
+own copy of the shared preamble and output rules. The combined entry point
+became the `/review-depth` prompt template
+(`pi/.pi/agent/prompts/review-depth.md`) that invokes both skills;
+`review-to-post.md` references updated to the new names. Opus subagent
+review (sub-review-depth-split-1794988649) found no blocking issues;
+addressed: single combined GATE line in the template, single-check hint
+restored in review-to-post, template slimmed to skill references, preamble
+rewrap, task id fixed here. check.sh green.
+Uncommitted, awaiting review.
